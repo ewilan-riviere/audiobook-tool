@@ -1,0 +1,4 @@
+__pycache__
+audiobook_cli.egg-info
+*.m4b
+*.txt

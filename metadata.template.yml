@@ -1,0 +1,40 @@
+# -------------------------------------------------------------------
+# Audiobook Tool - Metadata Template
+# -------------------------------------------------------------------
+# Instructions:
+# 1. Copy this file into your MP3 folder.
+# 2. Rename it to 'metadata.yml'.
+# 3. Fill in the fields below.
+# -------------------------------------------------------------------
+
+# Note: If you place a file named ‘cover.jpg’ or ‘cover.png’ in the
+# same folder, it will automatically be used as the cover art.
+
+# Title will be set as `title` and `album`
+title: "The Fellowship of the Ring"
+# Author will be set as `album_artist`
+authors: "J.R.R. Tolkien & Christopher Tolkien"
+# Narrators will be set as `composer`
+narrators: "Rob Inglis & Andy Serkis"
+# Description will be set as `description` and `synopsis`
+description: |
+  "Sauron, the Dark Lord, has gathered to him all the Rings of Power – the means by which he intends to rule Middle-earth. All he lacks in his plans for dominion is the One Ring – the ring that rules them all – which has fallen into the hands of the hobbit, Bilbo Baggins.
+
+  In a sleepy village in the Shire, young Frodo Baggins finds himself faced with an immense task, as his elderly cousin Bilbo entrusts the Ring to his care. Frodo must leave his home and make a perilous journey across Middle-earth to the Cracks of Doom, there to destroy the Ring and foil the Dark Lord in his evil purpose."
+# Lyrics will be set as `lyrics`
+lyrics: |
+  "Continuing the story begun in The Hobbit, this is the first part of Tolkien’s epic masterpiece, The Lord of the Rings."
+# Copyright will be set as `copyright`
+copyright: "©1954 The Tolkien Estate Limited (P)2025 HarperCollins Publishers Limited"
+# Genres will be set as `genre`
+genres: "Fantasy/Fiction"
+# Series will be set as `series`
+series: "The Lord of the Rings"
+# Volume will be set as `series-part`
+volume: 1
+# Language will be set as `language`
+language: "English"
+# Year will be set as `year`
+year: 2005
+# editor will be set as `subtitle`
+editor: "HarperCollins Publishers Limited"
