@@ -22,8 +22,6 @@ A professional CLI tool to merge MP3 files into M4B audiobooks and intelligently
 ## 🛠 Installation (Development Mode)
 
 ```bash
-git clone [https://github.com/your-username/audiobook-tool.git](https://github.com/your-username/audiobook-tool.git)
-cd audiobook-tool
 pip install -e .
 ```
 
@@ -31,7 +29,7 @@ pip install -e .
 
 ## 📖 Usage
 
-### 1. Merging MP3s
+### Merging MP3s
 
 Merge a directory and specify the output filename/path:
 
@@ -42,8 +40,6 @@ audiobook-tool merge ./my_book_directory
 # Custom output path (will create directories if they don't exist)
 audiobook-tool merge ./my_book_directory -o ./library/2026/fantasy_novel.m4b
 ```
-
-### Recommended Folder Structure
 
 Before running the `merge` command, organize your files as follows:
 
@@ -59,13 +55,13 @@ my_audiobook_source/
 
 > **Note:** Files are sorted naturally. It is highly recommended to prefix your MP3 files with numbers (01, 02, etc.) to ensure the chapters are created in the correct order.
 
-#### Managing cover (Optional)
+#### Cover
 
-Keep `cover.jpg` or `cover.png` into same directory as MP3 files.
+Keep `cover.jpg` or `cover.png` into same directory as MP3 files (optional).
 
-#### Managing Metadata (Optional)
+#### Metadata
 
-Create a `metadata.yml` in your source directory. All fields are optional:
+Create a `metadata.yml` in your source directory (optional). All fields are optional:
 
 ```yml
 title: "The Fellowship of the Ring"
