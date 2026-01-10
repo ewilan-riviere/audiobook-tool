@@ -1,7 +1,13 @@
 import argparse
-import sys
+
+# import sys
 import logging
-from .core import Processor
+
+# from audiobook.core import AudiobookMerge
+from audiobook.package import AudiobookForge
+from audiobook.core import SplitM4b
+
+# from .core import Processor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,16 +33,28 @@ def main() -> None:
     s.add_argument("--max", type=int, default=600)
 
     args = parser.parse_args()
-    proc = Processor()
+    # proc = Processor()
 
-    try:
-        if args.command == "merge":
-            proc.merge(args.dir, args.output)
-        elif args.command == "split":
-            proc.split_by_size(args.input, args.min, args.max, args.output_dir)
-    except Exception as e:
-        logging.getLogger("audiobook.cli").error(f"Error: {e}")
-        sys.exit(1)
+    mp3_directory: str = args.dir
+    m4b_output: str = args.output
+
+    # AudiobookMerge(args.dir, args.output)
+    forge = AudiobookForge(mp3_directory)
+    forge.execute()
+    print(forge.m4b_file)
+    print(forge.size_human)
+
+    split = SplitM4b(forge.m4b_file)
+    split.execute()
+
+    # try:
+    #     if args.command == "merge":
+    #         proc.merge(args.dir, args.output)
+    #     elif args.command == "split":
+    #         proc.split_by_size(args.input, args.min, args.max, args.output_dir)
+    # except Exception as e:
+    #     logging.getLogger("audiobook.cli").error(f"Error: {e}")
+    #     sys.exit(1)
 
 
 if __name__ == "__main__":
