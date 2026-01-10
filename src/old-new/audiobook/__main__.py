@@ -1,5 +1,3 @@
-"""main of audiobook-tool"""
-
 from audiobook.app import main
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ import logging
 
 # from audiobook.core import AudiobookMerge
 from audiobook.package import AudiobookForge
-from audiobook.core import SplitM4b
+from audiobook.metadata import SplitM4b
 
 # from .core import Processor
 

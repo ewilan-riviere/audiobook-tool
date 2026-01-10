@@ -2,13 +2,11 @@ from argparse import ArgumentParser
 
 
 class AudiobookArgs:
-    """CLI args for audiobook-tool"""
-
     def __init__(self, parser: ArgumentParser):
         subparsers = parser.add_subparsers(dest="command", required=True)
 
         # Merge
-        m = subparsers.add_parser("build", help="Merge MP3s to M4B")
+        m = subparsers.add_parser("merge", help="Merge MP3s to M4B")
         m.add_argument("dir", help="Source directory")
         m.add_argument("-o", "--output", help="Output file path")
 
@@ -21,6 +19,5 @@ class AudiobookArgs:
 
         args = parser.parse_args()
 
-        self.command: str = args.command
         self.mp3_directory: str = args.dir
         self.m4b_output: str | None = args.output

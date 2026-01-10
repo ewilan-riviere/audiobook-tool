@@ -1,8 +1,10 @@
+"""main script of audiobook-tool"""
+
 import argparse
+import sys
 import logging
-from audiobook.args import AudiobookArgs
-from audiobook.package import AudiobookForge
-from audiobook.core import SplitM4b, MetadataLoader
+from .args import AudiobookArgs
+from .command import CommandBuild
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,15 +14,21 @@ logging.basicConfig(
 
 
 def main() -> None:
+    """audiobook-tool main def"""
+    print("audiobook-tool")
     parser = argparse.ArgumentParser(prog="audiobook-tool")
     args = AudiobookArgs(parser)
+    print(args.command)
 
-    forge = AudiobookForge(args.mp3_directory)
-    loader = MetadataLoader(args.mp3_directory)
-    forge.execute()
-
-    split = SplitM4b(forge.m4b_file, loader.metadata)
-    split.execute()
+    try:
+        if args.command == "build":
+            CommandBuild(args)
+            # proc.merge(args.dir, args.output)
+        # elif args.command == "split":
+        # proc.split_by_size(args.input, args.min, args.max, args.output_dir)
+    except Exception as e:
+        logging.getLogger("audiobook.cli").error(f"Error: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
