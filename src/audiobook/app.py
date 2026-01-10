@@ -17,10 +17,7 @@ def main() -> None:
 
     forge = AudiobookForge(args.mp3_directory)
     loader = MetadataLoader(args.mp3_directory)
-
     forge.execute()
-    print(forge.m4b_file)
-    print(forge.size_human)
 
     split = SplitM4b(forge.m4b_file, loader.metadata)
     split.execute()
