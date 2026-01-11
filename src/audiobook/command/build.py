@@ -2,9 +2,9 @@
 
 from audiobook.args import AudiobookArgs
 from audiobook.package import AudiobookForge
-from audiobook.metadata import MetadataLoader, CleanMp3
+from audiobook.metadata import MetadataLoader
+from audiobook.clean import CleanCovers
 from audiobook.m4b import M4bParser, M4bRenamer, M4bSplit, M4bTagger, M4bTaggerCustom
-from audiobook.utils import get_files
 
 
 class CommandBuild:
@@ -12,10 +12,7 @@ class CommandBuild:
 
     def __init__(self, args: AudiobookArgs):
         mp3_directory = str(args.mp3_directory)
-
-        print("Clean covers...")
-        mp3_list = get_files(str(args.mp3_directory), "mp3")
-        CleanMp3(mp3_list).remove_covers()
+        CleanCovers(mp3_directory).remove_covers()
 
         # Create audiobook with audiobook-forge
         # https://crates.io/crates/audiobook-forge

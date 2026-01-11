@@ -24,19 +24,19 @@ class MetadataAudiobook:
         self.asin: str | None = yml.get("asin") or None
 
     def tags_standard(self, track: int) -> dict[str, Any]:
-        base_title = self.title
+        base_album = self.title
         if self.series and self.volume:
-            title = f"{self.series} {self.volume:02d}"
+            album = f"{self.series} {self.volume:02d}"
             if self.language and self.language.lower() == "french":
-                title = f"{title} : {base_title}"
+                album = f"{album} : {base_album}"
             else:
-                title = f"{title}: {base_title}"
+                album = f"{album}: {base_album}"
         else:
-            title = base_title
+            album = base_album
 
         return {
-            "title": title,
-            "album": title,
+            "title": self.title,
+            "album": album,
             "artist": self.authors,
             "album_artist": self.authors,
             "composer": self.narrators,

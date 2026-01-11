@@ -5,22 +5,21 @@ import os
 
 def get_files(directory_path: str, extension: str) -> list[str]:
     """
-    Recherche les fichiers avec une extension spécifique dans un dossier
-    et retourne leurs chemins absolus.
+    Recherche les fichiers avec une extension spécifique dans un dossier,
+    les trie alphanumériquement et retourne leurs chemins absolus.
     """
-    # Nettoyage de l'extension pour s'assurer qu'elle commence par un point
     ext = extension if extension.startswith(".") else f".{extension}"
-
-    # Création de l'objet Path
     root = Path(directory_path)
 
     if not root.is_dir():
         print(f"Le chemin {directory_path} n'est pas un dossier valide.")
         return []
 
-    # root.glob(pattern) cherche dans le dossier
-    # file.resolve() transforme le chemin relatif en chemin absolu
-    return [str(file.resolve()) for file in root.glob(f"*{ext}")]
+    # On récupère les chemins absolus dans une liste
+    files = [str(file.resolve()) for file in root.glob(f"*{ext}")]
+
+    # On retourne la liste triée alphanumériquement
+    return sorted(files)
 
 
 def move_files(liste_chemins: list[str], dossier_destination: str) -> None:
@@ -87,6 +86,7 @@ def rename_directory(absolute_path: str, new_name: str) -> str:
 
 
 def delete_directory(directory_path: str | Path):
+    """Delete directory"""
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
         print(f"Delete {directory_path}")
@@ -95,6 +95,7 @@ def delete_directory(directory_path: str | Path):
 
 
 def make_directory(directory_path: str | Path) -> Path:
+    """Make directory"""
     if not isinstance(directory_path, Path):
         directory_path = Path(directory_path)
 

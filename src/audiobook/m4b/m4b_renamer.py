@@ -2,13 +2,7 @@
 
 from pathlib import Path
 from audiobook.metadata import MetadataAudiobook
-from audiobook.utils import (
-    get_files,
-    move_files,
-    rename_file,
-    delete_directory,
-    make_directory,
-)
+import audiobook.utils as utils
 
 
 class M4bRenamer:
@@ -32,13 +26,16 @@ class M4bRenamer:
         """Rename M4B splitted with metadata title"""
         i = 1
         for file in self.m4b_files:
-            rename_file(file, f"{self.metadata.title}_Part{i:02d}")
+            utils.rename_file(file, f"{self.metadata.title}_Part{i:02d}")
             i = i + 1
 
     def handle_audiobook(self):
-        m4b_files = get_files(self.temporary_directory, "m4b")
+        """Move M4B files to base directory"""
+        m4b_files = utils.get_files(self.temporary_directory, "m4b")
 
-        output_path = make_directory(f"{self.base_directory}/{self.metadata.title}")
-        delete_directory(output_path)
+        output_path = utils.make_directory(
+            f"{self.base_directory}/{self.metadata.title}"
+        )
+        utils.delete_directory(output_path)
 
-        move_files(m4b_files, str(output_path))
+        utils.move_files(m4b_files, str(output_path))
