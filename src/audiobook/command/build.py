@@ -3,7 +3,7 @@
 from audiobook.args import AudiobookArgs
 from audiobook.package import AudiobookForge
 from audiobook.metadata import MetadataLoader
-from audiobook.clean import CleanCovers
+from audiobook.clean import CleanCovers, CleanTrackTitles
 from audiobook.m4b import M4bParser, M4bRenamer, M4bSplit, M4bTagger, M4bTaggerCustom
 
 
@@ -35,6 +35,10 @@ class CommandBuild:
         # Set tags on M4B splitted
         tagger = M4bTagger(parts, metadata, parser.cover)
         m4b_files = tagger.run()
+
+        # Rename chapters from MP3 files
+        tracks = CleanTrackTitles(split.get_temp_dir(), mp3_directory)
+        tracks.edit()
 
         # Set tags extra on M4B splitted
         M4bTaggerCustom(m4b_files, metadata).run()

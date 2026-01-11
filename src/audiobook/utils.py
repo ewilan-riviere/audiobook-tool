@@ -1,6 +1,38 @@
 from pathlib import Path
 import shutil
 import os
+from mutagen.easyid3 import EasyID3
+from mutagen.mp3 import MP3
+
+
+def get_mp3_title(filepath: str) -> str:
+    """
+    Extracts the title from an MP3 file's metadata.
+    Returns the filename (without extension) if no title tag is found.
+    """
+    if not Path(filepath).exists():
+        print(f"MP3 file not exists at {filepath}")
+        return filepath
+
+    try:
+        # EasyID3 handles standard tags like 'title', 'artist', etc., very simply
+        audio = EasyID3(filepath)
+
+        if "title" in audio and audio["title"][0]:
+            return audio["title"][0]  # type: ignore
+
+    except Exception:
+        # Fallback if EasyID3 fails (e.g., no ID3 tags present)
+        try:
+            audio = MP3(filepath)
+            # Some files might have different tag structures
+            if audio.tags and "TIT2" in audio.tags:  # type: ignore
+                return str(audio.tags["TIT2"])  # type: ignore
+        except Exception:
+            pass
+
+    # Final fallback: return the filename without extension
+    return os.path.splitext(os.path.basename(filepath))[0]
 
 
 def get_files(directory_path: str, extension: str) -> list[str]:

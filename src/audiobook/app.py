@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 from .args import AudiobookArgs
-from .command import CommandBuild, CommandClean
+from .command import CommandBuild, CommandClean, CommandFusion
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,6 +25,8 @@ def main() -> None:
             CommandBuild(args)
         elif args.command == "clean":
             CommandClean(args)
+        elif args.command == "fusion":
+            CommandFusion(args)
     except Exception as e:
         logging.getLogger("audiobook.cli").error(f"Error: {e}")
         sys.exit(1)
