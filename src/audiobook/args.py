@@ -18,26 +18,12 @@ class AudiobookArgs:
         m_clean = subparsers.add_parser("clean", help="Clean MP3s")
         m_clean.add_argument("dir", help="Source directory")
 
-        # Split
-        s_split = subparsers.add_parser("split", help="Split M4B")
-        s_split.add_argument("input", help="M4B file")
-        s_split.add_argument("-o", "--output-dir")
-
         args: Namespace = parser.parse_args()
-
-        # --- Mapping sécurisé ---
         self.command: str = args.command
 
-        # On utilise Optional[str] car ces champs n'existent pas pour TOUTES les commandes
         self.mp3_directory: Optional[str] = getattr(args, "dir", None)
         self.m4b_output: Optional[str] = getattr(args, "output", None)
         self.clear_old_m4b: bool = getattr(args, "clear", False)
 
-        # Args spécifiques au Split
-        self.input_file: Optional[str] = getattr(args, "input", None)
-        self.output_dir: Optional[str] = getattr(args, "output_dir", None)
-
-        # Astuce : Si vous voulez absolument que mp3_directory soit un str
-        # (et ne pas avoir d'erreur de type plus tard) :
         if self.command in ["build", "clean"] and self.mp3_directory is None:
             parser.error(f"L'argument 'dir' est requis pour la commande {self.command}")

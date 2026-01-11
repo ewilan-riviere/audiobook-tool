@@ -25,9 +25,6 @@ def main() -> None:
             CommandBuild(args)
         elif args.command == "clean":
             CommandClean(args)
-            # proc.merge(args.dir, args.output)
-        # elif args.command == "split":
-        # proc.split_by_size(args.input, args.min, args.max, args.output_dir)
     except Exception as e:
         logging.getLogger("audiobook.cli").error(f"Error: {e}")
         sys.exit(1)
