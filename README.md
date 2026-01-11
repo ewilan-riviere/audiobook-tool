@@ -1,5 +1,7 @@
 # Audiobook Tool 🎧
 
+[![python][python-version-src]][python-version-href]
+
 A professional CLI tool to merge MP3 files into M4B audiobooks and intelligently split large files without cutting mid-sentence.
 
 ## 🚀 Key Features
@@ -92,3 +94,6 @@ Export technical info and chapters to a JSON file:
 ```bash
 audiobook-tool metadata ./book.m4b -o info.json
 ```
+
+[python-version-src]: https://img.shields.io/static/v1?style=flat&label=Python&message=v3.12&color=3776AB&logo=python&logoColor=ffffff&labelColor=18181b
+[python-version-href]: https://www.python.org/
