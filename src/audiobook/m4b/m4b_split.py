@@ -3,7 +3,7 @@
 import os
 import subprocess
 from pathlib import Path
-import shutil
+import tempfile
 from typing import List, Dict, Any
 from .m4b_chapter import M4bChapter, format_duration
 
@@ -19,6 +19,7 @@ class M4bSplit:
         self.m4b_file = Path(m4b_file)
         self.chapters = chapters
         self.yml_data: Dict[str, Any] = {}
+        self.tmp = tempfile.TemporaryDirectory()
 
     def get_split_plan(self) -> List[List[M4bChapter]]:
         """Calcule quels chapitres vont dans quelle partie selon la taille cible."""
@@ -47,23 +48,19 @@ class M4bSplit:
             plan.append(current_part)
         return plan
 
-    def _prepare_output_dir(self) -> Path:
-        """Create output dir (remove it before if exists)"""
-        output_path = self.m4b_file.parent / (
-            self.m4b_file.stem + self.OUTPUT_FOLDER_SUFFIX
-        )
-        if output_path.exists():
-            shutil.rmtree(output_path)
+    def get_temp_dir(self):
+        """Get temporary directory"""
+        return self.tmp.name
 
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        return output_path
+    def delete_temp_dir(self):
+        """Delete temporary directory"""
+        self.tmp.cleanup()
 
     def run(self) -> List[Path]:
         """Lance le processus de découpage et retourne la liste des chemins absolus."""
         print(f"Fichier source : {self.m4b_file.name}")
         plan = self.get_split_plan()
-        output_dir = self._prepare_output_dir()
+        output_dir = Path(self.tmp.name)
 
         # Initialisation de la liste des résultats
         generated_files: List[Path] = []

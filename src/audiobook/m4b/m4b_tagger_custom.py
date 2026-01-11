@@ -11,8 +11,10 @@ class M4bTaggerCustom:
     def run(self) -> list[str]:
         files: list[str] = []
 
+        print("Update extra tags...")
         for part in self.parts:
             self.__tag_file(part, self.metadata.tags_extra())
+        print("Update extra tags done!")
 
         return files
 

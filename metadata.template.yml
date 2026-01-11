@@ -10,6 +10,9 @@
 # Note: If you place a file named ‘cover.jpg’ or ‘cover.png’ in the
 # same folder, it will automatically be used as the cover art.
 
+# Based on https://www.audiobookshelf.org/docs#book-audio-metadata
+
+# Final title will be `The Lord of the Rings 01: The Fellowship of the Ring`
 # Title will be set as `title` and `album`
 title: "The Fellowship of the Ring"
 # Author will be set as `album_artist`
@@ -26,7 +29,7 @@ lyrics: |
   "Continuing the story begun in The Hobbit, this is the first part of Tolkien’s epic masterpiece, The Lord of the Rings."
 # Copyright will be set as `copyright`
 copyright: "©1954 The Tolkien Estate Limited (P)2025 HarperCollins Publishers Limited"
-# Genres will be set as `genre`
+# Genres will be set as `genre`, can include multiple genres separated by "/", "//", or ";". e.g. "Science Fiction/Fiction/Fantasy"
 genres: "Fantasy/Fiction"
 # Series will be set as `series`
 series: "The Lord of the Rings"
@@ -36,6 +39,11 @@ volume: 1
 language: "English"
 # Year will be set as `year`
 year: 2005
-# editor will be set as `subtitle`
-editor: "HarperCollins Publishers Limited"
-subtitle: "One Ring To Rule Them All."
+# Publisher will be set as `publisher`
+publisher: "HarperCollins Publishers Limited"
+# Subtitle will be set as `subtitle`
+subtitle: "One Ring To Rule Them All"
+# ISBN will be set as `isbn`
+isbn: 9780007123827
+# ASIN from Audible (visible in audiobook URL) will be set as `asin`
+asin: 0008487278

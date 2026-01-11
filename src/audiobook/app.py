@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 from .args import AudiobookArgs
-from .command import CommandBuild
+from .command import CommandBuild, CommandClean
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,6 +23,8 @@ def main() -> None:
     try:
         if args.command == "build":
             CommandBuild(args)
+        elif args.command == "clean":
+            CommandClean(args)
             # proc.merge(args.dir, args.output)
         # elif args.command == "split":
         # proc.split_by_size(args.input, args.min, args.max, args.output_dir)

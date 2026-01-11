@@ -18,13 +18,25 @@ class MetadataAudiobook:
         self.volume: int | None = yml.get("volume") or None
         self.language: str | None = yml.get("language") or None
         self.year: int | None = yml.get("year") or None
-        self.editor: str | None = yml.get("editor") or None
+        self.publisher: str | None = yml.get("publisher") or None
         self.subtitle: str | None = yml.get("subtitle") or None
+        self.isbn: int | None = yml.get("isbn") or None
+        self.asin: str | None = yml.get("asin") or None
 
     def tags_standard(self, track: int) -> dict[str, Any]:
+        base_title = self.title
+        if self.series and self.volume:
+            title = f"{self.series} {self.volume:02d}"
+            if self.language and self.language.lower() == "french":
+                title = f"{title} : {base_title}"
+            else:
+                title = f"{title}: {base_title}"
+        else:
+            title = base_title
+
         return {
-            "title": self.title,
-            "album": self.title,
+            "title": title,
+            "album": title,
             "artist": self.authors,
             "album_artist": self.authors,
             "composer": self.narrators,
@@ -40,11 +52,14 @@ class MetadataAudiobook:
     def tags_extra(self) -> dict[str, Any]:
         return {
             # extra tags com.apple.iTunes
-            "publisher": self.editor,
+            "lyrics": self.lyrics,
+            "publisher": self.publisher,
             "language": self.language,
             "series": self.series,
             "series-part": self.volume,
             "subtitle": self.subtitle,
+            "isbn": self.isbn,
+            "asin": self.asin,
         }
 
     def __str__(self) -> str:
@@ -61,7 +76,9 @@ class MetadataAudiobook:
             f"  Volume:  {self.volume}\n"
             f"  Language:  {self.language}\n"
             f"  Year:  {self.year}\n"
-            f"  Editor:  {self.editor}\n"
+            f"  Publisher:  {self.publisher}\n"
             f"  Subtitle:  {self.subtitle}\n"
+            f"  ISBN:  {self.isbn}\n"
+            f"  ASIN:  {self.asin}\n"
             f")"
         )
