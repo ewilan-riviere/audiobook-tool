@@ -21,6 +21,7 @@ class M4bRenamer:
 
         base_directory = Path(m4b_file)
         self.base_directory = str(base_directory.parent)
+        self.output_directory = ""
 
     def rename_files(self):
         """Rename M4B splitted with metadata title"""
@@ -33,9 +34,9 @@ class M4bRenamer:
         """Move M4B files to base directory"""
         m4b_files = utils.get_files(self.temporary_directory, "m4b")
 
-        output_path = utils.make_directory(
+        self.output_directory = utils.make_directory(
             f"{self.base_directory}/{self.metadata.title}"
         )
-        utils.delete_directory(output_path)
+        utils.delete_directory(self.output_directory)
 
-        utils.move_files(m4b_files, str(output_path))
+        utils.move_files(m4b_files, str(self.output_directory))

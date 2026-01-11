@@ -16,119 +16,111 @@ class M4bChapterEditor:
         self.new_titles: List[str] = []
 
     def _extract_metadata(self) -> List[str]:
-        """Extract metadata lines from FFmpeg."""
         result = subprocess.run(
             ["ffmpeg", "-i", self.filepath, "-f", "ffmetadata", "-"],
             check=True,
             capture_output=True,
         )
-        # Decode and split into lines immediately
-        content = result.stdout.decode("utf-8", errors="replace")
-        return content.splitlines()
+
+        return result.stdout.decode("utf-8", errors="replace").splitlines()
 
     def _process_lines(self, lines: List[str]) -> List[str]:
-        """Process lines one by one with a robust state machine."""
         new_lines: List[str] = []
         self.original_titles = []
         self.new_titles = []
-
-        counter = 1
         is_inside_chapter = False
 
         for line in lines:
-            # Detect chapter start
             if line.strip() == "[CHAPTER]":
                 is_inside_chapter = True
                 new_lines.append(line)
                 continue
 
-            # Detect title inside a chapter
             if is_inside_chapter and line.startswith("title="):
-                # Extract old title
                 old_title = line.split("=", 1)[1].strip()
                 self.original_titles.append(old_title)
 
-                mp3_file = f"{self.mp3_directory}/{old_title}.mp3"
-                mp3_title = utils.get_mp3_title(mp3_file)
+                mp3_file = os.path.join(self.mp3_directory, f"{old_title}.mp3")
 
-                # Create new title
-                # new_title = f"{prefix} {counter}"
-                new_title = f"{mp3_title}"
+                # Récupération du titre via votre utilitaire
+                try:
+                    mp3_title = utils.get_mp3_title(mp3_file)
+                    new_title = f"{mp3_title}"
+                except Exception:
+                    new_title = old_title  # Fallback si le MP3 n'est pas trouvé
+
                 self.new_titles.append(new_title)
-
                 new_lines.append(f"title={new_title}")
-
-                # Reset state until next [CHAPTER]
                 is_inside_chapter = False
-                counter += 1
             else:
                 new_lines.append(line)
 
         return new_lines
 
     def _apply_metadata_with_ffmpeg(self) -> None:
-        """Injects metadata while preserving video streams (cover art)."""
-        subprocess.run(
+        """Injecte les métadonnées et gère les erreurs de décodage des logs."""
+        result = subprocess.run(
             [
                 "ffmpeg",
                 "-i",
-                self.filepath,  # Entrée 0 : Fichier original
+                self.filepath,
                 "-i",
-                self.meta_file,  # Entrée 1 : Nouveau fichier metadata
+                self.meta_file,
                 "-map",
-                "0",  # <--- COPIE TOUS les flux (audio, vidéo/cover, sous-titres)
+                "0:a",  # Audio
+                "-map",
+                "0:v?",  # Cover
                 "-map_metadata",
-                "1",  # Utilise les métadonnées globales du fichier texte
+                "1",
                 "-map_chapters",
-                "1",  # Force l'utilisation des chapitres du fichier texte
+                "1",
                 "-c",
-                "copy",  # Copie sans ré-encodage
+                "copy",
                 "-disposition:v:0",
-                "attached_pic",  # S'assure que l'image est bien marquée comme pochette
+                "attached_pic",
                 self.temp_output,
                 "-y",
             ],
-            check=True,
             capture_output=True,
+            # On ne met PAS text=True ici pour éviter que Python tente de décoder
+            # automatiquement avec le mauvais codec.
         )
+
+        # Si FFmpeg a échoué (code de sortie != 0)
+        if result.returncode != 0:
+            # On décode manuellement avec "replace" pour voir l'erreur sans planter
+            error_msg = result.stderr.decode("utf-8", errors="replace")
+            raise Exception(f"FFmpeg Error (Code {result.returncode}): {error_msg}")
 
     def run(self):
         try:
-            print(f"Reading: {self.filename}...")
+            print(f"Traitement de : {self.filename}...")
             lines = self._extract_metadata()
-
-            # --- DEBUG: Uncomment to see the raw metadata if it fails ---
-            # print("\n".join(lines[:20]))
 
             updated_lines = self._process_lines(lines)
 
             if not self.original_titles:
-                print(
-                    "❌ No chapters found! FFmpeg might be using a different metadata format."
-                )
+                print("❌ Aucun chapitre trouvé.")
                 return
 
-            # Save modified meta
-            with open(self.meta_file, "w", encoding="utf-8") as f:
+            # Sauvegarde avec encodage explicite
+            with open(self.meta_file, "w", encoding="utf-8", errors="replace") as f:
                 f.write("\n".join(updated_lines) + "\n")
 
-            # Inject
-            print("Applying changes...")
+            print("Application des changements et conservation de la pochette...")
             self._apply_metadata_with_ffmpeg()
 
-            # Swap files
+            # Remplacement du fichier
             os.remove(self.filepath)
             os.rename(self.temp_output, self.filepath)
 
             self._print_summary()
 
         except Exception as e:
-            print(f"❌ Error: {e}")
+            print(f"❌ Erreur : {e}")
         finally:
             if os.path.exists(self.meta_file):
                 os.remove(self.meta_file)
 
     def _print_summary(self):
-        print(f"\n✅ Success! {len(self.original_titles)} chapters renamed.")
-        for i, (old, new) in enumerate(zip(self.original_titles, self.new_titles), 1):
-            print(f"  {i:02d}: {old} -> {new}")
+        print(f"\n✅ Succès ! {len(self.original_titles)} chapitres renommés.")

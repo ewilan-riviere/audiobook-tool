@@ -5,6 +5,7 @@ from audiobook.package import AudiobookForge
 from audiobook.metadata import MetadataLoader
 from audiobook.clean import CleanCovers, CleanTrackTitles
 from audiobook.m4b import M4bParser, M4bRenamer, M4bSplit, M4bTagger, M4bTaggerCustom
+import audiobook.utils as utils
 
 
 class CommandBuild:
@@ -12,7 +13,8 @@ class CommandBuild:
 
     def __init__(self, args: AudiobookArgs):
         mp3_directory = str(args.mp3_directory)
-        CleanCovers(mp3_directory).remove_covers()
+        if args.clear_old_m4b:
+            CleanCovers(mp3_directory).remove_covers()
 
         # Create audiobook with audiobook-forge
         # https://crates.io/crates/audiobook-forge
@@ -36,13 +38,6 @@ class CommandBuild:
         tagger = M4bTagger(parts, metadata, parser.cover)
         m4b_files = tagger.run()
 
-        # Rename chapters from MP3 files
-        tracks = CleanTrackTitles(split.get_temp_dir(), mp3_directory)
-        tracks.edit()
-
-        # Set tags extra on M4B splitted
-        M4bTaggerCustom(m4b_files, metadata).run()
-
         # Delete temp cover
         parser.cover_delete()
 
@@ -53,3 +48,12 @@ class CommandBuild:
 
         # Delete temporary directory for M4B generation
         split.delete_temp_dir()
+
+        # Rename chapters from MP3 files
+        m4b_directory = str(renamer.output_directory)
+        tracks = CleanTrackTitles(m4b_directory, mp3_directory)
+        tracks.edit()
+
+        # Set tags extra on M4B splitted
+        m4b_files = utils.get_files(m4b_directory, "m4b")
+        M4bTaggerCustom(m4b_files, metadata).run()
