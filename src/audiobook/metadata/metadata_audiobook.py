@@ -47,9 +47,11 @@ class MetadataAudiobook:
             "description": self.description,
             "synopsis": self.description,
             "track": track,
+            # "disc": "1",
+            # "compilation": "1",
         }
 
-    def tags_extra(self) -> dict[str, Any]:
+    def tags_custom(self) -> dict[str, Any]:
         return {
             # extra tags com.apple.iTunes
             "lyrics": self.lyrics,

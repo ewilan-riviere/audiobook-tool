@@ -1,8 +1,55 @@
 from pathlib import Path
 import shutil
+from typing import Optional
 import os
+import platform
+import subprocess
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
+
+
+def path_exists(path: str | Path) -> bool:
+    """Check if path exists"""
+    if isinstance(path, str):
+        path = Path(path)
+
+    if path.exists():
+        return True
+
+    return False
+
+
+def alert_sound():
+    current_os = platform.system()
+
+    if current_os == "Windows":
+        try:
+            import winsound  # pylint: disable=import-outside-toplevel
+
+            # Note: winsound.Beep est bloquant par nature.
+            # Pour Windows, on utilise PlaySound avec le flag SND_ASYNC
+            winsound.PlaySound(  # type: ignore
+                "SystemAsterisk", winsound.SND_ALIAS | winsound.SND_ASYNC  # type: ignore
+            )
+        except ImportError:
+            print("\a")
+
+    elif current_os == "Darwin":  # macOS
+        try:
+            # Popen ne bloque pas le script
+            subprocess.Popen(["afplay", "/System/Library/Sounds/Glass.aiff"])
+        except FileNotFoundError:
+            print("\a")
+
+    elif current_os == "Linux":
+        try:
+            # Utilisation de Popen ici aussi
+            subprocess.Popen(["canberra-gtk-play", "--id", "message-new-instant"])
+        except FileNotFoundError:
+            print("\x07", end="", flush=True)
+
+    else:
+        print("\a")
 
 
 def get_mp3_title(filepath: str) -> str:
@@ -35,6 +82,25 @@ def get_mp3_title(filepath: str) -> str:
     return os.path.splitext(os.path.basename(filepath))[0]
 
 
+def format_duration(seconds_float: float | str) -> str:
+    """Format seconds into human readable text"""
+    total_seconds = int(seconds_float)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours > 0:
+        return f"{hours}h {minutes:02}m {seconds:02}s"
+    return f"{minutes}m {seconds:02}s"
+
+
+def get_file(directory_path: str, extension: str) -> Optional[str]:
+    """Find first file with extension in directory_path"""
+    listing = get_files(directory_path, extension)
+    if len(listing) > 0:
+        return listing[0]
+
+    return None
+
+
 def get_files(directory_path: str, extension: str) -> list[str]:
     """
     Recherche les fichiers avec une extension spécifique dans un dossier,
@@ -54,19 +120,19 @@ def get_files(directory_path: str, extension: str) -> list[str]:
     return sorted(files)
 
 
-def move_files(liste_chemins: list[str], dossier_destination: str) -> None:
+def move_files(paths: list[str], path_to_move: str) -> None:
     """
     Déplace une liste de fichiers vers un dossier cible.
 
-    :param liste_chemins: Liste des chemins absolus ou relatifs des fichiers.
-    :param dossier_destination: Chemin du dossier où déplacer les fichiers.
+    :param paths: Liste des chemins absolus ou relatifs des fichiers.
+    :param path_to_move: Chemin du dossier où déplacer les fichiers.
     """
     # 1. Créer le dossier de destination s'il n'existe pas
-    dest_path = Path(dossier_destination)
+    dest_path = Path(path_to_move)
     dest_path.mkdir(parents=True, exist_ok=True)
 
-    for chemin_str in liste_chemins:
-        fichier_source = Path(chemin_str)
+    for path in paths:
+        fichier_source = Path(path)
 
         # Vérifier si le fichier existe avant de tenter le déplacement
         if not fichier_source.is_file():
@@ -79,9 +145,9 @@ def move_files(liste_chemins: list[str], dossier_destination: str) -> None:
         try:
             # 3. Déplacement
             shutil.move(str(fichier_source), str(fichier_destination))
-            print(f"✅ Déplacé : {fichier_source.name} -> {dossier_destination}")
+            print(f"✅ Moved: {fichier_source.name} -> {path_to_move}")
         except Exception as e:
-            print(f"❌ Erreur lors du déplacement de {fichier_source.name} : {e}")
+            print(f"❌ Error while moving {fichier_source.name} : {e}")
 
 
 def rename_file(absolute_path: str, new_name: str) -> str:

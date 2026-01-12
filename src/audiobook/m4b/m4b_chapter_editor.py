@@ -1,71 +1,104 @@
-import subprocess
+"""Edit chapters of M4B file"""
+
 import os
-from typing import List
-import audiobook.utils as utils
+import tempfile
+import shutil
+import ffmpeg  # type: ignore
+import subprocess
+from typing import Any
+from audiobook.config import AudiobookConfig
+from audiobook.metadata import MetadataFile
 
 
 class M4bChapterEditor:
-    def __init__(self, filepath: str, mp3_directory: str):
-        self.mp3_directory = mp3_directory
-        self.filepath: str = filepath
-        self.filename: str = os.path.basename(filepath)
-        self.meta_file: str = "temp_metadata.txt"
-        self.temp_output: str = f"{os.path.splitext(filepath)[0]}_mod.m4b"
+    """Edit chapters of M4B file"""
 
-        self.original_titles: List[str] = []
-        self.new_titles: List[str] = []
+    def __init__(self, config: AudiobookConfig):
+        self._config = config
+        self._m4b_path = str(config.m4b_forge_path)
+        if not self._m4b_path:
+            print("Error: no m4b_forge_path")
 
-    def _extract_metadata(self) -> List[str]:
-        result = subprocess.run(
-            ["ffmpeg", "-i", self.filepath, "-f", "ffmetadata", "-"],
-            check=True,
-            capture_output=True,
-        )
+        self._file = MetadataFile(str(self._m4b_path))
 
-        return result.stdout.decode("utf-8", errors="replace").splitlines()
+    def run(self):
+        """Edit chapters of M4B file"""
+        try:
+            probe = ffmpeg.probe(self._m4b_path, show_chapters=None)  # type: ignore
+        except ffmpeg.Error as e:
+            print(f"Error ffmpeg with {self._m4b_path}: {e.stderr.decode()}")  # type: ignore
+            return
 
-    def _process_lines(self, lines: List[str]) -> List[str]:
-        new_lines: List[str] = []
-        self.original_titles = []
-        self.new_titles = []
-        is_inside_chapter = False
+        chapters = probe.get("chapters", [])
+        format_tags = probe.get("format", {}).get("tags", {})
 
-        for line in lines:
-            if line.strip() == "[CHAPTER]":
-                is_inside_chapter = True
-                new_lines.append(line)
-                continue
+        if not chapters:
+            print(f"No chapters into {self._m4b_path}")
+            return
 
-            if is_inside_chapter and line.startswith("title="):
-                old_title = line.split("=", 1)[1].strip()
-                self.original_titles.append(old_title)
+        metadata_content = ";FFMETADATA1\n"
+        for key, value in format_tags.items():
+            metadata_content += f"{key}={value}\n"
 
-                mp3_file = os.path.join(self.mp3_directory, f"{old_title}.mp3")
+        for i, ch in enumerate(chapters):
+            metadata_content = self._handle_chapter(i, ch, metadata_content)
 
-                # Récupération du titre via votre utilitaire
-                try:
-                    mp3_title = utils.get_mp3_title(mp3_file)
-                    new_title = f"{mp3_title}"
-                except Exception:
-                    new_title = old_title  # Fallback si le MP3 n'est pas trouvé
+        self._execute_ffmpeg(metadata_content)
 
-                self.new_titles.append(new_title)
-                new_lines.append(f"title={new_title}")
-                is_inside_chapter = False
-            else:
-                new_lines.append(line)
+    def _handle_chapter(self, i: int, ch: Any, metadata_content: str):
+        # On récupère les temps en secondes (float) pour éviter les overflows d'entiers
+        # On utilise float() car start_time est une string dans le JSON de ffprobe
+        try:
+            start_seconds = float(ch.get("start_time", 0))
+            end_seconds = float(ch.get("end_time", 0))
+        except (ValueError, TypeError):
+            start_seconds = 0
+            end_seconds = 0
 
-        return new_lines
+        # Conversion vers la TIMEBASE 1/1000 (millisecondes)
+        start_ms = int(start_seconds * 1000)
+        end_ms = int(end_seconds * 1000)
 
-    def _apply_metadata_with_ffmpeg(self) -> None:
-        """Injecte les métadonnées et gère les erreurs de décodage des logs."""
-        result = subprocess.run(
-            [
+        # Sécurité : Si FFmpeg renvoie des valeurs aberrantes (négatives)
+        if start_ms < 0:
+            start_ms = 0
+        if end_ms < 0:
+            end_ms = 0
+
+        # Récupération du titre
+        old_title = ch.get("tags", {}).get("title")
+        new_title = old_title
+
+        for file in self._config.mp3_metadata:
+            if file.filename == old_title:
+                new_title = file.title
+
+        metadata_content += "\n[CHAPTER]\n"
+        metadata_content += "TIMEBASE=1/1000\n"
+        metadata_content += f"START={start_ms}\n"
+        metadata_content += f"END={end_ms}\n"
+        metadata_content += f"title={new_title}\n"
+
+        return metadata_content
+
+    def _execute_ffmpeg(self, metadata_content: str):
+        if not self._m4b_path:
+            return
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            meta_txt_path = os.path.join(tmpdir, "metadata.txt")
+            temp_m4b_path = os.path.join(tmpdir, "temp_output.m4b")
+
+            # Écrire le fichier de métadonnées
+            with open(meta_txt_path, "w", encoding="utf-8") as f:
+                f.write(metadata_content)
+
+            cmd = [
                 "ffmpeg",
                 "-i",
-                self.filepath,
+                self._m4b_path,
                 "-i",
-                self.meta_file,
+                meta_txt_path,
                 "-map",
                 "0:a",  # Audio
                 "-map",
@@ -78,49 +111,25 @@ class M4bChapterEditor:
                 "copy",
                 "-disposition:v:0",
                 "attached_pic",
-                self.temp_output,
+                temp_m4b_path,
                 "-y",
-            ],
-            capture_output=True,
+            ]
+
             # On ne met PAS text=True ici pour éviter que Python tente de décoder
             # automatiquement avec le mauvais codec.
-        )
+            try:
+                # On ajoute check=True pour lever une exception en cas d'erreur
+                subprocess.run(cmd, capture_output=True, check=True)
 
-        # Si FFmpeg a échoué (code de sortie != 0)
-        if result.returncode != 0:
-            # On décode manuellement avec "replace" pour voir l'erreur sans planter
-            error_msg = result.stderr.decode("utf-8", errors="replace")
-            raise Exception(f"FFmpeg Error (Code {result.returncode}): {error_msg}")
+                # 4. Si succès, on remplace le fichier original
+                shutil.move(temp_m4b_path, self._m4b_path)
+                print(f"Succès ! {self._m4b_path} mis à jour.")
 
-    def run(self):
-        try:
-            print(f"Traitement de : {self.filename}...")
-            lines = self._extract_metadata()
-
-            updated_lines = self._process_lines(lines)
-
-            if not self.original_titles:
-                print("❌ Aucun chapitre trouvé.")
-                return
-
-            # Sauvegarde avec encodage explicite
-            with open(self.meta_file, "w", encoding="utf-8", errors="replace") as f:
-                f.write("\n".join(updated_lines) + "\n")
-
-            print("Application des changements et conservation de la pochette...")
-            self._apply_metadata_with_ffmpeg()
-
-            # Remplacement du fichier
-            os.remove(self.filepath)
-            os.rename(self.temp_output, self.filepath)
-
-            self._print_summary()
-
-        except Exception as e:
-            print(f"❌ Erreur : {e}")
-        finally:
-            if os.path.exists(self.meta_file):
-                os.remove(self.meta_file)
-
-    def _print_summary(self):
-        print(f"\n✅ Succès ! {len(self.original_titles)} chapitres renommés.")
+            except subprocess.CalledProcessError as e:
+                # e.stderr contient les logs d'erreur de FFmpeg
+                error_msg = e.stderr.decode("utf-8", errors="ignore")
+                print(f"Échec de FFmpeg (Code {e.returncode}) :\n{error_msg}")
+                print("Le fichier original n'a pas été modifié.")
+            except Exception as e:
+                print(f"Erreur inattendue : {e}")
+                print("Le fichier original n'a pas été modifié.")

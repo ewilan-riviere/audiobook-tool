@@ -23,6 +23,11 @@ class AudiobookForge:
         """Get M4B file path"""
         return self._m4b_file
 
+    @property
+    def size(self) -> str:
+        """Get M4B file size"""
+        return self._size_human
+
     def __remove_old_file(self):
         if Path(self._m4b_file).is_file():
             os.remove(self._m4b_file)

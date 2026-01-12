@@ -1,42 +1,25 @@
 """Rename M4B with name from metadata"""
 
-from pathlib import Path
-from audiobook.metadata import MetadataAudiobook
+from audiobook.config import AudiobookConfig
 import audiobook.utils as utils
 
 
 class M4bRenamer:
     """Rename M4B with name from metadata"""
 
-    def __init__(
-        self,
-        m4b_files: list[str],
-        metadata: MetadataAudiobook,
-        temporary_directory: str,
-        m4b_file: str,
-    ):
-        self.m4b_files = m4b_files
-        self.metadata = metadata
-        self.temporary_directory = temporary_directory
+    def __init__(self, config: AudiobookConfig):
+        self._config = config
+        self._metadata = config.metadata_yml
+        self.m4b_split_paths = config.m4b_split_paths
 
-        base_directory = Path(m4b_file)
-        self.base_directory = str(base_directory.parent)
-        self.output_directory = ""
-
-    def rename_files(self):
+    def run(self) -> list[str]:
         """Rename M4B splitted with metadata title"""
+        new_paths: list[str] = []
+
         i = 1
-        for file in self.m4b_files:
-            utils.rename_file(file, f"{self.metadata.title}_Part{i:02d}")
+        for file in self.m4b_split_paths:
+            new_path = utils.rename_file(file, f"{self._metadata.title}_Part{i:02d}")
+            new_paths.append(new_path)
             i = i + 1
 
-    def handle_audiobook(self):
-        """Move M4B files to base directory"""
-        m4b_files = utils.get_files(self.temporary_directory, "m4b")
-
-        self.output_directory = utils.make_directory(
-            f"{self.base_directory}/{self.metadata.title}"
-        )
-        utils.delete_directory(self.output_directory)
-
-        utils.move_files(m4b_files, str(self.output_directory))
+        return new_paths
