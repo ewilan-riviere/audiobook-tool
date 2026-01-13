@@ -23,7 +23,7 @@ class MetadataAudiobook:
         self.isbn: int | None = yml.get("isbn") or None
         self.asin: str | None = yml.get("asin") or None
 
-    def tags_standard(self, track: int) -> dict[str, Any]:
+    def tags_standard(self, number: int) -> dict[str, Any]:
         base_album = self.title
         if self.series and self.volume:
             album = f"{self.series} {self.volume:02d}"
@@ -35,7 +35,7 @@ class MetadataAudiobook:
             album = base_album
 
         return {
-            "title": self.title,
+            "title": f"{self.title}, Part {number:02d}",
             "album": album,
             "artist": self.authors,
             "album_artist": self.authors,
@@ -43,10 +43,10 @@ class MetadataAudiobook:
             "genre": self.genres,
             "date": self.year,
             "copyright": self.copyright,
-            "comment": self.description,
+            "comment": self.subtitle,
             "description": self.description,
             "synopsis": self.description,
-            "track": track,
+            "track": number,
             # "disc": "1",
             # "compilation": "1",
         }

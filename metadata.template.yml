@@ -41,7 +41,7 @@ language: "English"
 year: 2005
 # Publisher will be set as `publisher`
 publisher: "HarperCollins Publishers Limited"
-# Subtitle will be set as `subtitle`
+# Subtitle will be set as `subtitle` and `comment`
 subtitle: "One Ring To Rule Them All"
 # ISBN will be set as `isbn`
 isbn: 9780007123827
