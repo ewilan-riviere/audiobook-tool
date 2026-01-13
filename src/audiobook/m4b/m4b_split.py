@@ -4,7 +4,7 @@ from typing import List
 from pathlib import Path
 import os
 import subprocess
-from audiobook.config import AudiobookConfig
+from audiobook.config import ConfigBuild
 from audiobook.metadata import MetadataChapter
 import audiobook.utils as utils
 
@@ -15,7 +15,7 @@ class M4bSplit:
     DEFAULT_TARGET_SIZE_MB: int = 600
     FFMPEG_LOG_LEVEL: str = "error"
 
-    def __init__(self, config: AudiobookConfig):
+    def __init__(self, config: ConfigBuild):
         self._config = config
         self._m4b_path = config.m4b_forge_path
         self._temp_directory = config.temporary_directory

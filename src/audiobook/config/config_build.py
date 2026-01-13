@@ -1,17 +1,17 @@
-"""Handle path for audiobook-tool"""
+"""Handle config for build audiobook-tool"""
 
 import tempfile
 import os
 from typing import List
 from pathlib import Path
 import audiobook.utils as utils
-from .args import AudiobookArgs
-from .metadata import MetadataFile
-from .metadata import MetadataYml
+from ..args import AudiobookArgs
+from ..metadata import MetadataFile
+from ..metadata import MetadataYml
 
 
-class AudiobookConfig:
-    """Handle path for audiobook-tool"""
+class ConfigBuild:
+    """Handle config for build audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):
         # /path/to/audiobook_mp3
@@ -65,6 +65,11 @@ class AudiobookConfig:
 
         return items
 
+    @property
+    def temporary_directory_path(self):
+        """Get temporary_directory"""
+        return self.temporary_directory.name
+
     def temporary_directory_delete(self):
         """Delete temporary_directory"""
         self.temporary_directory.cleanup()
@@ -88,7 +93,7 @@ class AudiobookConfig:
         if self.metadata_yml:
             metadata_yml_valid = True
         return (
-            f"AudiobookPath(\n"
+            f"ConfigBuild(\n"
             f"  mp3_directory:  {self.mp3_directory}\n"
             f"  metadata_yml_path:  {self.metadata_yml_path}\n"
             f"  metadata_yml_valid:  {metadata_yml_valid}\n"

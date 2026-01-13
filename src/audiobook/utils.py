@@ -166,6 +166,11 @@ def rename_file(absolute_path: str, new_name: str) -> str:
     return str(new_path.resolve())
 
 
+def copy_file(from_path: str, to_path: str) -> str:
+    """Copy file"""
+    return shutil.copy(from_path, to_path)
+
+
 def rename_directory(absolute_path: str, new_name: str) -> str:
     """
     Renomme un répertoire en gardant son emplacement d'origine.
@@ -190,7 +195,16 @@ def delete_directory(directory_path: str | Path):
         shutil.rmtree(directory_path)
         print(f"Delete {directory_path}")
     else:
-        print(f"Directory {directory_path}")
+        print(f"Directory {directory_path} not exists")
+
+
+def delete_file(file_path: str | Path):
+    """Delete file"""
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"Delete {file_path}")
+    else:
+        print(f"File {file_path} not exists")
 
 
 def make_directory(directory_path: str | Path) -> Path:

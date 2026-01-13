@@ -1,13 +1,13 @@
 """Update tags with metata.yml"""
 
 from audiobook.metadata import MetadataFile
-from audiobook.config import AudiobookConfig
+from audiobook.config import ConfigBuild
 
 
 class M4bTagger:
     """Update tags with metata.yml"""
 
-    def __init__(self, config: AudiobookConfig):
+    def __init__(self, config: ConfigBuild):
         self._config = config
         self._listing = self._config.m4b_split_paths
 

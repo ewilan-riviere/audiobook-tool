@@ -6,6 +6,7 @@ import ffmpeg  # type: ignore
 from mutagen.easyid3 import EasyID3
 from mutagen.easymp4 import EasyMP4
 from mutagen.id3 import ID3
+from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4Cover
 from .metadata_chapter import MetadataChapter
 
@@ -35,6 +36,8 @@ class MetadataFile:
         self.chapters = []
         if self.is_m4b:
             self.chapters = self._handle_chapters()
+
+        self.duration = self._handle_duration()
 
     @property
     def chapters_print(self):
@@ -182,6 +185,9 @@ class MetadataFile:
         else:
             self.year = None
         if track:
+            if "/" in track:
+                track = track.split("/")
+                track = track[0]
             self.track = int(track)
         else:
             self.track = None
@@ -231,6 +237,15 @@ class MetadataFile:
             chapters.append(chapter)
 
         return chapters
+
+    def _handle_duration(self):
+        if self.is_mp3:
+            audio = MP3(self.path)
+            return int(audio.info.length)
+        elif self.is_m4b:
+            return int(self.mp4.info.length)
+        else:
+            return 0
 
     def _extract_meta(self, key: str) -> str | None:
         if key in self.metadata:

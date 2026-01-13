@@ -23,6 +23,10 @@ class AudiobookArgs:
         m_clean = subparsers.add_parser("clean", help="Clean MP3s")
         m_clean.add_argument("mp3_directory", help="Source directory")
 
+        # Extract
+        m_extract = subparsers.add_parser("extract", help="Clean MP3s")
+        m_extract.add_argument("m4b_directory", help="Source directory")
+
         # Fusion
         m_fusion = subparsers.add_parser("fusion", help="Build MP3s to M4B")
         m_fusion.add_argument(
@@ -41,6 +45,11 @@ class AudiobookArgs:
         if self.command in ["build", "clean", "fusion"] and self.mp3_directory is None:
             parser.error(
                 f"L'argument 'mp3_directory' est requis pour la commande {self.command}"
+            )
+
+        if self.command in ["extract"] and self.m4b_directory is None:
+            parser.error(
+                f"L'argument 'm4b_directory' est requis pour la commande {self.command}"
             )
 
         if self.command in ["fusion"] and self.mp3_directory is None:

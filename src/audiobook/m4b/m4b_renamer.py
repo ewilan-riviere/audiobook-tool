@@ -1,13 +1,13 @@
 """Rename M4B with name from metadata"""
 
-from audiobook.config import AudiobookConfig
+from audiobook.config import ConfigBuild
 import audiobook.utils as utils
 
 
 class M4bRenamer:
     """Rename M4B with name from metadata"""
 
-    def __init__(self, config: AudiobookConfig):
+    def __init__(self, config: ConfigBuild):
         self._config = config
         self._metadata = config.metadata_yml
         self.m4b_split_paths = config.m4b_split_paths

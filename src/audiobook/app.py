@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 from .args import AudiobookArgs
-from .command import CommandBuild, CommandClean, CommandFusion
+from .command import CommandBuild, CommandClean, CommandExtract, CommandFusion
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,16 +15,18 @@ logging.basicConfig(
 
 def main() -> None:
     """audiobook-tool main def"""
-    print("audiobook-tool")
+    print("audiobook-tool: CLI to handle audiobooks")
     parser = argparse.ArgumentParser(prog="audiobook-tool")
     args = AudiobookArgs(parser)
-    print(args.command)
+    print(f"Execute command {args.command}...\n")
 
     try:
         if args.command == "build":
             CommandBuild(args)
         elif args.command == "clean":
             CommandClean(args)
+        elif args.command == "extract":
+            CommandExtract(args)
         elif args.command == "fusion":
             CommandFusion(args)
     except Exception as e:

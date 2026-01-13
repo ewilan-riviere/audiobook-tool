@@ -3,17 +3,17 @@
 import os
 import tempfile
 import shutil
-import ffmpeg  # type: ignore
 import subprocess
 from typing import Any
-from audiobook.config import AudiobookConfig
+import ffmpeg  # type: ignore
+from audiobook.config import ConfigBuild
 from audiobook.metadata import MetadataFile
 
 
 class M4bChapterEditor:
     """Edit chapters of M4B file"""
 
-    def __init__(self, config: AudiobookConfig):
+    def __init__(self, config: ConfigBuild):
         self._config = config
         self._m4b_path = str(config.m4b_forge_path)
         if not self._m4b_path:

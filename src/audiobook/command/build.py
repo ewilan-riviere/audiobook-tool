@@ -9,7 +9,7 @@ from audiobook.m4b import (
     M4bTagger,
 )
 import audiobook.utils as utils
-from audiobook.config import AudiobookConfig
+from audiobook.config import ConfigBuild
 
 
 class CommandBuild:
@@ -17,7 +17,7 @@ class CommandBuild:
 
     def __init__(self, args: AudiobookArgs):
         # Setup config
-        config = AudiobookConfig(args)
+        config = ConfigBuild(args)
         utils.delete_directory(config.m4b_directory_output)
 
         # Remove MP3 files source covers
