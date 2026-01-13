@@ -48,7 +48,7 @@ class CommandBuild:
 
         # Move files to m4b_directory_output
         utils.move_files(config.m4b_split_paths, config.m4b_directory_output)
-        utils.rename_directory(config.m4b_directory_output, config.metadata_yml.title)
+        # utils.rename_directory(config.m4b_directory_output, config.metadata_yml.title)
         # Delete temporary directory for M4B generation
         config.temporary_directory_delete()
 

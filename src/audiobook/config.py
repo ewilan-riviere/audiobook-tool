@@ -34,8 +34,10 @@ class AudiobookConfig:
         self.temporary_directory = tempfile.TemporaryDirectory()
 
         # /path/to/audiobook_mp3/m4b
-        m4b_output = Path(str(args.mp3_directory)).name
-        self.m4b_directory_output = os.path.join(str(args.mp3_directory), m4b_output)
+        # m4b_output = Path(str(args.mp3_directory)).name
+        self.m4b_directory_output = os.path.join(
+            str(args.mp3_directory), self.metadata_yml.title
+        )
 
         # /path/to
         mp3_parent_directory = Path(self.mp3_directory)

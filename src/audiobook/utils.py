@@ -130,6 +130,7 @@ def move_files(paths: list[str], path_to_move: str) -> None:
     # 1. Créer le dossier de destination s'il n'existe pas
     dest_path = Path(path_to_move)
     dest_path.mkdir(parents=True, exist_ok=True)
+    print(dest_path)
 
     for path in paths:
         fichier_source = Path(path)
