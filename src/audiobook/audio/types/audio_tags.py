@@ -1,8 +1,12 @@
+"""Audio tags representation"""
+
 from typing import List, Optional, TypedDict
 from .chapter_dict import ChapterDict
 
 
-class AudioMetadata(TypedDict):
+class AudioTags(TypedDict):
+    """Audio tags representation"""
+
     title: Optional[str]
     subtitle: Optional[str]
     artist: Optional[str]
@@ -10,9 +14,9 @@ class AudioMetadata(TypedDict):
     album: Optional[str]
     composer: Optional[str]
     genre: Optional[str]
-    year: Optional[str]
-    track: Optional[str]  # format "1/10"
-    disc: Optional[str]  # format "1/1"
+    year: Optional[int] | Optional[str]
+    track: Optional[int] | Optional[str]
+    disc: Optional[int] | Optional[str]
     comment: Optional[str]
     description: Optional[str]
     synopsis: Optional[str]
@@ -23,4 +27,5 @@ class AudioMetadata(TypedDict):
     series_part: Optional[str]
     isbn: Optional[str]
     asin: Optional[str]
+    compilation: bool
     chapters: List[ChapterDict]
