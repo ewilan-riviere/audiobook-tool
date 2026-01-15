@@ -3,7 +3,7 @@
 from typing import TypedDict
 
 
-class ChapterDict(TypedDict):
+class ChapterTag(TypedDict):
     """M4B chapter representation"""
 
     id: int

@@ -1,7 +1,7 @@
 """Audio tags representation"""
 
 from typing import List, Optional, TypedDict
-from .chapter_dict import ChapterDict
+from .chapter_tag import ChapterTag
 
 
 class AudioTags(TypedDict):
@@ -28,4 +28,4 @@ class AudioTags(TypedDict):
     isbn: Optional[str]
     asin: Optional[str]
     compilation: bool
-    chapters: List[ChapterDict]
+    chapters: List[ChapterTag]

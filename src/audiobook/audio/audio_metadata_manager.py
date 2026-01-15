@@ -10,7 +10,7 @@ from mutagen.mp4 import MP4
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 from audiobook.audio.handler import MP3Handler, M4BHandler
-from audiobook.audio.types import AudioTags, ChapterDict, MetadataEncoder
+from audiobook.audio.types import AudioTags, ChapterTag
 
 
 class AudioMetadataManager:
@@ -125,7 +125,7 @@ class AudioMetadataManager:
 
         return False
 
-    def _get_chapters(self) -> List[ChapterDict]:
+    def _get_chapters(self) -> List[ChapterTag]:
         """Get chapters from M4B"""
         if self._extension == ".mp3":
             return []
@@ -147,9 +147,9 @@ class AudioMetadataManager:
             chapters_raw = raw_data.get("chapters", [])
 
             # On construit la liste en forçant le type à chaque étape
-            chapters: List[ChapterDict] = []
+            chapters: List[ChapterTag] = []
             for c in chapters_raw:
-                chapter: ChapterDict = {
+                chapter: ChapterTag = {
                     "id": int(c.get("id", 0)),
                     "time_base": str(c.get("time_base", "1/1000")),
                     "start": int(c.get("start", 0)),
