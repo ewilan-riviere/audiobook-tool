@@ -4,7 +4,13 @@ import argparse
 import sys
 import logging
 from .args import AudiobookArgs
-from .command import CommandBuild, CommandClean, CommandExtract, CommandFusion
+from .command import (
+    CommandBuild,
+    CommandClean,
+    CommandExtract,
+    CommandForge,
+    CommandFusion,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -27,6 +33,8 @@ def main() -> None:
             CommandClean(args)
         elif args.command == "extract":
             CommandExtract(args)
+        elif args.command == "forge":
+            CommandForge(args)
         elif args.command == "fusion":
             CommandFusion(args)
     except Exception as e:
