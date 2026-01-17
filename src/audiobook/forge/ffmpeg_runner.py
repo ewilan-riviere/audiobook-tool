@@ -6,8 +6,8 @@ class FFmpegRunner:
     """Interface pour l'exécution des commandes système FFmpeg."""
 
     @staticmethod
-    def encode_to_aac(input_path: Path, output_path: Path, bitrate: str) -> None:
-        """Ré-encode un fichier MP3 unique vers le format AAC (conteneur M4A)."""
+    def encode_to_aac(input_path: Path, output_path: Path, bitrate: str) -> str:
+        """Ré-encode un fichier et retourne son nom pour le logging."""
         cmd = [
             "ffmpeg",
             "-y",
@@ -24,13 +24,12 @@ class FFmpegRunner:
             str(output_path),
         ]
         subprocess.run(cmd, check=True)
+        return input_path.name
 
     @staticmethod
     def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> None:
-        """Combine les fichiers AAC et injecte les chapitres dans le M4B final."""
         temp_combined = output_path.with_suffix(".temp.m4a")
         try:
-            # 1. Concaténation des flux AAC
             subprocess.run(
                 [
                     "ffmpeg",
@@ -50,7 +49,6 @@ class FFmpegRunner:
                 check=True,
             )
 
-            # 2. Injection des métadonnées (Chapitres) et optimisation Faststart
             subprocess.run(
                 [
                     "ffmpeg",

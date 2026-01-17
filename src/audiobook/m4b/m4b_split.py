@@ -12,7 +12,7 @@ import audiobook.utils as utils
 class M4bSplit:
     """Split M4B into multiple parts"""
 
-    DEFAULT_TARGET_SIZE_MB: int = 600
+    DEFAULT_TARGET_SIZE_MB: int = 500
     FFMPEG_LOG_LEVEL: str = "error"
 
     def __init__(self, config: ConfigBuild):

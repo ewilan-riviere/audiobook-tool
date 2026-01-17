@@ -10,6 +10,4 @@ class CommandForge:
 
     def __init__(self, args: AudiobookArgs):
         config = ConfigForge(args)
-        print(config)
-
         AudiobookBlacksmith(config.mp3_directory).process()
