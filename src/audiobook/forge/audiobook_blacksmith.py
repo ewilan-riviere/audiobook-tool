@@ -6,6 +6,7 @@ from concurrent.futures.process import ProcessPoolExecutor
 from mutagen.mp3 import MP3, MPEGInfo
 from .audio_chapter import AudioChapter
 from .ffmpeg_runner import FFmpegRunner
+from .audiobook_fixer import AudiobookFixer
 
 
 class AudiobookBlacksmith:
@@ -19,26 +20,51 @@ class AudiobookBlacksmith:
         self.meta_path = self.directory / "metadata.txt"
         self.list_path = self.directory / "inputs.txt"
 
+        if Path(self.output_path).exists():
+            os.remove(self.output_path)
+
     def _prepare_data(self) -> None:
+        """Initialise la liste des chapitres, calcule le bitrate et extrait les titres des tags."""
         mp3_files = sorted(list(self.directory.glob("*.mp3")), key=lambda x: x.name)
         if not mp3_files:
             raise FileNotFoundError(f"Aucun fichier MP3 trouvé dans {self.directory}")
 
-        max_br_observed: int = 0
+        total_bitrate: int = 0
+        file_count: int = 0
+
         for f in mp3_files:
             audio = MP3(f)
             info = cast(MPEGInfo, audio.info)
+
+            # 1. Gestion du Bitrate
             current_br = int(getattr(info, "bitrate", 128000))
-            max_br_observed = max(max_br_observed, current_br)
+            total_bitrate += current_br
+            file_count += 1
+
+            # 2. Extraction du titre (Tag 'TIT2' ou nom de fichier en secours)
+            # audio.get("TIT2") renvoie un objet tag, on prend sa première valeur texte
+            title_tag = audio.get("TIT2")  # type: ignore
+            chapter_title = str(title_tag[0]) if title_tag else f.stem  # type: ignore
+
+            # Nettoyage optionnel : si le tag est vide ou juste des espaces
+            if not chapter_title.strip():
+                chapter_title = f.stem
 
             self.chapters.append(
                 AudioChapter(
-                    source_path=f, temp_aac_path=f.with_suffix(".m4a"), title=f.stem
+                    source_path=f,
+                    temp_aac_path=f.with_suffix(".m4a"),
+                    title=chapter_title,
                 )
             )
 
-        self.target_bitrate = f"{int(max_br_observed / 1000)}k"
-        print(f"🔍 Analyse terminée. Bitrate cible : {self.target_bitrate}")
+        # avg_bitrate = int(total_bitrate / file_count)
+        avg_bitrate = min(int(total_bitrate / file_count), 192000)
+        self.target_bitrate = f"{int(avg_bitrate / 1000)}k"
+
+        print(
+            f"🔍 Analyse : {file_count} fichiers. Bitrate moyen : {self.target_bitrate}"
+        )
 
     def _write_assets(self) -> None:
         metadata_lines = [";FFMETADATA1"]
@@ -106,3 +132,16 @@ class AudiobookBlacksmith:
         finally:
             print("🧹 Nettoyage des fichiers temporaires...")
             self._cleanup()
+
+    def validate(self) -> None:
+        """Validate M4B with ffmpeg and mutagen"""
+        try:
+            fixer = AudiobookFixer(str(self.output_path))
+
+            fixed_path = fixer.fix_structure()
+            if fixer.verify_with_mutagen(fixed_path):
+                print("🚀 File is now fully compatible with Mutagen!")
+                fixer.replace()
+
+        except Exception as error:
+            print(f"Critical failure: {error}")

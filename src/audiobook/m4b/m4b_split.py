@@ -7,12 +7,12 @@ import subprocess
 from audiobook.config import ConfigBuild
 from audiobook.metadata import MetadataChapter
 import audiobook.utils as utils
+from audiobook.env import PART_SIZE
 
 
 class M4bSplit:
     """Split M4B into multiple parts"""
 
-    DEFAULT_TARGET_SIZE_MB: int = 500
     FFMPEG_LOG_LEVEL: str = "error"
 
     def __init__(self, config: ConfigBuild):
@@ -117,7 +117,7 @@ class M4bSplit:
             duration = float(chapter.end_time) - float(chapter.start_time)
             chapter_size_mb = duration * mb_per_second
 
-            size = current_part_size + chapter_size_mb > self.DEFAULT_TARGET_SIZE_MB
+            size = current_part_size + chapter_size_mb > PART_SIZE
             if size and current_part:
                 plan.append(current_part)
                 current_part = []

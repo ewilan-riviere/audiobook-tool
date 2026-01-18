@@ -3,6 +3,7 @@
 from audiobook.args import AudiobookArgs
 from audiobook.config import ConfigForge
 from audiobook.forge import AudiobookBlacksmith
+import audiobook.utils as utils
 
 
 class CommandForge:
@@ -10,4 +11,8 @@ class CommandForge:
 
     def __init__(self, args: AudiobookArgs):
         config = ConfigForge(args)
-        AudiobookBlacksmith(config.mp3_directory).process()
+        blacksmith = AudiobookBlacksmith(config.mp3_directory)
+        blacksmith.process()
+        blacksmith.validate()
+
+        utils.alert_sound()
