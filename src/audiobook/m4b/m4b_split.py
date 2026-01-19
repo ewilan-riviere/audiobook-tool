@@ -86,7 +86,11 @@ class M4bSplit:
 
             # --- ÉTAPE 3: Maintenant que le fichier existe, on récupère sa taille ---
             size = utils.get_file_size(str(output_file))
-            size_hr = utils.size_human_readable(size)
+            raw_size = utils.size_human_readable(size)
+            if isinstance(raw_size, tuple):
+                size_hr = f"{raw_size[0]} {raw_size[1]}"
+            else:
+                size_hr = str(raw_size)
 
             # Affichage du log de succès
             print(

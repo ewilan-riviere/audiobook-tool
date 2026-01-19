@@ -3,8 +3,8 @@
 import subprocess
 import os
 from pathlib import Path
-from audiobook.forge import AudiobookBlacksmith
 import audiobook.utils as utils
+from .audiobook_blacksmith import AudiobookBlacksmith
 
 
 class AudiobookForge:

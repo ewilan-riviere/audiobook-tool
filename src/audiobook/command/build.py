@@ -4,7 +4,7 @@ from audiobook.args import AudiobookArgs
 from audiobook.m4b import (
     M4bRenamer,
     M4bSplit,
-    # M4bChapterEditor,
+    M4bChapterEditor,
     M4bTagger,
 )
 import audiobook.utils as utils
@@ -25,15 +25,12 @@ class CommandBuild:
             config.remove_covers()
 
         print("🔨 Forge M4B...")
+        forge = AudiobookForge(config.mp3_directory, args.clear_old_m4b)
         if args.use_rust:
             print("Use audiobook-forge crate")
-            forge = AudiobookForge(
-                config.mp3_directory, args.clear_old_m4b
-            ).build_rust()
+            forge = forge.build_rust()
         else:
-            forge = AudiobookForge(
-                config.mp3_directory, args.clear_old_m4b
-            ).build_native()
+            forge = forge.build_native()
         print(f"\n📦 M4B: `{forge.m4b_file}` ({forge.size})\n")
 
         # Set audiobook-forge M4B output
@@ -42,7 +39,8 @@ class CommandBuild:
         # Only with audiobook-forge
         # Edit chapters of audiobook-forge M4B output
         # with MP3 source files `title`
-        # M4bChapterEditor(config).run()
+        if args.use_rust:
+            M4bChapterEditor(config).run()
 
         print("📤 Split M4B file into multiple M4B...")
         split = M4bSplit(config).run()
