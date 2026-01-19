@@ -38,9 +38,9 @@ class MetadataChapter:
         start_f = float(self.start_time)
         end_f = float(self.end_time)
 
-        start_str = utils.format_duration(start_f)
-        end_str = utils.format_duration(end_f)
-        diff_str = utils.format_duration(end_f - start_f)
+        start_str = utils.format_duration_full(start_f)
+        end_str = utils.format_duration_full(end_f)
+        diff_str = utils.format_duration_full(end_f - start_f)
 
         return (
             f"MetadataChapter(\n"

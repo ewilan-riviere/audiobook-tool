@@ -82,14 +82,45 @@ def get_mp3_title(filepath: str) -> str:
     return os.path.splitext(os.path.basename(filepath))[0]
 
 
-def format_duration(seconds_float: float | str) -> str:
+def size_human_readable(size_in_bytes: int) -> str:
+    """Convert bytes to human readable format."""
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if size_in_bytes < 1024:
+            return f"{size_in_bytes:.2f} {unit}"
+        size_in_bytes /= 1024  # type: ignore
+    return f"{size_in_bytes:.2f} PB"
+
+
+def get_file_size(path: str) -> int:
+    """Get file size as bytes from path of file"""
+    if Path(path).is_file():
+        return os.path.getsize(path)
+    else:
+        print(f"ERROR: file not found at {path}")
+
+    return 0
+
+
+def format_duration_full(seconds_float: float | str) -> str:
     """Format seconds into human readable text"""
     total_seconds = int(seconds_float)
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     if hours > 0:
         return f"{hours}h {minutes:02}m {seconds:02}s"
+
     return f"{minutes}m {seconds:02}s"
+
+
+def format_duration(seconds_float: float | str) -> str:
+    """Format seconds into human readable text"""
+    total_seconds = int(seconds_float)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes = divmod(remainder, 60)
+    if hours > 0:
+        return f"{hours}:{minutes:02}"
+
+    return f"00:{minutes}"
 
 
 def get_file(directory_path: str, extension: str) -> Optional[str]:

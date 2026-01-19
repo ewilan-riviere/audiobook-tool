@@ -34,18 +34,10 @@ class AudiobookForge:
         if Path(self._m4b_file).is_file():
             os.remove(self._m4b_file)
 
-    def __convert_size(self):
-        """Convert bytes to human readable format."""
-        for unit in ["B", "KB", "MB", "GB", "TB"]:
-            if self._size < 1024:
-                return f"{self._size:.2f} {unit}"
-            self._size /= 1024
-        return f"{self._size:.2f} PB"
-
     def __calculate_size(self):
         if Path(self._m4b_file).is_file():
-            self._size = os.path.getsize(self._m4b_file)
-            self._size_human = self.__convert_size()
+            self._size = utils.get_file_size(self._m4b_file)
+            self._size_human = utils.size_human_readable(self._size)
         else:
             print(f"ERROR: M4B not found at {self._m4b_file}")
 

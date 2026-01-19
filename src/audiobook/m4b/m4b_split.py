@@ -40,10 +40,12 @@ class M4bSplit:
             output_file = (
                 temporary_dir / f"{Path(str(self._m4b_path)).stem} - Part {i:02}.m4b"
             )
+            size = utils.get_file_size(str(output_file))
+            size_hr = utils.size_human_readable(size)
 
             print(
                 f"  ✅ Generate Part {i:02} `{output_file.name}`"
-                f"({utils.format_duration(duration)} / {len(part_chapters)} chapters)"
+                f"({utils.format_duration(duration)} / {len(part_chapters)} chap.) / {size_hr}"
             )
 
             # --- ÉTAPE 1: Créer un fichier de métadonnées spécifique à cette partie ---
