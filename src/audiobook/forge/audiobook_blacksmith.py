@@ -67,18 +67,24 @@ class AudiobookBlacksmith:
         )
 
     def _write_assets(self) -> None:
+        """Génère les fichiers de métadonnées avec échappement des chemins."""
         metadata_lines = [";FFMETADATA1"]
         current_time_ms = 0
 
         with open(self.list_path, "w", encoding="utf-8") as f_list:
             for chap in self.chapters:
                 duration = chap.load_duration()
+
                 metadata_lines.append(
                     f"\n[CHAPTER]\nTIMEBASE=1/1000\nSTART={current_time_ms}"
                 )
                 current_time_ms += duration
                 metadata_lines.append(f"END={current_time_ms}\ntitle={chap.title}")
-                f_list.write(f"file '{chap.temp_aac_path.name}'\n")
+
+                # IMPORTANT: FFmpeg concat needs single quotes escaped for filenames
+                # We replace ' with '\' (FFmpeg escape sequence)
+                escaped_name = chap.temp_aac_path.name.replace("'", "'\\''")
+                f_list.write(f"file '{escaped_name}'\n")
 
         self.meta_path.write_text("\n".join(metadata_lines), encoding="utf-8")
 

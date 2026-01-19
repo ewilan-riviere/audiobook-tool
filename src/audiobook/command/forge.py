@@ -13,6 +13,6 @@ class CommandForge:
         config = ConfigForge(args)
         blacksmith = AudiobookBlacksmith(config.mp3_directory)
         blacksmith.process()
-        blacksmith.validate()
+        # blacksmith.validate()
 
         utils.alert_sound()

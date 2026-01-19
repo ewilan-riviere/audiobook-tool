@@ -29,7 +29,11 @@ class FFmpegRunner:
     @staticmethod
     def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> None:
         temp_combined = output_path.with_suffix(".temp.m4a")
+        # Work in the directory of the files to simplify paths for FFmpeg
+        working_dir = input_list.parent
+
         try:
+            # 1. Concat with safe 0 and local paths
             subprocess.run(
                 [
                     "ffmpeg",
@@ -39,24 +43,26 @@ class FFmpegRunner:
                     "-safe",
                     "0",
                     "-i",
-                    str(input_list),
+                    input_list.name,  # Use just the filename
                     "-c",
                     "copy",
                     "-loglevel",
                     "error",
-                    str(temp_combined),
+                    temp_combined.name,
                 ],
+                cwd=working_dir,  # Execute inside the folder
                 check=True,
             )
 
+            # 2. Add metadata
             subprocess.run(
                 [
                     "ffmpeg",
                     "-y",
                     "-i",
-                    str(temp_combined),
+                    temp_combined.name,
                     "-i",
-                    str(meta_file),
+                    meta_file.name,
                     "-map_metadata",
                     "1",
                     "-c",
@@ -65,8 +71,9 @@ class FFmpegRunner:
                     "+faststart",
                     "-loglevel",
                     "error",
-                    str(output_path),
+                    output_path.name,
                 ],
+                cwd=working_dir,
                 check=True,
             )
         finally:

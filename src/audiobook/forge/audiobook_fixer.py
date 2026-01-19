@@ -13,6 +13,7 @@ class AudiobookFixer:
 
     def __init__(self, input_path: str):
         self.success = False
+        self.final_output: Path | None = None
         self.input_path = Path(input_path).resolve()
         if not self.input_path.exists():
             raise FileNotFoundError(f"File not found: {self.input_path}")
