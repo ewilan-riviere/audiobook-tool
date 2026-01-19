@@ -9,7 +9,9 @@ class AudiobookArgs:
         subparsers = parser.add_subparsers(dest="command", required=True)
 
         # Build
-        m_build = subparsers.add_parser("build", help="Build MP3s to M4B")
+        m_build = subparsers.add_parser(
+            "build", help="Build MP3 files to M4B (include forge command)"
+        )
         m_build.add_argument("mp3_directory", help="Source directory")
         m_build.add_argument(
             "-c",
@@ -20,19 +22,19 @@ class AudiobookArgs:
         m_build.add_argument("-o", "--output")
 
         # Clean
-        m_clean = subparsers.add_parser("clean", help="Clean MP3s")
+        m_clean = subparsers.add_parser("clean", help="Clean MP3 files from silences")
         m_clean.add_argument("mp3_directory", help="Source directory")
 
         # Extract
-        m_extract = subparsers.add_parser("extract", help="Clean MP3s")
+        m_extract = subparsers.add_parser("extract", help="Extract MP3 files from M4B")
         m_extract.add_argument("m4b_directory", help="Source directory")
 
         # Forge
-        m_forge = subparsers.add_parser("forge", help="Forge MP3s to M4B")
+        m_forge = subparsers.add_parser("forge", help="Forge MP3 file to M4B")
         m_forge.add_argument("mp3_directory", help="Source directory")
 
         # Fusion
-        m_fusion = subparsers.add_parser("fusion", help="Build MP3s to M4B")
+        m_fusion = subparsers.add_parser("fusion", help="Add MP3 files to existing M4B")
         m_fusion.add_argument(
             "m4b_directory", help="Directory with current audiobook (multiparts)"
         )

@@ -42,6 +42,13 @@ class AudiobookForge:
             self._size /= 1024
         return f"{self._size:.2f} PB"
 
+    def __calculate_size(self):
+        if Path(self._m4b_file).is_file():
+            self._size = os.path.getsize(self._m4b_file)
+            self._size_human = self.__convert_size()
+        else:
+            print(f"ERROR: M4B not found at {self._m4b_file}")
+
     def build_native(self):
         """Execute build command with Python"""
         if utils.file_exists(self._m4b_file):
@@ -51,6 +58,8 @@ class AudiobookForge:
         blacksmith = AudiobookBlacksmith(self._mp3_directory)
         blacksmith.process()
         blacksmith.validate()
+
+        self.__calculate_size()
 
         return self
 
@@ -74,10 +83,6 @@ class AudiobookForge:
         except subprocess.CalledProcessError as e:
             print(f"Le binaire a échoué avec le code : {e.returncode}")
 
-        if Path(self._m4b_file).is_file():
-            self._size = os.path.getsize(self._m4b_file)
-            self._size_human = self.__convert_size()
-        else:
-            print(f"ERROR: M4B not found at {self._m4b_file}")
+        self.__calculate_size()
 
         return self
