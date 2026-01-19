@@ -40,16 +40,8 @@ class M4bSplit:
             output_file = (
                 temporary_dir / f"{Path(str(self._m4b_path)).stem} - Part {i:02}.m4b"
             )
-            size = utils.get_file_size(str(output_file))
-            size_hr = utils.size_human_readable(size)
 
-            print(
-                f"  ✅ Generate Part {i:02} `{output_file.name}`"
-                f"({utils.format_duration(duration)} / {len(part_chapters)} chap.) / {size_hr}"
-            )
-
-            # --- ÉTAPE 1: Créer un fichier de métadonnées spécifique à cette partie ---
-            # On réinitialise les temps pour que le premier chapitre de la partie commence à 0
+            # --- ÉTAPE 1: Créer le fichier de métadonnées ---
             meta_file = temporary_dir / f"metadata_part_{i}.txt"
             with open(meta_file, "w", encoding="utf-8") as f:
                 f.write(";FFMETADATA1\n")
@@ -61,7 +53,7 @@ class M4bSplit:
                     f.write(f"END={c_end}\n")
                     f.write(f"title={chap.title}\n")
 
-            # --- ÉTAPE 2: FFmpeg sans map_chapters original, mais avec le nouveau fichier ---
+            # --- ÉTAPE 2: Exécuter FFmpeg (Indispensable AVANT de calculer la taille) ---
             cmd = [
                 "ffmpeg",
                 "-loglevel",
@@ -73,15 +65,15 @@ class M4bSplit:
                 "-i",
                 str(self._m4b_path),
                 "-i",
-                str(meta_file),  # On ajoute le fichier de meta en 2ème entrée
+                str(meta_file),
                 "-map",
-                "0:a",  # On prend l'audio du fichier original
+                "0:a",
                 "-map_metadata",
-                "0",  # On garde les tags globaux (Auteur, etc.)
+                "0",
                 "-map_metadata",
-                "1",  # On écrase avec les chapitres du fichier meta
+                "1",
                 "-map_chapters",
-                "1",  # On force l'utilisation des chapitres du fichier 1 (le meta)
+                "1",
                 "-c",
                 "copy",
                 "-movflags",
@@ -91,10 +83,19 @@ class M4bSplit:
             ]
 
             subprocess.run(cmd, check=True)
-            generated_files.append(output_file.resolve())
 
-            # Nettoyage du fichier meta temporaire
-            meta_file.unlink()
+            # --- ÉTAPE 3: Maintenant que le fichier existe, on récupère sa taille ---
+            size = utils.get_file_size(str(output_file))
+            size_hr = utils.size_human_readable(size)
+
+            # Affichage du log de succès
+            print(
+                f"  ✅ Generate Part {i:02} `{output_file.name}` "
+                f"({utils.format_duration(duration)} / {len(part_chapters)} chap.) / {size_hr}"
+            )
+
+            generated_files.append(output_file.resolve())
+            meta_file.unlink()  # Nettoyage
 
         self.m4b_split_paths = [str(p) for p in generated_files]
         return self

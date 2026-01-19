@@ -82,13 +82,22 @@ def get_mp3_title(filepath: str) -> str:
     return os.path.splitext(os.path.basename(filepath))[0]
 
 
-def size_human_readable(size_in_bytes: int) -> str:
-    """Convert bytes to human readable format."""
-    for unit in ["B", "KB", "MB", "GB", "TB"]:
-        if size_in_bytes < 1024:
-            return f"{size_in_bytes:.2f} {unit}"
-        size_in_bytes /= 1024  # type: ignore
-    return f"{size_in_bytes:.2f} PB"
+def size_human_readable(size_bytes: int) -> str:
+    """Converts a size in bytes into a readable format (e.g., 10.5 MB)"""
+    if size_bytes == 0:
+        return "0 B"
+
+    units = ("B", "KB", "MB", "GB", "TB")
+    i = 0
+    # A floating point variable is used for calculations
+    current_size: float = float(size_bytes)
+
+    while current_size >= 1024 and i < len(units) - 1:
+        current_size /= 1024
+        i += 1
+
+    # A floating point variable is used for calculations
+    return f"{current_size:.2f} {units[i]}".replace(".00", "")
 
 
 def get_file_size(path: str) -> int:

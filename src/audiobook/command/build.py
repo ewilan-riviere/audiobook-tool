@@ -25,7 +25,15 @@ class CommandBuild:
             config.remove_covers()
 
         print("🔨 Forge M4B...")
-        forge = AudiobookForge(config.mp3_directory, args.clear_old_m4b).build_native()
+        if args.use_rust:
+            print("Use audiobook-forge crate")
+            forge = AudiobookForge(
+                config.mp3_directory, args.clear_old_m4b
+            ).build_rust()
+        else:
+            forge = AudiobookForge(
+                config.mp3_directory, args.clear_old_m4b
+            ).build_native()
         print(f"\n📦 M4B: `{forge.m4b_file}` ({forge.size})\n")
 
         # Set audiobook-forge M4B output

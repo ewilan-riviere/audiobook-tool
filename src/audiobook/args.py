@@ -19,6 +19,12 @@ class AudiobookArgs:
             action="store_true",
             help="Clear old M4B audiobook if present.",
         )
+        m_build.add_argument(
+            "-r",
+            "--rust",
+            action="store_true",
+            help="Use Rust with audiobook-forge crate to forge M4B",
+        )
         m_build.add_argument("-o", "--output")
 
         # Clean
@@ -46,6 +52,7 @@ class AudiobookArgs:
         self.mp3_directory: Optional[str] = getattr(args, "mp3_directory", None)
         self.m4b_output: Optional[str] = getattr(args, "output", None)
         self.clear_old_m4b: bool = getattr(args, "clear", False)
+        self.use_rust: bool = getattr(args, "rust", False)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
 
         if (
