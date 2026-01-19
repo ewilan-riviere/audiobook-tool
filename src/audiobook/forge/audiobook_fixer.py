@@ -30,7 +30,7 @@ class AudiobookFixer:
                 f"{self.input_path.stem}_fixed.m4b"
             )
 
-        print(f"🛠 Repairing structure: {self.input_path.name}...")
+        print(f"🛠  Repairing structure: {self.input_path.name}...")
 
         cmd = [
             "ffmpeg",

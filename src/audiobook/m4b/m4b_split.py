@@ -42,7 +42,7 @@ class M4bSplit:
             )
 
             print(
-                f"Generate Part {i:02} `{output_file.name}`"
+                f"  ✅ Generate Part {i:02} `{output_file.name}`"
                 f"({utils.format_duration(duration)} / {len(part_chapters)} chapters)"
             )
 

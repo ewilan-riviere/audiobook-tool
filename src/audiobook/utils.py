@@ -101,7 +101,7 @@ def get_file(directory_path: str, extension: str) -> Optional[str]:
     return None
 
 
-def get_files(directory_path: str, extension: str) -> list[str]:
+def get_files(directory_path: str, extension: str, printing: bool = False) -> list[str]:
     """
     Recherche les fichiers avec une extension spécifique dans un dossier,
     les trie alphanumériquement et retourne leurs chemins absolus.
@@ -110,7 +110,8 @@ def get_files(directory_path: str, extension: str) -> list[str]:
     root = Path(directory_path)
 
     if not root.is_dir():
-        print(f"Le chemin {directory_path} n'est pas un dossier valide.")
+        if printing:
+            print(f"Le chemin {directory_path} n'est pas un dossier valide.")
         return []
 
     # On récupère les chemins absolus dans une liste
@@ -137,7 +138,7 @@ def move_files(paths: list[str], path_to_move: str) -> None:
 
         # Vérifier si le fichier existe avant de tenter le déplacement
         if not fichier_source.is_file():
-            print(f"⚠️ Fichier introuvable, ignoré : {fichier_source.name}")
+            print(f"⚠️ File not found, ignored: {fichier_source.name}")
             continue
 
         # 2. Définir le chemin de destination final (dossier + nom du fichier)
@@ -146,7 +147,8 @@ def move_files(paths: list[str], path_to_move: str) -> None:
         try:
             # 3. Déplacement
             shutil.move(str(fichier_source), str(fichier_destination))
-            print(f"✅ Moved: {fichier_source.name} -> {path_to_move}")
+            # print(f"✅ Moved: {fichier_source.name} -> {path_to_move}")
+            print(f"✅ Moved: {fichier_source.name}")
         except Exception as e:
             print(f"❌ Error while moving {fichier_source.name} : {e}")
 

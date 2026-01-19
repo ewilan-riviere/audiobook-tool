@@ -1,3 +1,5 @@
+"""Primary conversion manager with real-time logging."""
+
 import os
 from pathlib import Path
 from typing import List, Dict, cast
@@ -10,7 +12,7 @@ from .audiobook_fixer import AudiobookFixer
 
 
 class AudiobookBlacksmith:
-    """Gestionnaire principal de conversion avec logging en temps réel."""
+    """Primary conversion manager with real-time logging."""
 
     def __init__(self, directory_path: str):
         self.directory = Path(directory_path).resolve()
@@ -24,7 +26,7 @@ class AudiobookBlacksmith:
             os.remove(self.output_path)
 
     def _prepare_data(self) -> None:
-        """Initialise la liste des chapitres, calcule le bitrate et extrait les titres des tags."""
+        """Initializes the chapter list, calculates the bitrate, and extracts titles from tags."""
         mp3_files = sorted(list(self.directory.glob("*.mp3")), key=lambda x: x.name)
         if not mp3_files:
             raise FileNotFoundError(f"Aucun fichier MP3 trouvé dans {self.directory}")
@@ -62,12 +64,10 @@ class AudiobookBlacksmith:
         avg_bitrate = min(int(total_bitrate / file_count), 192000)
         self.target_bitrate = f"{int(avg_bitrate / 1000)}k"
 
-        print(
-            f"🔍 Analyse : {file_count} fichiers. Bitrate moyen : {self.target_bitrate}"
-        )
+        print(f"🔍 Analyze: {file_count} files. Average bitrate: {self.target_bitrate}")
 
     def _write_assets(self) -> None:
-        """Génère les fichiers de métadonnées avec échappement des chemins."""
+        """Generates metadata files with path escaping."""
         metadata_lines = [";FFMETADATA1"]
         current_time_ms = 0
 
@@ -97,11 +97,11 @@ class AudiobookBlacksmith:
                 chap.temp_aac_path.unlink()
 
     def process(self) -> None:
-        """Lance l'encodage parallèle et la fusion finale."""
+        """Start parallel encoding and final merging."""
         try:
             self._prepare_data()
             total = len(self.chapters)
-            print(f"🚀 Encodage de {total} fichiers sur {os.cpu_count()} cœurs...")
+            print(f"🚀 Encoding of {total} files on {os.cpu_count()} cores...")
 
             future_to_file: Dict[Future[str], str] = {}
 
@@ -123,20 +123,20 @@ class AudiobookBlacksmith:
                     try:
                         future.result()
                         completed += 1
-                        print(f"  ✅ [{completed}/{total}] Terminé : {filename}")
+                        print(f"  ✅ [{completed}/{total}] Done: {filename}")
                     except Exception as e:
-                        print(f"  ❌ Erreur sur {filename} : {e}")
+                        print(f"  ❌ Error on {filename}: {e}")
                         raise
 
-            print("📦 Fusion finale et création des chapitres...")
+            print("📦 Final merger and creation of chapters...")
             self._write_assets()
             FFmpegRunner.merge_to_m4b(self.list_path, self.meta_path, self.output_path)
-            print(f"✨ Terminé avec succès : {self.output_path.name}")
+            print(f"✨ Successfully completed: {self.output_path.name}")
 
         except Exception as e:
-            print(f"\n💥 Échec du processus : {e}")
+            print(f"\n💥 Process failure : {e}")
         finally:
-            print("🧹 Nettoyage des fichiers temporaires...")
+            print("🧹 Cleaning temporary files...")
             self._cleanup()
 
     def validate(self) -> None:

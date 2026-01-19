@@ -1,3 +1,5 @@
+"""Represents a chapter of the audiobook."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
@@ -6,7 +8,7 @@ from mutagen.mp3 import MP3, MPEGInfo
 
 @dataclass
 class AudioChapter:
-    """Représente un chapitre du livre audio."""
+    """Represents a chapter of the audiobook."""
 
     source_path: Path
     temp_aac_path: Path

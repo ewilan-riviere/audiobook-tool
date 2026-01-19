@@ -20,10 +20,11 @@ class CommandBuild:
         config = ConfigBuild(args)
         utils.delete_directory(config.m4b_directory_output)
 
-        # Remove MP3 files source covers
         if args.clear_old_m4b:
+            print("Remove MP3 files source covers...")
             config.remove_covers()
 
+        print("Forge M4B...")
         forge = AudiobookForge(config.mp3_directory, args.clear_old_m4b).build_native()
         print(f"\nM4B: `{forge.m4b_file}` ({forge.size})\n")
 
@@ -35,19 +36,19 @@ class CommandBuild:
         # with MP3 source files `title`
         # M4bChapterEditor(config).run()
 
-        # Split M4B file into multiple M4B
+        print("Split M4B file into multiple M4B...")
         split = M4bSplit(config).run()
         config.m4b_split_paths = split.m4b_split_paths
 
-        # Update tags with metadata.yml
+        print("Update tags with metadata.yml...")
         M4bTagger(config).run()
 
-        # Rename M4B splitted
+        print("Rename M4B splitted...")
         config.m4b_split_paths = M4bRenamer(config).run()
 
+        print("Cleaning...")
         # Move files to m4b_directory_output
         utils.move_files(config.m4b_split_paths, config.m4b_directory_output)
-        # utils.rename_directory(config.m4b_directory_output, config.metadata_yml.title)
         # Delete temporary directory for M4B generation
         config.temporary_directory_delete()
 
