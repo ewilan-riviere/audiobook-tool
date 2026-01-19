@@ -30,7 +30,6 @@ class M4bSplit:
         temporary_dir = Path(self._temp_directory.name)
         generated_files: List[Path] = []
 
-        print("Step begin")
         for i, part_chapters in enumerate(self._split_plan, 1):
             first_chapter = part_chapters[0]
             last_chapter = part_chapters[-1]
@@ -98,7 +97,6 @@ class M4bSplit:
             generated_files.append(output_file.resolve())
             meta_file.unlink()  # Nettoyage
 
-        print("Step end")
         self.m4b_split_paths = [str(p) for p in generated_files]
         return self
 
