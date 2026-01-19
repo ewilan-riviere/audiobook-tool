@@ -83,7 +83,7 @@ def get_mp3_title(filepath: str) -> str:
 
 
 def size_human_readable(size_bytes: int) -> str:
-    """Doit renvoyer une STR, pas un tuple"""
+    """Return size as `str` human readable from bytes"""
     if size_bytes == 0:
         return "0 B"
     units = ("B", "KB", "MB", "GB", "TB")
@@ -95,21 +95,25 @@ def size_human_readable(size_bytes: int) -> str:
     return f"{current_size:.2f} {units[i]}".replace(".00", "")
 
 
-def format_duration(seconds: float) -> str:
-    """Assurez-vous que cette fonction renvoie aussi une STR"""
+def format_duration(seconds: float, short: bool = False) -> str:
+    """Convert seconds to human readable duration"""
     h = int(seconds // 3600)
     m = int((seconds % 3600) // 60)
     s = int(seconds % 60)
     if h > 0:
-        return f"{h}h {m:02}m {s:02}s"
-    return f"{m:02}m {s:02}s"
+        d = f"{h}h {m:02}m {s:02}s"
+        if short:
+            return _format_duration_short(d)
+        return d
 
-
-def format_duration_short(seconds: float) -> str:
-    d = format_duration(seconds)
-    d = d.replace(" ", ":").replace("h", "").replace("m", "").replace("s", "")
-
+    d = f"{m:02}m {s:02}s"
+    if short:
+        return _format_duration_short(d)
     return d
+
+
+def _format_duration_short(duration: str) -> str:
+    return duration.replace(" ", ":").replace("h", "").replace("m", "").replace("s", "")
 
 
 def get_file_size(path: str) -> int:

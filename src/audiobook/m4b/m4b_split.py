@@ -38,10 +38,6 @@ class M4bSplit:
             end_t = float(last_chapter.end_time)
             duration = end_t - start_t
 
-            print("Step loop 1")
-            # output_file = (
-            #     temporary_dir / f"{Path(str(self._m4b_path)).stem} - Part {i:02}.m4b"
-            # )
             output_file = (
                 temporary_dir / f"{Path(str(self._m4b_path)).stem} - Part {i:02}.m4b"
             )
@@ -59,7 +55,6 @@ class M4bSplit:
                     f.write(f"title={chap.title}\n")
 
             # --- ÉTAPE 2: Exécuter FFmpeg (Indispensable AVANT de calculer la taille) ---
-            print("Step loop 2")
             cmd = [
                 "ffmpeg",
                 "-loglevel",
@@ -91,18 +86,15 @@ class M4bSplit:
             subprocess.run(cmd, check=True)
 
             # --- ÉTAPE 3: Maintenant que le fichier existe, on récupère sa taille ---
-            print("Step loop 3")
             size = utils.get_file_size(str(output_file))
-            size_hr = utils.size_human_readable(size)  # C'est maintenant une STR
-            duration_str = utils.format_duration(duration)  # C'est maintenant une STR
+            size_hr = utils.size_human_readable(size)
+            duration_str = utils.format_duration(duration, short=True)
 
-            print("Step loop 4")
             print(
                 f"  ✅ Generate Part {i:02} `{output_file.name}` "
                 f"({duration_str} / {len(part_chapters)} chap.) / {size_hr}"
             )
 
-            print("Step loop 5")
             generated_files.append(output_file.resolve())
             meta_file.unlink()  # Nettoyage
 
