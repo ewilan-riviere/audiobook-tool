@@ -1,12 +1,14 @@
-"""audiobook-forge wrapper from https://crates.io/crates/audiobook-forge"""
+"""Forge audiobook from MP3 to M4B with Python or audiobook-forge (Rust)"""
 
 import subprocess
 import os
 from pathlib import Path
+from audiobook.forge import AudiobookBlacksmith
+import audiobook.utils as utils
 
 
 class AudiobookForge:
-    """audiobook-forge wrapper from https://crates.io/crates/audiobook-forge"""
+    """Forge audiobook from MP3 to M4B with Python or audiobook-forge (Rust)"""
 
     def __init__(self, mp3_directory: str, clear_old_file: bool = False):
         self._mp3_directory = mp3_directory
@@ -40,8 +42,25 @@ class AudiobookForge:
             self._size /= 1024
         return f"{self._size:.2f} PB"
 
-    def build(self):
+    def build_native(self):
+        """Execute build command with Python"""
+        if utils.file_exists(self._m4b_file):
+            print(f"File {self._m4b_file} exists, skipping forge...")
+            return self
+
+        blacksmith = AudiobookBlacksmith(self._mp3_directory)
+        blacksmith.process()
+        blacksmith.validate()
+
+        return self
+
+    def build_rust(self):
         """Execute build command from audiobook-forge"""
+
+        if utils.file_exists(self._m4b_file):
+            print(f"File {self._m4b_file} exists, skipping forge...")
+            return self
+
         try:
             subprocess.run(
                 [

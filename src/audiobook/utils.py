@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-from typing import Optional
+from typing import Optional, Union
 import os
 import platform
 import subprocess
@@ -196,6 +196,20 @@ def delete_directory(directory_path: str | Path):
         print(f"Delete {directory_path}")
     else:
         print(f"Directory {directory_path} not exists")
+
+
+def file_exists(path: Union[str, Path]) -> bool:
+    """
+    Vérifie si un fichier existe à l'emplacement donné.
+
+    Args:
+        path: Le chemin du fichier (string ou objet Path).
+
+    Returns:
+        True si le chemin existe ET qu'il s'agit d'un fichier.
+    """
+    path_obj = Path(path)
+    return path_obj.is_file()
 
 
 def delete_file(file_path: str | Path):

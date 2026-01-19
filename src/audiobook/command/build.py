@@ -1,15 +1,15 @@
 """build command of audiobook-tool"""
 
 from audiobook.args import AudiobookArgs
-from audiobook.package import AudiobookForge
 from audiobook.m4b import (
     M4bRenamer,
     M4bSplit,
-    M4bChapterEditor,
+    # M4bChapterEditor,
     M4bTagger,
 )
 import audiobook.utils as utils
 from audiobook.config import ConfigBuild
+from audiobook.forge import AudiobookForge
 
 
 class CommandBuild:
@@ -24,17 +24,16 @@ class CommandBuild:
         if args.clear_old_m4b:
             config.remove_covers()
 
-        # Create audiobook with audiobook-forge
-        # https://crates.io/crates/audiobook-forge
-        forge = AudiobookForge(config.mp3_directory, args.clear_old_m4b).build()
+        forge = AudiobookForge(config.mp3_directory, args.clear_old_m4b).build_native()
         print(f"\nM4B: `{forge.m4b_file}` ({forge.size})\n")
 
         # Set audiobook-forge M4B output
         config.set_m4b_forge_path(forge.m4b_file)
 
+        # Only with audiobook-forge
         # Edit chapters of audiobook-forge M4B output
         # with MP3 source files `title`
-        M4bChapterEditor(config).run()
+        # M4bChapterEditor(config).run()
 
         # Split M4B file into multiple M4B
         split = M4bSplit(config).run()
