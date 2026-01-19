@@ -83,15 +83,33 @@ def get_mp3_title(filepath: str) -> str:
 
 
 def size_human_readable(size_bytes: int) -> str:
+    """Doit renvoyer une STR, pas un tuple"""
     if size_bytes == 0:
         return "0 B"
     units = ("B", "KB", "MB", "GB", "TB")
     i = 0
-    current_size: float = float(size_bytes)
+    current_size = float(size_bytes)
     while current_size >= 1024 and i < len(units) - 1:
         current_size /= 1024
         i += 1
     return f"{current_size:.2f} {units[i]}".replace(".00", "")
+
+
+def format_duration(seconds: float) -> str:
+    """Assurez-vous que cette fonction renvoie aussi une STR"""
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    if h > 0:
+        return f"{h}h {m:02}m {s:02}s"
+    return f"{m:02}m {s:02}s"
+
+
+def format_duration_short(seconds: float) -> str:
+    d = format_duration(seconds)
+    d = d.replace(" ", ":").replace("h", "").replace("m", "").replace("s", "")
+
+    return d
 
 
 def get_file_size(path: str) -> int:
@@ -102,28 +120,6 @@ def get_file_size(path: str) -> int:
         print(f"ERROR: file not found at {path}")
 
     return 0
-
-
-def format_duration_full(seconds_float: float | str) -> str:
-    """Format seconds into human readable text"""
-    total_seconds = int(seconds_float)
-    hours, remainder = divmod(total_seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    if hours > 0:
-        return f"{hours}h {minutes:02}m {seconds:02}s"
-
-    return f"{minutes}m {seconds:02}s"
-
-
-def format_duration(seconds_float: float | str) -> str:
-    """Format seconds into human readable text"""
-    total_seconds = int(seconds_float)
-    hours, remainder = divmod(total_seconds, 3600)
-    minutes = divmod(remainder, 60)
-    if hours > 0:
-        return f"{hours}:{minutes:02}"
-
-    return f"00:{minutes}"
 
 
 def get_file(directory_path: str, extension: str) -> Optional[str]:
