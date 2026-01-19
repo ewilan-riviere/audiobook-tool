@@ -189,13 +189,15 @@ def rename_directory(absolute_path: str, new_name: str) -> str:
     return str(new_path.resolve())
 
 
-def delete_directory(directory_path: str | Path):
+def delete_directory(directory_path: str | Path, printing: bool = False):
     """Delete directory"""
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
-        print(f"Delete {directory_path}")
+        if printing:
+            print(f"Delete {directory_path}")
     else:
-        print(f"Directory {directory_path} not exists")
+        if printing:
+            print(f"Directory {directory_path} not exists")
 
 
 def file_exists(path: Union[str, Path]) -> bool:
@@ -212,13 +214,15 @@ def file_exists(path: Union[str, Path]) -> bool:
     return path_obj.is_file()
 
 
-def delete_file(file_path: str | Path):
+def delete_file(file_path: str | Path, printing: bool = False):
     """Delete file"""
     if os.path.exists(file_path):
         os.remove(file_path)
-        print(f"Delete {file_path}")
+        if printing:
+            print(f"Delete {file_path}")
     else:
-        print(f"File {file_path} not exists")
+        if printing:
+            print(f"File {file_path} not exists")
 
 
 def make_directory(directory_path: str | Path) -> Path:
