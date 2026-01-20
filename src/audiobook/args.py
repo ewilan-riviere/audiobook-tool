@@ -8,6 +8,15 @@ class AudiobookArgs:
     def __init__(self, parser: ArgumentParser):
         subparsers = parser.add_subparsers(dest="command", required=True)
 
+        # Audible
+        m_audible = subparsers.add_parser(
+            "audible", help="Fetch Audible to get metadata"
+        )
+        m_audible.add_argument(
+            "asin",
+            help="ASIN of Audible book like `B008Y43GBY` (available in Audible book's URL)",
+        )
+
         # Build
         m_build = subparsers.add_parser(
             "build", help="Build MP3 files to M4B (include forge command)"
@@ -54,6 +63,12 @@ class AudiobookArgs:
         self.clear_old_m4b: bool = getattr(args, "clear", False)
         self.use_rust: bool = getattr(args, "rust", False)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
+        self.asin: Optional[str] = getattr(args, "asin", None)
+
+        if self.command in ["audible"] and self.asin is None:
+            parser.error(
+                f"L'argument 'asin' est requis pour la commande {self.command}"
+            )
 
         if (
             self.command in ["build", "clean", "forge", "fusion"]

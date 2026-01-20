@@ -5,6 +5,7 @@ import sys
 import logging
 from .args import AudiobookArgs
 from .command import (
+    CommandAudible,
     CommandBuild,
     CommandClean,
     CommandExtract,
@@ -36,7 +37,9 @@ def main() -> None:
     print(f"Execute command {args.command}...\n")
 
     try:
-        if args.command == "build":
+        if args.command == "audible":
+            CommandAudible(args)
+        elif args.command == "build":
             CommandBuild(args)
         elif args.command == "clean":
             CommandClean(args)
