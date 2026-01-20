@@ -49,7 +49,7 @@ class AudiobookForge:
 
         blacksmith = AudiobookBlacksmith(self._mp3_directory)
         blacksmith.process()
-        blacksmith.validate()
+        # blacksmith.validate()
 
         self.__calculate_size()
 

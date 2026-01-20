@@ -17,8 +17,10 @@ class FFmpegRunner:
             "aac",
             "-b:a",
             bitrate,
+            "-ar",
+            "44100",  # Force 44.1kHz pour tous
             "-ac",
-            "2",
+            "2",  # Force Stéréo pour tous
             "-loglevel",
             "error",
             str(output_path),
@@ -29,11 +31,10 @@ class FFmpegRunner:
     @staticmethod
     def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> None:
         temp_combined = output_path.with_suffix(".temp.m4a")
-        # Work in the directory of the files to simplify paths for FFmpeg
         working_dir = input_list.parent
 
         try:
-            # 1. Concat with safe 0 and local paths
+            # 1. Concaténation avec le bon flag de filtre bitstream
             subprocess.run(
                 [
                     "ffmpeg",
@@ -43,18 +44,20 @@ class FFmpegRunner:
                     "-safe",
                     "0",
                     "-i",
-                    input_list.name,  # Use just the filename
+                    input_list.name,
                     "-c",
                     "copy",
+                    "-bsf:a",
+                    "aac_adtstoasc",  # <--- Syntaxe corrigée ici
                     "-loglevel",
                     "error",
                     temp_combined.name,
                 ],
-                cwd=working_dir,  # Execute inside the folder
+                cwd=working_dir,
                 check=True,
             )
 
-            # 2. Add metadata
+            # 2. Ajout des métadonnées
             subprocess.run(
                 [
                     "ffmpeg",

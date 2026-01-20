@@ -1,4 +1,4 @@
-"""main script of audiobook-tool"""
+"""audiobook-tool main"""
 
 import argparse
 import sys
@@ -11,6 +11,7 @@ from .command import (
     CommandForge,
     CommandFusion,
 )
+from .env import python_check
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,10 +21,15 @@ logging.basicConfig(
 
 
 def main() -> None:
-    """audiobook-tool main def"""
-    print("audiobook-tool: CLI to handle audiobooks")
-    parser = argparse.ArgumentParser(prog="audiobook-tool")
+    """audiobook-tool main"""
+    parser = argparse.ArgumentParser(
+        prog="audiobook-tool",
+        description="CLI to handle audiobooks",
+    )
+
     args = AudiobookArgs(parser)
+    python_check()
+
     print(f"Execute command {args.command}...\n")
 
     try:

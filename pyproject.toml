@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "audiobook-cli"
 version = "0.1.0"
 dependencies = ["pyyaml", "mutagen", "dotenv"]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 readme = "README.md"
 description = "Handle audiobooks with Python."
 authors = [{ name = "Ewilan Rivière" }]
