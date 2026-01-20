@@ -8,6 +8,7 @@ from mutagen.easymp4 import EasyMP4
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4Cover
+import re
 from .metadata_chapter import MetadataChapter
 
 
@@ -23,6 +24,7 @@ class MetadataFile:
             return
 
         self.path = path
+        self.year = None
         self._load()
 
         if not self.instance:
@@ -173,17 +175,20 @@ class MetadataFile:
         track = self._extract_meta("tracknumber")
         self.language = self._extract_meta("language")
         self.genre = self._extract_meta("genre")
-        year = self._extract_meta("date")
+        date = self._extract_meta("date")
+        match_year = None
+        if date:
+            match_year = re.search(r"\d{4}", date)
         self.asin = self._extract_meta("asin")
 
         if is_compilation and is_compilation == "1":
             self.is_compilation = True
         else:
             self.is_compilation = False
-        if year:
-            self.year = int(year)
-        else:
-            self.year = None
+
+        if match_year:
+            self.year = int(match_year.group())
+
         if track:
             if "/" in track:
                 track = track.split("/")
