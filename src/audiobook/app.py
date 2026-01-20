@@ -30,6 +30,9 @@ def main() -> None:
     args = AudiobookArgs(parser)
     python_check()
 
+    print("")
+    print(parser.prog)
+    print(parser.description)
     print(f"Execute command {args.command}...\n")
 
     try:

@@ -20,6 +20,8 @@ class CommandBuild:
         config = ConfigBuild(args)
         utils.delete_directory(config.m4b_directory_output)
 
+        print(f"Handle {args.mp3_directory}...")
+
         if args.clear_old_m4b:
             print("🖼️ Remove MP3 files source covers...")
             config.remove_covers()

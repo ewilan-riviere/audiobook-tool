@@ -7,7 +7,7 @@ class FFmpegRunner:
 
     @staticmethod
     def encode_to_aac(input_path: Path, output_path: Path, bitrate: str) -> str:
-        """Ré-encode un fichier et retourne son nom pour le logging."""
+        """Ré-encode un fichier avec paramètres fixes pour garantir la fusion."""
         cmd = [
             "ffmpeg",
             "-y",
@@ -18,9 +18,9 @@ class FFmpegRunner:
             "-b:a",
             bitrate,
             "-ar",
-            "44100",  # Force 44.1kHz pour tous
+            "44100",  # Force la fréquence à 44.1kHz (Standard M4B)
             "-ac",
-            "2",  # Force Stéréo pour tous
+            "2",  # Force le passage en Stéréo (2 canaux)
             "-loglevel",
             "error",
             str(output_path),
