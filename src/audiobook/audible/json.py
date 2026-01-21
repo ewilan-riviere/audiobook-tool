@@ -9,6 +9,7 @@ import isodate  # type: ignore
 import httpx
 from bs4 import BeautifulSoup
 from .metadata import AudibleMetadata
+from .parser import AudibleParser
 
 
 class AudibleJson:
@@ -16,15 +17,18 @@ class AudibleJson:
 
     def __init__(self, asin: str):
         self._asin = asin
+        self._url_valid: str | None = None
         self._jsonld: dict[str, Any] | None = None
         self.jsonld_found = False
         self.audiobook: AudibleMetadata | None = None
 
+        # https://audible.readthedocs.io/en/latest/marketplaces/marketplaces.html
         for suffix in ["fr", "com", "co.uk", "de"]:
             self._parse_audible(suffix)
 
         if self._jsonld:
             self.audiobook = self._parse_jsonld()
+            self._parse_web()
         else:
             print(f"Error: no metadata found for ASIN {self._asin}.")
 
@@ -52,6 +56,17 @@ class AudibleJson:
         audiobook.save_cover("cover.jpg")
 
         return audiobook
+
+    def _parse_web(self):
+        if not self._url_valid:
+            return self
+
+        parser = AudibleParser(self._url_valid)
+
+        if self.audiobook:
+            self.audiobook.series = parser.series_name_alt
+            self.audiobook.volume = parser.volume
+            self.audiobook.genres = parser.genres
 
     def _extract(self, key: str) -> str | None:
         """Extract key fron JSON LD as `str`"""
@@ -170,6 +185,7 @@ class AudibleJson:
         if jsonld:
             self._jsonld = jsonld
             self.jsonld_found = True
+            self._url_valid = url
 
             return jsonld  # type: ignore
         else:

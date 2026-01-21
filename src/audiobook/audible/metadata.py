@@ -27,6 +27,10 @@ class AudibleMetadata:
         self.language: str | None = None  # english
         self.is_abridged: bool = False
 
+        self.series: str | None = None
+        self.volume: int | None = None
+        self.genres: list[str] | None = []
+
     def get_authors(self):
         if self.authors:
             return self._format_list(self.authors)
@@ -48,6 +52,12 @@ class AudibleMetadata:
     def get_language(self):
         if self.language:
             return self.language.title()
+
+        return None
+
+    def get_genres(self):
+        if self.genres:
+            return self._format_list(self.genres, "/")
 
         return None
 
@@ -89,14 +99,11 @@ class AudibleMetadata:
         return separator.join(items)
 
     def __str__(self) -> str:
-        authors = ", ".join(self.authors) if self.authors else "Unknown"
-        narrators = ", ".join(self.narrators) if self.narrators else "Unknown"
-
         details = (
             f"asin: {self.asin}\n"
             f"title: {self.title}\n"
-            f"authors: {authors}\n"
-            f"narrators: {narrators}\n"
+            f"authors: {self.get_authors()}\n"
+            f"narrators: {self.get_narrators()}\n"
             f"description: {self.description}\n"
             f"release_date: {self.release_date}\n"
             f"duration_human: {self.duration_human}\n"
@@ -107,5 +114,8 @@ class AudibleMetadata:
             f"publisher: {self.publisher}\n"
             f"language: {self.language}\n"
             f"is_abridged: {self.is_abridged}\n"
+            f"series: {self.series}\n"
+            f"volume: {self.volume}\n"
+            f"genres: {self.get_genres()}\n"
         )
         return f"{details}"

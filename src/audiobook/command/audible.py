@@ -11,12 +11,12 @@ class CommandAudible:
     def __init__(self, args: AudiobookArgs):
         self._args = args
 
-        print(f"Fetch Audible metadata for {args.asin}...")
-        if not args.asin:
+        print(f"Fetch Audible metadata for {self._args.asin}...")
+        if not self._args.asin:
             print("Error: ASIN is necessary.")
             sys.exit(1)
 
-        json = AudibleJson(args.asin)
+        json = AudibleJson(self._args.asin)
         print(json.audiobook)
 
         if json.audiobook:
