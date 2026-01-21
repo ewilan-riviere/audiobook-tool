@@ -8,7 +8,7 @@ version = "0.1.0"
 dependencies = ["pyyaml", "mutagen", "dotenv", "isodate"]
 requires-python = ">=3.12"
 readme = "README.md"
-description = "Handle audiobooks with Python."
+description = "Python CLI to handle audiobooks: build from MP3, extract from M4B, fusion MP3 to M4B, fetch metadata..."
 authors = [{ name = "Ewilan Rivière" }]
 
 [project.scripts]
