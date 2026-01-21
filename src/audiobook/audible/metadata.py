@@ -1,9 +1,9 @@
-import yaml
-from pathlib import Path
-from typing import Any
-import audiobook.utils as utils
+"""Represent Audible audiobook"""
+
 from datetime import datetime, time
+from pathlib import Path
 import requests
+import audiobook.utils as utils
 
 
 class AudibleMetadata:
@@ -26,6 +26,30 @@ class AudibleMetadata:
         self.publisher: str | None = None  # HarperCollins Publishers Limited
         self.language: str | None = None  # english
         self.is_abridged: bool = False
+
+    def get_authors(self):
+        if self.authors:
+            return self._format_list(self.authors)
+
+        return None
+
+    def get_narrators(self):
+        if self.narrators:
+            return self._format_list(self.narrators)
+
+        return None
+
+    def get_year(self):
+        if self.release_date:
+            return self.release_date.year
+
+        return None
+
+    def get_language(self):
+        if self.language:
+            return self.language.title()
+
+        return None
 
     def save_cover(self, filename: str | None = None):
         """Download the cover image to Downloads"""
@@ -60,6 +84,9 @@ class AudibleMetadata:
         except requests.exceptions.RequestException as e:
             print(f"Error when downloading: {e}")
             return self
+
+    def _format_list(self, items: list[str], separator: str = " & ") -> str:
+        return separator.join(items)
 
     def __str__(self) -> str:
         authors = ", ".join(self.authors) if self.authors else "Unknown"

@@ -19,7 +19,5 @@ class CommandAudible:
         json = AudibleJson(args.asin)
         print(json.audiobook)
 
-        # cover = AudibleCover(content.cover_url).download()
-        # print(cover)
-
-        # AudibleYml()
+        if json.audiobook:
+            AudibleYml(json.audiobook)

@@ -49,6 +49,8 @@ class AudibleJson:
         audiobook.language = self._extract("inLanguage")
         audiobook.is_abridged = self._extract("abridged") == "true"
 
+        audiobook.save_cover("cover.jpg")
+
         return audiobook
 
     def _extract(self, key: str) -> str | None:
