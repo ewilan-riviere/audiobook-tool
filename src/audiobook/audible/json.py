@@ -62,6 +62,7 @@ class AudibleJson:
             return self
 
         parser = AudibleParser(self._url_valid)
+        print(parser)
 
         if self.audiobook:
             self.audiobook.series = parser.series_name_alt
