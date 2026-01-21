@@ -1,7 +1,8 @@
 """audible command of audiobook-tool"""
 
+import sys
 from audiobook.args import AudiobookArgs
-from audiobook.audible import AudibleContent, AudibleCover
+from audiobook.audible import AudibleJson, AudibleYml
 
 
 class CommandAudible:
@@ -10,10 +11,15 @@ class CommandAudible:
     def __init__(self, args: AudiobookArgs):
         self._args = args
 
-        # asin = "B008Y43GBY"
-        asin = "B0BKP24LN8"
-        content = AudibleContent(asin)
-        print(content)
+        print(f"Fetch Audible metadata for {args.asin}...")
+        if not args.asin:
+            print("Error: ASIN is necessary.")
+            sys.exit(1)
 
-        cover = AudibleCover(content.cover_url).download()
-        print(cover)
+        json = AudibleJson(args.asin)
+        print(json.audiobook)
+
+        # cover = AudibleCover(content.cover_url).download()
+        # print(cover)
+
+        # AudibleYml()

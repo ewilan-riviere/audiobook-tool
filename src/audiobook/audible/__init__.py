@@ -1,7 +1,9 @@
-from .content import AudibleContent
-from .cover import AudibleCover
+from .json import AudibleJson
+from .metadata import AudibleMetadata
+from .yml import AudibleYml
 
 __all__ = [
-    "AudibleContent",
-    "AudibleCover",
+    "AudibleJson",
+    "AudibleMetadata",
+    "AudibleYml",
 ]
