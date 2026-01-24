@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 from typing import List, Dict, cast
+import subprocess
 from concurrent.futures import as_completed, Future
 from concurrent.futures.process import ProcessPoolExecutor
 from mutagen.mp3 import MP3, MPEGInfo
@@ -67,13 +68,16 @@ class AudiobookBlacksmith:
         print(f"🔍 Analyze: {file_count} files. Average bitrate: {self.target_bitrate}")
 
     def _write_assets(self) -> None:
-        """Generates metadata files with path escaping."""
+        """Génère les métadonnées basées sur la durée RÉELLE des fichiers encodés."""
         metadata_lines = [";FFMETADATA1"]
         current_time_ms = 0
 
         with open(self.list_path, "w", encoding="utf-8") as f_list:
             for chap in self.chapters:
-                duration = chap.load_duration()
+                # 💡 CALCULER LA DURÉE SUR LE FICHIER AAC TEMP, PAS LE MP3
+                # Le format AAC/ADTS n'a pas toujours de header de durée,
+                # on peut utiliser FFmpeg pour obtenir la durée exacte si Mutagen peine
+                duration = self._get_exact_duration_ms(chap.temp_aac_path)
 
                 metadata_lines.append(
                     f"\n[CHAPTER]\nTIMEBASE=1/1000\nSTART={current_time_ms}"
@@ -81,12 +85,25 @@ class AudiobookBlacksmith:
                 current_time_ms += duration
                 metadata_lines.append(f"END={current_time_ms}\ntitle={chap.title}")
 
-                # IMPORTANT: FFmpeg concat needs single quotes escaped for filenames
-                # We replace ' with '\' (FFmpeg escape sequence)
                 escaped_name = chap.temp_aac_path.name.replace("'", "'\\''")
                 f_list.write(f"file '{escaped_name}'\n")
 
         self.meta_path.write_text("\n".join(metadata_lines), encoding="utf-8")
+
+    def _get_exact_duration_ms(self, path: Path) -> int:
+        """Utilise ffprobe pour obtenir la durée exacte du fichier encodé."""
+        cmd = [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ]
+        result = subprocess.check_output(cmd).decode("utf-8").strip()
+        return int(float(result) * 1000)
 
     def _cleanup(self) -> None:
         for path in [self.meta_path, self.list_path]:
