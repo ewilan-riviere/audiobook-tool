@@ -50,7 +50,7 @@ def main() -> None:
         elif args.command == "fusion":
             CommandFusion(args)
     except Exception as e:
-        logging.getLogger("audiobook.cli").error(f"Error: {e}")
+        logging.getLogger("audiobook.cli").error("Error: %s", e)
         sys.exit(1)
 
 
