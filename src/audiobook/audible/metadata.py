@@ -64,6 +64,9 @@ class AudibleMetadata:
     def save_cover(self, filename: str | None = None):
         """Download the cover image to Downloads"""
         _download_path = utils.path_join(str(Path.home()), "Downloads")
+        # upscayl cover
+        # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
+        # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
 
         try:
             # If no name is provided, the file name is extracted from the URL
