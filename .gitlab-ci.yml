@@ -13,6 +13,5 @@ test-job:
   script:
     - pip install -e .
     - audiobook-tool -h
-    - echo "Ready!"
   only:
     - main
