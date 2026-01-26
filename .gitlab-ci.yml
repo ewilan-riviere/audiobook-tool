@@ -12,7 +12,7 @@ test-job:
     - apt-get install -y ffmpeg
   script:
     - pip install -e .
-    - audiobook-tool
+    - audiobook-tool -h
     - echo "Ready!"
   only:
     - main
