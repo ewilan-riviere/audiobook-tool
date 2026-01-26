@@ -7,6 +7,10 @@ class MetadataAudiobook:
     """Represents metadata.yml as object"""
 
     def __init__(self, yml: Dict[str, Any], default_title: str):
+        volume = yml.get("volume") or None
+        if yml.get("volume") == 0:
+            volume = 0
+
         self.title: str = yml.get("title") or default_title
         self.authors: str | None = yml.get("authors") or None
         self.narrators: str | None = yml.get("narrators") or None
@@ -15,7 +19,7 @@ class MetadataAudiobook:
         self.copyright: str | None = yml.get("copyright") or None
         self.genres: str | None = yml.get("genres") or None
         self.series: str | None = yml.get("series") or None
-        self.volume: int | None = yml.get("volume") or None
+        self.volume: int | None = volume
         self.language: str | None = yml.get("language") or None
         self.year: int | None = yml.get("year") or None
         self.publisher: str | None = yml.get("publisher") or None

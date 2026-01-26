@@ -63,7 +63,6 @@ class MP3Handler(AudioHandler):
 
         # Compilation (booléen)
         tcmp_frame = tags.get("TCMP")  # type: ignore
-        # Line too long (102/100)PylintC0301:line-too-long
         data["compilation"] = (
             True if tcmp_frame and "1" in str(tcmp_frame) else False  # type: ignore
         )

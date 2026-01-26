@@ -42,13 +42,12 @@ class MetadataYml:
             with open(self.yml_path, "r", encoding="utf-8") as f:
                 content = yaml.safe_load(f)
                 if isinstance(content, dict):
-                    logger.info("Successfully loaded metadata.yml")
                     self.yml_data = cast(Dict[str, Any], content)
 
                     return self
                 return self
         except Exception as e:
-            logger.warning(f"Could not parse metadata.yml: {e}")
+            logger.warning("Could not parse metadata.yml: %s", e)
             return self
 
     def __str__(self) -> str:
