@@ -76,7 +76,7 @@ class AudibleJson:
         value = str(self._jsonld.get(key, ""))
         value = self._clean_text(value)
 
-        return value
+        return self._clean_text(value)
 
     def _extract_people(self, key: str) -> list[str] | None:
         """Extract key fron JSON LD as `list[str]`"""
@@ -90,7 +90,11 @@ class AudibleJson:
         values_list = cast(list[dict[str, Any]], values)
         final_list = [str(a.get("name", "")) for a in values_list]
 
-        return final_list
+        items: list[str] = []
+        for v in final_list:
+            items.append(self._clean_text(v))
+
+        return items
 
     def _duration_human(self, iso_duration: str | None) -> str | None:
         """Parse ISO 8601 to human duration"""
@@ -108,6 +112,12 @@ class AudibleJson:
 
         duration = isodate.parse_duration(iso_duration)  # type: ignore
         return (datetime.min + duration).time()  # type: ignore
+
+    def _clean_value(self, value: str | None):
+        if not value:
+            return None
+
+        return html.unescape(value)
 
     def _handle_rating(self, key: str):
         """Handle rating"""

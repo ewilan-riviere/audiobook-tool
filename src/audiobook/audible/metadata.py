@@ -27,35 +27,42 @@ class AudibleMetadata:
         self.language: str | None = None  # english
         self.is_abridged: bool = False
 
-        self.series: str | None = None
-        self.volume: int | None = None
-        self.genres: list[str] | None = []
+        self.series: str | None = None  # The Farseer Trilogy
+        self.volume: int | None = None  # 1
+        self.genres: list[str] | None = (
+            []
+        )  # Action et aventure/Animaux/Dragons et créatures mythiques/Fantasy/Fiction/Épique
 
     def get_authors(self):
+        """Get authors"""
         if self.authors:
             return self._format_list(self.authors)
 
         return None
 
     def get_narrators(self):
+        """Get narrators"""
         if self.narrators:
             return self._format_list(self.narrators)
 
         return None
 
     def get_year(self):
+        """Get year"""
         if self.release_date:
             return self.release_date.year
 
         return None
 
     def get_language(self):
+        """Get language"""
         if self.language:
             return self.language.title()
 
         return None
 
     def get_genres(self):
+        """Get genres"""
         if self.genres:
             return self._format_list(self.genres, "/")
 
