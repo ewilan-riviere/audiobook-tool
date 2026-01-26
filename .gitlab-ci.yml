@@ -14,7 +14,8 @@ deploy-job:
     # - mkdir -p ~/.ssh && chmod 700 ~/.ssh
     # - ssh-keyscan -p $MAIN_SSH_PORT $MAIN_IP >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
 
-  # script:
+  script:
+    - echo "Ready!"
   #   - ssh -p $MAIN_SSH_PORT $MAIN_USER@$MAIN_IP "
   #     . ~/.zshrc &&
   #     cd /var/www/$CI_PROJECT_NAME &&
