@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "audiobook-cli"
 version = "0.1.0"
-dependencies = ["pyyaml", "mutagen", "dotenv", "isodate"]
+dependencies = ["pyyaml", "mutagen", "dotenv", "isodate", "httpx"]
 requires-python = ">=3.12"
 readme = "README.md"
 description = "Python CLI to handle audiobooks: build from MP3, extract from M4B, fusion MP3 to M4B, fetch metadata..."
