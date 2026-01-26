@@ -1,0 +1,26 @@
+variables:
+  DOCKER_IMAGE: "python:3.12-slim"
+
+stages:
+  - deploy
+
+deploy-job:
+  stage: deploy
+  image: $DOCKER_IMAGE
+  before_script:
+    - pip install -e .
+    # - eval $(ssh-agent -s)
+    # - echo "$GITLAB_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    # - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    # - ssh-keyscan -p $MAIN_SSH_PORT $MAIN_IP >> ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+
+  # script:
+  #   - ssh -p $MAIN_SSH_PORT $MAIN_USER@$MAIN_IP "
+  #     . ~/.zshrc &&
+  #     cd /var/www/$CI_PROJECT_NAME &&
+  #     git pull &&
+  #     docker compose down &&
+  #     docker compose up -d --build &&
+  #     notifier discord '$CI_PROJECT_TITLE deployed'"
+  only:
+    - main
