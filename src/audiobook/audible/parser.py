@@ -1,3 +1,5 @@
+"""Parse Audible web output"""
+
 from typing import List, Optional
 import json
 import re
@@ -6,6 +8,8 @@ from bs4 import BeautifulSoup
 
 
 class AudibleParser:
+    """Parse Audible web output"""
+
     def __init__(self, url: str):
         self._url: str = url
         self._soup: Optional[BeautifulSoup] = None
@@ -25,19 +29,29 @@ class AudibleParser:
 
         self.title: str | None = None
         self.subtitle: str | None = None
-        self.series_name: str | None = None
-        self.series_name_alt: str | None = None
+        self.series_json: str | None = None
+        self.series_web: str | None = None
+        self.series: str | None = None
         self.genres: list[str] | None = []
         self.volume: int | None = None
+        self.description: str | None = None
+        self.copyright: str | None = None
 
         if self._fetch_page():
             self.title = self._parse_title()
             self.subtitle = self._parse_subtitle()
-            self.series_name = self._parse_series_name()
+            self.series_json = self._parse_series_name()
             self.genres = self._parse_chips_text()
+            self._parse_description_and_copyright()
 
             if self.subtitle:
                 self._parse_series_from_subtitle(self.subtitle)
+
+        self.series = self.series_web or self.series_json
+        if self.series and not self.volume:
+            self._extract_implicit_volume()
+            if not self.volume:
+                self.volume = 1
 
     def _fetch_page(self) -> bool:
         try:
@@ -74,6 +88,28 @@ class AudibleParser:
             if subtitle_tag:
                 return subtitle_tag.get_text().strip()
         return None
+
+    def _parse_description_and_copyright(self):
+        """Extrait la description (balises p) et le copyright (texte final)."""
+        if not self._soup:
+            return
+
+        # On cible le bloc spécifique
+        desc_block = self._soup.find("adbl-text-block", attrs={"slot": "summary"})
+
+        if desc_block:
+            # 1. Extraction de la description (paragraphes)
+            paragraphs = [p.get_text().strip() for p in desc_block.find_all("p")]
+            self.description = "\n\n".join(paragraphs)
+
+            # 2. Extraction du copyright
+            # On récupère le texte qui n'est pas dans les balises <p>
+            # .find_all(string=True, recursive=False) prend le texte direct du bloc
+            full_text = desc_block.get_text(separator="|", strip=True)
+            # Souvent le copyright est après le dernier paragraphe
+            parts = full_text.split("|")
+            if parts:
+                self.copyright = parts[-1].strip()
 
     def _parse_chips_text(self) -> List[str]:
         """Extrait le texte de tous les éléments <adbl-chip>."""
@@ -126,18 +162,31 @@ class AudibleParser:
             serie = serie.replace(", Vol.", "")
             volume = match.group(2)
 
-            self.series_name_alt = serie
+            self.series_web = serie
             self.volume = int(volume)
         else:
             print(f"Unknown format : {subtitle}")
+
+    def _extract_implicit_volume(self):
+        if not self.title:
+            return None
+
+        # \d+ cherche un ou plusieurs chiffres consécutifs
+        match = re.search(r"\d+", self.title)
+
+        if match:
+            self.volume = int(match.group())
 
     def __str__(self) -> str:
         details = (
             f"title: {self.title}\n"
             f"subtitle: {self.subtitle}\n"
-            f"series_name: {self.series_name}\n"
-            f"series_name_alt: {self.series_name_alt}\n"
+            f"series: {self.series}\n"
+            f"series_json: {self.series_json}\n"
+            f"series_web: {self.series_web}\n"
             f"genres: {self.genres}\n"
             f"volume: {self.volume}\n"
+            f"description: {self.description}\n"
+            f"copyright: {self.copyright}\n"
         )
         return f"{details}"

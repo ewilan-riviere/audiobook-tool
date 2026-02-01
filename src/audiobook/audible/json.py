@@ -15,10 +15,11 @@ from .parser import AudibleParser
 class AudibleJson:
     """Parse Audible JSON LD to get metadata"""
 
-    def __init__(self, asin: str):
+    def __init__(self, asin: str, output_cover: str | None = None):
         self._asin = asin
         self._url_valid: str | None = None
         self._jsonld: dict[str, Any] | None = None
+        self._output_cover = output_cover
         self.jsonld_found = False
         self.audiobook: AudibleMetadata | None = None
 
@@ -37,7 +38,12 @@ class AudibleJson:
 
         audiobook.asin = self._asin
         audiobook.title = self._extract("name")
-        audiobook.description = self._extract("description")
+
+        description = self._extract("description")
+        if description:
+            description = description.replace("\n", "\n\n")
+        audiobook.description = description
+
         audiobook.authors = self._extract_people("author")
         audiobook.narrators = self._extract_people("readBy")
 
@@ -53,7 +59,7 @@ class AudibleJson:
         audiobook.language = self._extract("inLanguage")
         audiobook.is_abridged = self._extract("abridged") == "true"
 
-        audiobook.save_cover("cover.jpg")
+        audiobook.save_cover(self._output_cover)
 
         return audiobook
 
@@ -64,9 +70,11 @@ class AudibleJson:
         parser = AudibleParser(self._url_valid)
 
         if self.audiobook:
-            self.audiobook.series = parser.series_name_alt
+            self.audiobook.series = parser.series
             self.audiobook.volume = parser.volume
             self.audiobook.genres = parser.genres
+            self.audiobook.subtitle = parser.subtitle
+            self.audiobook.copyright = parser.copyright
 
     def _extract(self, key: str) -> str | None:
         """Extract key fron JSON LD as `str`"""
@@ -132,14 +140,22 @@ class AudibleJson:
                 return None
 
     def _clean_text(self, text: str) -> str:
-        """Clean JSON LD text"""
         if not text:
             return ""
 
+        # 1. Remplacer les fermetures de paragraphes/breaks par des sauts de ligne
+        # On gère </p>, <br>, </div> etc.
+        text = re.sub(r"</p>|<br\s*/?>|</div>", "\n", text)
+
+        # 2. Supprimer toutes les autres balises HTML
         clean = re.compile("<.*?>")
         text = re.sub(clean, "", text)
 
-        return html.unescape(text).strip()
+        # 3. Unescape, strip et nettoyage des lignes vides superflues
+        text = html.unescape(text).strip()
+
+        # Optionnel : éviter d'avoir 4 retours à la ligne si le HTML était complexe
+        return "\n".join(line.strip() for line in text.splitlines() if line.strip())
 
     def _parse_audible(self, locale: str = "com") -> dict[str, Any] | None:
         """Parse Audible to extract JSON LD"""

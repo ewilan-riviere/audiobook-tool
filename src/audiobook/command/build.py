@@ -10,12 +10,29 @@ from audiobook.m4b import (
 import audiobook.utils as utils
 from audiobook.config import ConfigBuild
 from audiobook.forge import AudiobookForge
+from audiobook.audible import AudibleJson, AudibleYml
 
 
 class CommandBuild:
     """build command of audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):
+
+        print(args.clear_old_m4b)
+        # ASIN fetch metadata
+        if args.asin and args.mp3_directory:
+            yml = utils.get_file(args.mp3_directory, "yml")
+            cover = utils.get_file(args.mp3_directory, "jpg")
+            if (yml and cover) and not args.clear_old_m4b:
+                print("YML and cover are found, skip Audible fetching...")
+            else:
+                print(f"Fetch Audible metadata for ASIN {args.asin}...")
+                if args.clear_old_m4b:
+                    print("If any YML or cover exists override with clear flag...")
+                json = AudibleJson(args.asin, args.mp3_directory)
+                if json.audiobook:
+                    AudibleYml(json.audiobook, args.mp3_directory)
+
         # Setup config
         config = ConfigBuild(args)
         utils.delete_directory(config.m4b_directory_output)

@@ -34,6 +34,11 @@ class AudiobookArgs:
             action="store_true",
             help="Use Rust with audiobook-forge crate to forge M4B",
         )
+        m_build.add_argument(
+            "-a",
+            "--asin",
+            help="Fetch metadata from Audible",
+        )
         m_build.add_argument("-o", "--output")
 
         # Clean

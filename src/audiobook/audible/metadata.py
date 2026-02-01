@@ -19,9 +19,7 @@ class AudibleMetadata:
         self.duration_human: str | None = None  # 17h 18m
         self.duration_time: time | None = None  # 17:18:00
         self.rating: float | None = None  # 4.6
-        self.cover_url: str | None = (
-            None  # https://m.media-amazon.com/images/I/618FzSA446L._SL500_.jpg
-        )
+        self.cover_url: str | None = None  # https://[...]/I/618FzSA446L._SL500_.jpg
         self.cover_path: str | None = None  # /path/to/cover.jpg
         self.publisher: str | None = None  # HarperCollins Publishers Limited
         self.language: str | None = None  # english
@@ -29,9 +27,9 @@ class AudibleMetadata:
 
         self.series: str | None = None  # The Farseer Trilogy
         self.volume: int | None = None  # 1
-        self.genres: list[str] | None = (
-            []
-        )  # Action et aventure/Animaux/Dragons et créatures mythiques/Fantasy/Fiction/Épique
+        self.genres: list[str] | None = []  # Action et aventure/Fantasy/Épique [...]
+        self.subtitle: str | None = None
+        self.copyright: str | None = None  # ©1995 Robin Hobb (P)2026 [...]
 
     def get_authors(self):
         """Get authors"""
@@ -68,26 +66,22 @@ class AudibleMetadata:
 
         return None
 
-    def save_cover(self, filename: str | None = None):
+    def save_cover(self, output_path: str | None = None):
         """Download the cover image to Downloads"""
-        _download_path = utils.path_join(str(Path.home()), "Downloads")
+        if output_path:
+            _output_path = output_path
+        else:
+            _output_path = str(Path.cwd())
+        filename = "cover.jpg"
         # upscayl cover
         # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
         # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
 
         try:
-            # If no name is provided, the file name is extracted from the URL
-            if not filename and self.cover_url:
-                filename = self.cover_url.split("/")[-1].split("?")[0]
-                if not filename:
-                    filename = "audible_cover.jpg"
-            if not filename:
-                filename = "cover.jpg"
-
             if not self.cover_url:
                 return None
 
-            target_path = utils.path_join(_download_path, filename)
+            target_path = utils.path_join(_output_path, filename)
 
             response = requests.get(self.cover_url, stream=True, timeout=30)
             response.raise_for_status()  # Check if the download was successful
