@@ -17,8 +17,6 @@ class CommandBuild:
     """build command of audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):
-
-        print(args.clear_old_m4b)
         # ASIN fetch metadata
         if args.asin and args.mp3_directory:
             yml = utils.get_file(args.mp3_directory, "yml")
