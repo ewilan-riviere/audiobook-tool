@@ -4,6 +4,7 @@ from .clean import CommandClean
 from .extract import CommandExtract
 from .forge import CommandForge
 from .fusion import CommandFusion
+from .parse import CommandParse
 
 __all__ = [
     "CommandAudible",
@@ -12,4 +13,5 @@ __all__ = [
     "CommandExtract",
     "CommandForge",
     "CommandFusion",
+    "CommandParse",
 ]

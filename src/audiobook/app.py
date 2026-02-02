@@ -11,6 +11,7 @@ from .command import (
     CommandExtract,
     CommandForge,
     CommandFusion,
+    CommandParse,
 )
 from .env import python_check
 
@@ -48,6 +49,8 @@ def main() -> None:
             CommandForge(args)
         elif args.command == "fusion":
             CommandFusion(args)
+        elif args.command == "parse":
+            CommandParse(args)
     except Exception as e:
         logging.getLogger("audiobook.cli").error("Error: %s", e)
         sys.exit(1)

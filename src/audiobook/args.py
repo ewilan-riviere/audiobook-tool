@@ -60,6 +60,15 @@ class AudiobookArgs:
         )
         m_fusion.add_argument("mp3_directory", help="Directory with new chapters")
 
+        # Parse
+        m_parse = subparsers.add_parser(
+            "parse", help="Parse audio file to get metadata"
+        )
+        m_parse.add_argument(
+            "audio_to_parse",
+            help="Path of audio file",
+        )
+
         args: Namespace = parser.parse_args()
         self.command: str = args.command
 
@@ -69,6 +78,7 @@ class AudiobookArgs:
         self.use_rust: bool = getattr(args, "rust", False)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
         self.asin: Optional[str] = getattr(args, "asin", None)
+        self.audio_to_parse: Optional[str] = getattr(args, "audio_to_parse", None)
 
         if self.command in ["audible"] and self.asin is None:
             parser.error(
