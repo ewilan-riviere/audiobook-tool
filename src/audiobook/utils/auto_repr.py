@@ -1,22 +1,22 @@
-"""Mixin to add an automatic and intelligent `__repr__` to classes"""
+"""Mixin to add an automatic `__repr__` to classes"""
 
 from typing import Any
 from datetime import datetime
 
 
 class AutoRepr:
-    """Mixin to add an automatic and intelligent `__repr__` to classes"""
+    """Mixin to add an automatic `__repr__` to classes"""
 
     def __repr__(self):
         def format_val(v: Any):
-            # Si la valeur est un datetime, on la formate en string
+            # If the value is a datetime, format it as a string.
             if isinstance(v, datetime):
                 return f"'{v.strftime('%Y-%m-%d %H:%M:%S')}'"
-            # Sinon, on utilise le format standard (!r ajoute les guillemets si besoin)
+            # Otherwise, use the standard format (!r adds quotation marks if necessary).
             return repr(v)
 
-        # On génère la liste des attributs
+        # We generate the list of attributes
         attributes = [f"{k}={format_val(v)}" for k, v in self.__dict__.items()]
 
-        # Retourne le nom de la classe avec les attributs formatés
+        # Returns the class name with formatted attributes
         return f"{self.__class__.__name__}(\n  " + ",\n  ".join(attributes) + "\n)"

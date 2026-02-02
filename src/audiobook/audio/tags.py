@@ -1,9 +1,11 @@
 """Tags of audio file"""
 
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict, Optional, List
 import re
 from audiobook.utils import AutoRepr
 from .mutagen import MutagenReader
+from .mutagen.chapter import Chapter
 
 
 class AudioTags(AutoRepr):
@@ -11,9 +13,8 @@ class AudioTags(AutoRepr):
 
     def __init__(self, path: str):
         reader = MutagenReader(path)
-        # print(reader.has_cover)
-        # print(reader.save_cover())
 
+        self._path = path
         self.album: str | None = reader.get_tag("album")  # The Wall
         self.album_artist: str | None = reader.get_tag("album_artist")  # Pink Floyd
         self.artist: str | None = reader.get_tag(
@@ -54,6 +55,7 @@ class AudioTags(AutoRepr):
         )  # Another Brick in the Wall, Part 1
         self.track: str | None = reader.get_tag("track")  # 3/13
         self.date: str | None = reader.get_tag("date")  # 1979-11-30
+        self.chapters: List[Chapter] = reader.chapters
         self.has_cover: bool = reader.has_cover
         self.raw: Dict[str, str] = reader.get_all()
 
@@ -74,6 +76,12 @@ class AudioTags(AutoRepr):
                 return int(year)
 
         return None
+
+    def save_cover(self, output_dir: str | None) -> Path | None:
+        """Save cover to `output_dir`"""
+        reader = MutagenReader(self._path)
+
+        return reader.save_cover(output_dir)
 
     def _extract_year(self, date_str: str) -> Optional[str]:
         if not date_str:

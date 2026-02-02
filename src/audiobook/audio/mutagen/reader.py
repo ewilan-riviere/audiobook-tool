@@ -5,56 +5,17 @@ from typing import Optional, Union, Any, cast, Dict, List
 import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4FreeForm
+from .tags import TAGS_MAP
+from .chapter import Chapter
+from .chapter_reader import ChapterReader
 
 
 class MutagenReader:
     """Read audio file with mutagen"""
 
-    TAG_MAP: Dict[str, Dict[str, Union[str, List[str]]]] = {
-        "title": {"mp3": "TIT2", "m4b": "©nam"},
-        "artist": {"mp3": "TPE1", "m4b": "©ART"},
-        "album": {"mp3": "TALB", "m4b": "©alb"},
-        "date": {"mp3": "TDRC", "m4b": "©day"},
-        "track": {"mp3": "TRCK", "m4b": "trkn"},
-        "genre": {"mp3": "TCON", "m4b": "©gen"},
-        "comment": {"mp3": "COMM::eng", "m4b": "©cmt"},
-        "album_artist": {"mp3": "TPE2", "m4b": "aART"},
-        "composer": {"mp3": "TCOM", "m4b": "©wrt"},
-        "disc": {"mp3": "TPOS", "m4b": "disk"},
-        "compilation": {"mp3": "TCMP", "m4b": "cpil"},
-        "description": {"mp3": "TXXX:DESCRIPTION", "m4b": "desc"},
-        "synopsis": {"mp3": "TDES", "m4b": "ldes"},
-        "language": {"mp3": "TLAN", "m4b": "----:com.apple.iTunes:LANGUAGE"},
-        "copyright": {"mp3": "TCOP", "m4b": "cprt"},
-        "series": {"mp3": "TXXX:SERIES", "m4b": "----:com.apple.iTunes:SERIES"},
-        "series_part": {
-            "mp3": "TXXX:SERIES-PART",
-            "m4b": "----:com.apple.iTunes:SERIES-PART",
-        },
-        "lyrics": {"mp3": "TXXX:LYRICS", "m4b": "©lyr"},
-        "publisher": {
-            "mp3": "TPUB",
-            "m4b": [
-                "----:com.apple.iTunes:PUBLISHER",
-                "----:com.apple.iTunes:publisher",
-                "----:com.apple.iTunes:label",
-                "©pub",
-                "©wrp",
-                "©prd",
-            ],
-        },
-        "subtitle": {
-            "mp3": ["TIT3"],
-            "m4b": ["----:com.apple.iTunes:SUBTITLE", "©st3"],
-        },
-        "isbn": {"mp3": "TXXX:ISBN", "m4b": "----:com.apple.iTunes:ISBN"},
-        "asin": {"mp3": "TXXX:ASIN", "m4b": "----:com.apple.iTunes:ASIN"},
-        "encoded_by": {"mp3": "TENC", "m4b": "©enc"},
-        "encoder": {"mp3": "TSSE", "m4b": "----:com.apple.iTunes:ENCODERSETTINGS"},
-    }
-
     def __init__(self, file_path: Union[str, Path]):
         self.path = Path(file_path)
+        self.tags_map = TAGS_MAP
         data = mutagen.File(str(self.path))  # type: ignore
         if data is None:
             raise ValueError(f"Unable to read : {self.path}")
@@ -77,7 +38,7 @@ class MutagenReader:
             properties["format_type"] = "mp3"
             properties["format_label"] = "MPEG audio layer 3"
         elif isinstance(self.audio, MP4):  # type: ignore
-            properties["codec"] = "aac"  # Généralement AAC en M4B
+            properties["codec"] = "aac"
             properties["format_type"] = "mov,mp4,m4a,3gp"
             properties["format_label"] = "QuickTime / MOV"
 
@@ -88,6 +49,13 @@ class MutagenReader:
             properties["channel_layout"] = "stereo"
 
         return properties
+
+    @property
+    def chapters(self) -> List[Chapter]:
+        """Get M4B chapters"""
+        reader = ChapterReader(str(self.path))
+
+        return reader.with_ffprobe()
 
     def _extract_value(self, val: Any) -> Optional[str]:
         if val is None:
@@ -133,7 +101,7 @@ class MutagenReader:
 
     def get_tag(self, human_key: str) -> Optional[str]:
         """Récupère la valeur d'un tag avec gestion des variantes."""
-        target_dict = self.TAG_MAP.get(human_key)
+        target_dict = self.tags_map.get(human_key)
         if not target_dict:
             return None
 
@@ -158,7 +126,7 @@ class MutagenReader:
 
     def get_all(self) -> Dict[str, str]:
         """Returns only tags that have a value."""
-        return {k: v for k in self.TAG_MAP if (v := self.get_tag(k))}
+        return {k: v for k in self.tags_map if (v := self.get_tag(k))}
 
     def get_cover(self) -> Optional[bytes]:
         """Extract the bytes from the cover"""

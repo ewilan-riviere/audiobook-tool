@@ -1,3 +1,5 @@
+"""CLI args for audiobook-tool"""
+
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 

@@ -1,3 +1,5 @@
+"""read audio file"""
+
 from pathlib import Path
 from .container import AudioContainer
 from .tags import AudioTags
