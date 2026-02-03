@@ -10,13 +10,7 @@ from src.audiobook.audio.audio_reader import (
     AudioContainer,
     AudioType,
 )
-from tests.test_files import (
-    ALL_FILES,
-    ALL_FILES_IDS,
-    PATH_M4B,
-    PATH_AAC_M4B,
-    PATH_AAC_FFMPEG_M4B,
-)
+from tests.test_files import ALL_FILES, ALL_FILES_IDS
 
 
 @pytest.mark.parametrize("path", ALL_FILES, ids=ALL_FILES_IDS)

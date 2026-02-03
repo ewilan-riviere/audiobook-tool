@@ -13,5 +13,6 @@ test-job:
   script:
     - pip install -e .
     - audiobook-tool -h
+    - pytest -s
   only:
     - main
