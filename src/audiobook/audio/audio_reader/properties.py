@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from audiobook.utils import AutoRepr
-from .mutagen import MutagenReader
+from ..mutagen import MutagenReader
 
 
 class AudioProperties(AutoRepr):
@@ -21,14 +21,14 @@ class AudioProperties(AutoRepr):
         channels = reader.properties["channels"]
         channel_layout = reader.properties["channel_layout"]
 
-        self.duration: float | None = None  # 10.0
+        self.duration: float | None = None  # 10.032
         self.bit_rate: int | None = None  # 128000
         self.codec: str | None = codec  # mp3
         self.sample_rate: int | None = None  # 48000
         self.channels: int | None = None  # 2
         self.channel_layout: str | None = channel_layout  # stereo
-        self.format_type: str | None = format_type  # mov,mp4,m4a,3gp,3g2,mj2
-        self.format_label: str | None = format_label  # QuickTime / MOV
+        self.format_type: str | None = format_type  # mp3
+        self.format_label: str | None = format_label  # MPEG audio layer 3
 
         if length:
             self.duration = float(length)

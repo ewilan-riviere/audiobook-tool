@@ -5,8 +5,8 @@ from typing import Optional, Union, Any, cast, Dict, List
 import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4FreeForm
-from .tags import TAGS_MAP
-from .chapter import Chapter
+from .tags_mapping import TAGS_MAPPING
+from .chapter import AudioChapter
 from .chapter_reader import ChapterReader
 
 
@@ -15,7 +15,7 @@ class MutagenReader:
 
     def __init__(self, file_path: Union[str, Path]):
         self.path = Path(file_path)
-        self.tags_map = TAGS_MAP
+        self.tags_map = TAGS_MAPPING
         data = mutagen.File(str(self.path))  # type: ignore
         if data is None:
             raise ValueError(f"Unable to read : {self.path}")
@@ -51,11 +51,11 @@ class MutagenReader:
         return properties
 
     @property
-    def chapters(self) -> List[Chapter]:
+    def chapters(self) -> List[AudioChapter]:
         """Get M4B chapters"""
         reader = ChapterReader(str(self.path))
 
-        return reader.with_ffprobe()
+        return reader.chapters
 
     def _extract_value(self, val: Any) -> Optional[str]:
         if val is None:
@@ -120,6 +120,8 @@ class MutagenReader:
             if value is not None:
                 extracted = self._extract_value(value)
                 if extracted and extracted.strip():  # Avoid empty strings or spaces
+                    if extracted == "None":
+                        return None
                     return extracted
 
         return None

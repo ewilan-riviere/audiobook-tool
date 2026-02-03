@@ -207,9 +207,9 @@ def rename_file(absolute_path: str, new_name: str) -> str:
     return str(new_path.resolve())
 
 
-def copy_file(from_path: str, to_path: str) -> str:
+def copy_file(from_path: str | Path, to_path: str | Path) -> str:
     """Copy file"""
-    return shutil.copy(from_path, to_path)
+    return shutil.copy(str(from_path), str(to_path))
 
 
 def rename_directory(absolute_path: str, new_name: str) -> str:

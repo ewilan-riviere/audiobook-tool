@@ -7,20 +7,31 @@ import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 from audiobook.utils import AutoRepr
-from .chapter import Chapter
+from .chapter import AudioChapter
 
 
 class ChapterReader(AutoRepr):
     """M4B chapter reader"""
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, use_mutagen: bool = False):
         self._path = path
-        data = mutagen.File(str(path))  # type: ignore
-        self.audio = cast(Union[MP3, MP4], data)
+        self._mode = "ffprobe"
+        if use_mutagen:
+            self._mode = "mutagen"
 
-    def with_ffprobe(self) -> List[Chapter]:
-        """Get M4B chapters (use ffprobe for precision)"""
-        chapters: List[Chapter] = []
+        if self._mode == "ffprobe":
+            self._chapters = self._with_ffprobe()
+        elif self._mode == "mutagen":
+            self._chapters = self._with_mutagen()
+
+    @property
+    def chapters(self) -> List[AudioChapter]:
+        """Get chapters"""
+        return self._chapters
+
+    def _with_ffprobe(self) -> List[AudioChapter]:
+        """Get M4B chapters (ffprobe is more accurate)"""
+        chapters: List[AudioChapter] = []
 
         cmd = [
             "ffprobe",
@@ -38,7 +49,7 @@ class ChapterReader(AutoRepr):
         chapters_json = data.get("chapters", [])
 
         for c in chapters_json:
-            chapter_obj = Chapter(
+            chapter_obj = AudioChapter(
                 id=int(c.get("id", 0)),
                 time_base=str(c.get("time_base", "1/44100")),
                 start=int(c.get("start", 0)),
@@ -51,19 +62,22 @@ class ChapterReader(AutoRepr):
 
         return chapters
 
-    def with_mutagen(self) -> List[Chapter]:
-        """Extracts the mirrored chapters from the ffprobe logic"""
-        chapters: list[Chapter] = []
+    def _with_mutagen(self) -> List[AudioChapter]:
+        """Get M4B chapters (mutagen is less accurate)"""
+        data = mutagen.File(str(self._path))  # type: ignore
+        audio = cast(Union[MP3, MP4], data)
 
-        if not isinstance(self.audio, MP4):
+        chapters: list[AudioChapter] = []
+
+        if not isinstance(audio, MP4):
             return []
 
         # The audio sample rate is used as the time reference (time base)
-        sample_rate = self.audio.info.sample_rate  # type: ignore
-        total_length_sec = self.audio.info.length
+        sample_rate = audio.info.sample_rate  # type: ignore
+        total_length_sec = audio.info.length
 
         # Mutagen extracts chapters (normalized in ms by Mutagen)
-        raw_chapters = getattr(self.audio, "chapters", [])
+        raw_chapters = getattr(audio, "chapters", [])
 
         for i, chap in enumerate(raw_chapters):
             # Conversion of Mutagen milliseconds to float seconds
@@ -81,7 +95,7 @@ class ChapterReader(AutoRepr):
             end_sample = int(round(end_time_sec * sample_rate))  # type: ignore
 
             chapters.append(
-                Chapter(
+                AudioChapter(
                     id=i,
                     time_base=f"1/{sample_rate}",
                     start=start_sample,

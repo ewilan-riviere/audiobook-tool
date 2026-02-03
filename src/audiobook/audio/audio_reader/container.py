@@ -14,21 +14,24 @@ class AudioContainer(AutoRepr):
         pl = pathlib.Path(path)
         stat = pl.stat()
 
-        self.path: Path = pl.resolve()  # /php-audio/tests/media/test-the-wall.mp3
+        if not pl.exists():
+            raise FileNotFoundError(f"{path} not exists!")
+
+        self.path: Path = pl.resolve()  # /tests/media/the-wall.mp3
         self.extension: str = pl.suffix[1:].lower()  # mp3
-        self.filename: str = pl.name  # test-the-wall.mp3
-        self.basename: str = pl.stem  # test-the-wall
+        self.filename: str = pl.name  # the-wall.mp3
+        self.basename: str = pl.stem  # the-wall
         self.inode: int = stat.st_ino  # 23280300
-        self.size: int = stat.st_size  # 321540
+        self.size: int = stat.st_size  # 323052
         self.access_time: datetime = datetime.fromtimestamp(
             stat.st_atime
-        )  # 2026-01-22 10:12:00
+        )  # 2026-02-03 06:13:28
         self.modification_time: datetime = datetime.fromtimestamp(
             stat.st_mtime
-        )  # 2026-01-22 07:49:33
+        )  # 2026-02-03 06:12:11
         self.change_time: datetime = datetime.fromtimestamp(
             stat.st_ctime
-        )  # 2026-01-22 07:49:33
+        )  # 2026-02-03 06:12:11
 
         self.writable: bool = os.access(path, os.W_OK)  # True
         self.readable: bool = os.access(path, os.R_OK)  # True

@@ -1,6 +1,6 @@
 from typing import Union, Dict, List
 
-TAGS_MAP: Dict[str, Dict[str, Union[str, List[str]]]] = {
+TAGS_MAPPING: Dict[str, Dict[str, Union[str, List[str]]]] = {
     "title": {"mp3": "TIT2", "m4b": "©nam"},
     "artist": {"mp3": "TPE1", "m4b": "©ART"},
     "album": {"mp3": "TALB", "m4b": "©alb"},
