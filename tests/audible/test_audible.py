@@ -7,8 +7,8 @@ NEBULEUSES_ASIN = "B0G71PC24C"
 
 
 def test_audible():
-    audible = Audible(FARSEER_ASIN)
-    print(audible)
-
-    # audible = Audible(NEBULEUSES_ASIN)
+    # audible = Audible(FARSEER_ASIN)
     # print(audible)
+
+    audible = Audible(NEBULEUSES_ASIN)
+    print(audible)

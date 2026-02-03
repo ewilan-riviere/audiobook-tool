@@ -7,28 +7,26 @@ import re
 from datetime import datetime, time
 import isodate  # type: ignore
 import httpx
-from bs4 import BeautifulSoup
-from audiobook.common import AutoRepr
+from bs4 import BeautifulSoup, Tag
+from .parser import AudibleParser
 
 
-class AudibleParserJsonLD(AutoRepr):
+class AudibleParserJsonLD(AudibleParser):
     """Parse Audible JSON LD to get metadata"""
 
-    def __init__(self, asin: str, output_cover: str | None = None):
+    _jsonld_raw: Dict[str, Any] | None = None
+    _jsonld_found: bool = False
+    _jsonld: Dict[str, Any] = {}
+
+    def __init__(self, asin: str):
         self._asin = asin
-        self.url: str | None = None
-        self._jsonld_raw: dict[str, Any] | None = None
-        self._output_cover = output_cover
-        self.jsonld_found = False
-        self.json_ld: Dict[str, Any] = {}
-        # self.audiobook: AudibleMetadata | None = None
 
         # https://audible.readthedocs.io/en/latest/marketplaces/marketplaces.html
         for suffix in ["fr", "com", "co.uk", "de"]:
             self._parse_url(suffix)
 
-        if self._jsonld_raw:
-            self.json_ld = self._parse_jsonld_raw()
+        if self._jsonld_found:
+            self._jsonld = self._parse_jsonld_raw()
         else:
             print(f"Error: no metadata found for ASIN {self._asin}.")
 
@@ -41,8 +39,8 @@ class AudibleParserJsonLD(AutoRepr):
         json_ld["authors"] = self._extract_people("author")
         json_ld["narrators"] = self._extract_people("readBy")
         json_ld["release_date"] = None
-        json_ld["duration_human"] = self._duration_human(self._extract("duration"))
-        json_ld["duration_time"] = self._duration_time(self._extract("duration"))
+        json_ld["duration_human"] = self._extract_duration_human()
+        json_ld["duration_time"] = self._extract_duration()
         json_ld["rating"] = self._handle_rating("aggregateRating")
         json_ld["cover_url"] = self._extract("image")
         json_ld["publisher"] = self._extract("publisher")
@@ -87,8 +85,9 @@ class AudibleParserJsonLD(AutoRepr):
 
         return items
 
-    def _duration_human(self, iso_duration: str | None) -> str | None:
+    def _extract_duration_human(self) -> str | None:
         """Parse ISO 8601 to human duration"""
+        iso_duration = self._extract("duration")
         if not iso_duration:
             return None
 
@@ -96,19 +95,14 @@ class AudibleParserJsonLD(AutoRepr):
             iso_duration.replace("PT", "").replace("H", "h ").replace("M", "m").strip()
         )
 
-    def _duration_time(self, iso_duration: str | None) -> time | None:
+    def _extract_duration(self) -> time | None:
         """Parse ISO 8601 to time"""
+        iso_duration = self._extract("duration")
         if not iso_duration:
             return None
 
         duration = isodate.parse_duration(iso_duration)  # type: ignore
         return (datetime.min + duration).time()  # type: ignore
-
-    def _clean_value(self, value: str | None):
-        if not value:
-            return None
-
-        return html.unescape(value)
 
     def _handle_rating(self, key: str):
         """Handle rating"""
@@ -117,8 +111,11 @@ class AudibleParserJsonLD(AutoRepr):
 
         rating = self._jsonld_raw.get(key)
         if isinstance(rating, dict):
+            rating_value = rating.get("ratingValue", 0)  # type: ignore
+            if not rating_value:
+                return None
             try:
-                return round(float(rating.get("ratingValue", 0)), 1)  # type: ignore
+                return round(float(rating_value), 1)  # type: ignore
             except (ValueError, TypeError):
                 return None
 
@@ -127,7 +124,6 @@ class AudibleParserJsonLD(AutoRepr):
             return ""
 
         # Replace paragraph breaks with line breaks
-        # We manage </p>, <br>, </div>, etc.
         text = re.sub(r"</p>|<br\s*/?>|</div>", "\n", text)
 
         # Remove all other HTML tags
@@ -140,62 +136,52 @@ class AudibleParserJsonLD(AutoRepr):
         # Optional: avoid having 4 line breaks if the HTML was complex
         return "\n".join(line.strip() for line in text.splitlines() if line.strip())
 
+    def _parse_scripts(self, tag: Tag) -> Dict[str, Any] | None:
+        if not tag.string:
+            return None
+
+        jsonld: Dict[str, Any] | None = None
+        try:
+            data = json.loads(tag.string)
+
+            # JSON-LD can be a direct object or a list of objects.
+            items = data if isinstance(data, list) else [data]  # type: ignore
+
+            for item in items:  # type: ignore
+                if item.get("@type") == "Audiobook":  # type: ignore
+                    jsonld = item  # type: ignore
+
+        except json.JSONDecodeError:
+            return None
+
+        return jsonld  # type: ignore
+
     def _parse_url(self, locale: str = "com") -> dict[str, Any] | None:
         """Parse Audible to extract JSON LD"""
-        url = f"https://www.audible.{locale}/pd/{self._asin}"
+        if not self._asin:
+            return None
 
-        # Cookies are added to “fix” the location to the US.
-        cookies = {"lc-main-av": "en_US"}
-        headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            ),
-            "Accept-Language": "en-US,en;q=0.9",
-            "Referer": f"https://www.audible.{locale}/",
-        }
-
-        jsonld = None
+        audible_url = self._format_url(self._asin, locale)
 
         try:
             with httpx.Client(
-                headers=headers,
-                cookies=cookies,
+                headers=self._headers,
+                cookies=self._cookies,
                 follow_redirects=True,
                 timeout=15,
             ) as client:
-                resp = client.get(url)
-
-                # Check if the URL contains “pd/{asin} or if it redirected you to the home page
-                # print(f"Loaded URL : {resp.url}")
-
-                soup = BeautifulSoup(resp.text, "html.parser")
+                res = client.get(audible_url)
+                soup = BeautifulSoup(res.text, "html.parser")
                 scripts = soup.find_all("script", type="application/ld+json")
 
                 for s in scripts:
-                    if not s.string:
-                        continue
-                    try:
-                        data = json.loads(s.string)
-
-                        # JSON-LD can be a direct object or a list of objects.
-                        items = data if isinstance(data, list) else [data]  # type: ignore
-
-                        for item in items:  # type: ignore
-                            if item.get("@type") == "Audiobook":  # type: ignore
-                                jsonld = item  # type: ignore
-
-                    except json.JSONDecodeError:
-                        continue
+                    jsonld = self._parse_scripts(s)
+                    if jsonld:
+                        self._jsonld_raw = jsonld
+                        self._jsonld_found = True
+                        self.url = audible_url
 
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Error: {e}")
 
-        if jsonld:
-            self._jsonld_raw = jsonld
-            self.jsonld_found = True
-            self.url = url
-
-            return jsonld  # type: ignore
-
-        return None
+        return self._jsonld_raw
