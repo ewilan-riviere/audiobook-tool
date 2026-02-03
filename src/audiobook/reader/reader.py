@@ -1,7 +1,10 @@
 """read audio file"""
 
 from pathlib import Path
-from .audio_reader import AudioContainer, AudioTags, AudioProperties, AudioType
+from .container import AudioContainer
+from .properties import AudioProperties
+from .tags import AudioTags
+from .type import AudioType
 
 
 class AudioReader:

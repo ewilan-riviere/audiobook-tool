@@ -3,9 +3,8 @@
 from pathlib import Path
 from typing import Dict, Optional, List
 import re
-from audiobook.utils import AutoRepr
-from ..mutagen import MutagenReader
-from ..mutagen.chapter import AudioChapter
+from audiobook.common import AutoRepr, AudioChapter
+from .mutagen import MutagenReader
 
 
 class AudioTags(AutoRepr):

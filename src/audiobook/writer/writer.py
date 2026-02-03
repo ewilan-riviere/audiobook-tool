@@ -2,7 +2,8 @@
 
 from typing import Dict, Any, List
 from pathlib import Path
-from .mutagen import MutagenWriter, AudioChapter
+from audiobook.common import AudioChapter
+from .mutagen import MutagenWriter
 
 
 class AudioWriter:

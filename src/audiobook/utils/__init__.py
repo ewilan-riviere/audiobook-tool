@@ -1,4 +1,3 @@
-from .auto_repr import AutoRepr
 from .utilitaries import (
     path_join,
     path_exists,
@@ -20,7 +19,6 @@ from .utilitaries import (
 )
 
 __all__ = [
-    "AutoRepr",
     "path_join",
     "path_exists",
     "alert_sound",

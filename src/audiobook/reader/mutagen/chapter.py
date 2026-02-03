@@ -6,8 +6,7 @@ import json
 import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
-from audiobook.utils import AutoRepr
-from .chapter import AudioChapter
+from audiobook.common import AudioChapter, AutoRepr
 
 
 class ChapterReader(AutoRepr):

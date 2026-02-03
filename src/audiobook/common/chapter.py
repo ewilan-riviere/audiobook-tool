@@ -2,7 +2,7 @@
 
 from typing import Any
 from dataclasses import dataclass
-from audiobook.utils import AutoRepr
+from audiobook.common import AutoRepr
 
 
 @dataclass

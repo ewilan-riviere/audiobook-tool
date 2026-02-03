@@ -1,8 +1,17 @@
+import os
 from pathlib import Path
 import pytest
 from pytest import FixtureRequest
-from src.audiobook.audio import AudioReader, AudioWriter
-from src.audiobook.utils import copy_file, path_join, delete_file
+from audiobook.reader import AudioReader
+from audiobook.writer import AudioWriter
+from audiobook.utils import (
+    copy_file,
+    path_join,
+    delete_file,
+    make_directory,
+    delete_directory,
+    file_exists,
+)
 from tests.test_files import ALL_FILES, ALL_FILES_IDS, PATH_COVER
 
 
@@ -36,6 +45,19 @@ def test_cover(writer_path: str):
 
     reader = AudioReader(writer_path)
     assert reader.tags.has_cover is True
+
+
+def test_save_cover(writer_path: str):
+    cwd = os.getcwd()
+    output_path = path_join(cwd, "tests", "media", "covers")
+    delete_directory(output_path)
+    reader = AudioReader(writer_path)
+
+    make_directory(output_path)
+    cover_path = reader.tags.save_cover(output_path)
+
+    assert isinstance(cover_path, Path)
+    assert file_exists(cover_path) is True
 
 
 def test_cover_override(writer_path: str):

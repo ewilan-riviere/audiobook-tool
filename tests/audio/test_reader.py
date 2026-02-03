@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 from pathlib import Path
 import pytest
-from src.audiobook.audio import AudioReader
-from src.audiobook.audio.audio_reader import (
+from audiobook.reader import (
+    AudioReader,
     AudioTags,
     AudioProperties,
     AudioContainer,

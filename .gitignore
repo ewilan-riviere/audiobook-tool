@@ -2,6 +2,7 @@ __pycache__
 .mypy_cache
 .pytest_cache
 audiobook_cli.egg-info
+tests/media/covers
 .DS_Store
 *.m4b
 *.txt

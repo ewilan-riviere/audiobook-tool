@@ -5,9 +5,8 @@ from typing import Optional, Union, Any, cast, Dict, List
 import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4FreeForm
-from .tags_mapping import TAGS_MAPPING
-from .chapter import AudioChapter
-from .chapter_reader import ChapterReader
+from audiobook.common import TAGS_MAPPING, AudioChapter
+from .chapter import ChapterReader
 
 
 class MutagenReader:

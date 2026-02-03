@@ -4,7 +4,7 @@ import os
 import pathlib
 from pathlib import Path
 from datetime import datetime
-from audiobook.utils import AutoRepr
+from audiobook.common import AutoRepr
 
 
 class AudioContainer(AutoRepr):

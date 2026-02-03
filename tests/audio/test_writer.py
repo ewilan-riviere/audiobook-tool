@@ -2,8 +2,13 @@ from pathlib import Path
 from typing import Dict, Any, List
 import pytest
 from pytest import FixtureRequest
-from src.audiobook.audio import AudioReader, AudioWriter, AudioChapter, AudioType
-from src.audiobook.utils import copy_file, path_join, delete_file
+from audiobook.reader import (
+    AudioReader,
+    AudioType,
+)
+from audiobook.writer import AudioWriter
+from audiobook.common import AudioChapter
+from audiobook.utils import copy_file, path_join, delete_file
 from tests.test_files import ALL_FILES, ALL_FILES_IDS
 
 

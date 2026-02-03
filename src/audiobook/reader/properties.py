@@ -1,8 +1,8 @@
 """Properties of audio file"""
 
 from datetime import timedelta
-from audiobook.utils import AutoRepr
-from ..mutagen import MutagenReader
+from audiobook.common import AutoRepr
+from .mutagen import MutagenReader
 
 
 class AudioProperties(AutoRepr):

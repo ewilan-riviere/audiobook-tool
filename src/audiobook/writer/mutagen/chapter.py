@@ -3,7 +3,7 @@ import tempfile
 import os
 from pathlib import Path
 from typing import List
-from .chapter import AudioChapter
+from audiobook.common import AudioChapter
 
 
 class ChapterWriter:
