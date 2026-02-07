@@ -1,7 +1,7 @@
-from .json_ld import AudibleParserJsonLD
-from .web import AudibleParserWeb
+from .jsonld import ParserJsonld
+from .web import ParserWeb
 
 __all__ = [
-    "AudibleParserJsonLD",
-    "AudibleParserWeb",
+    "ParserJsonld",
+    "ParserWeb",
 ]
