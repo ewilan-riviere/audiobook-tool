@@ -1,112 +1,114 @@
-import httpx
-from bs4 import BeautifulSoup, Tag
 from audiobook.common import AutoRepr
-from .parser import ParserJsonld, ParserWeb
-from .parser.typed import AudibleAudiobook
+from .parser import ParserJson, ParserHtml
+from .audiobook import AudibleAudiobook
+from .fetch import AudibleFetch
 
 
 class Audible(AutoRepr):
     asin: str
-    url: str
     audiobook: AudibleAudiobook | None
 
     def __init__(self, asin: str):
         self.asin = asin
-        # success = self._handle()
+        fetch = AudibleFetch(self.asin)
+        if not fetch.soup or not fetch.url:
+            return
 
-        max_retries = 5
-        attempts = 0
-        success = False
+        web = ParserHtml(fetch.soup)
+        json = ParserJson(fetch.soup)
 
-        while attempts < max_retries and not success:
-            self.audiobook = self._handle()
-            success = self.audiobook.success
-            attempts += 1
-            if not success and attempts < max_retries:
-                print(f"Tentative {attempts} échouée pour {asin}, nouvel essai...")
-                # Optionnel: import time; time.sleep(1)
+        print("web.html")
+        print(web.html)
+        print()
+        print("json.audiobook")
+        print(json.audiobook)
+        print()
+        print("json.ld_audiobook")
+        print(json.ld_audiobook)
+        print()
+        print("json.ld_product")
+        print(json.ld_product)
+        print()
+
+        self.audiobook = AudibleAudiobook(self.asin, fetch.url)
+
+        self.audiobook.title = web.html["title"]
+        self.audiobook.subtitle = web.html["subtitle"]
+        self.audiobook.description = web.html["description"]
+        self.audiobook.copyright = web.html["copyright"]
+        self.audiobook.publisher = json.ld_audiobook["publisher"]
+
+        self.audiobook.authors = json.audiobook["authors"]
+        self.audiobook.narrators = json.audiobook["narrators"]
+
+        self.audiobook.published_at = json.ld_audiobook["date_published"]
+        self.audiobook.duration = json.ld_audiobook["duration"]
+        self.audiobook.language = json.ld_audiobook["in_language"]
+        self.audiobook.abridged = json.ld_audiobook["abridged"]
+        self.audiobook.cover = json.ld_audiobook["image"]
+
+        self.audiobook.series = json.audiobook["series"]
+        self.audiobook.volume = 1
+
+        self.audiobook.format = json.audiobook["format"]
+        self.audiobook.book_format = json.ld_audiobook["book_format"]
+        self.audiobook.sku = json.ld_product["sku"]
+
+        self.audiobook.rating = json.audiobook["rating"]
+        self.audiobook.price = json.ld_audiobook["price"]
+
+        self.audiobook.genres = web.html["genres"]
+        self.audiobook.categories = json.audiobook["categories"]
 
         print(self.audiobook)
 
-    def _handle(self) -> AudibleAudiobook:
-        tags = self._handle_urls(["fr", "com", "co.uk", "de"])
-        parser_jsonld = ParserJsonld(tags)
-        parser_web = ParserWeb(self.url)
-        audiobook = AudibleAudiobook(self.asin, self.url)
+    # def _parse_series_from_subtitle(self, subtitle: str):
+    #     pattern = r"^(.*?)[, \-]+(?:Book|Tome|Volume)?\s*(\d+)$"
+    #     match = re.search(pattern, subtitle)
+    #     if match:
+    #         serie = match.group(1).strip()
+    #         serie = serie.replace(", Vol.", "")
+    #         volume = match.group(2)
 
-        jsonld = parser_jsonld.jsonld
-        html = parser_web.html
-        json = parser_web.json
-        if jsonld and html and json:
-            audiobook.success = True
-            audiobook.title = jsonld["title"]
-            audiobook.description = jsonld["description"]
-            audiobook.authors = jsonld["authors"]
-            audiobook.narrators = jsonld["narrators"]
-            audiobook.release_date = jsonld["release_date"]
-            audiobook.duration_time = jsonld["duration_time"]
-            audiobook.duration_human = jsonld["duration_human"]
-            audiobook.rating = jsonld["rating"]
-            audiobook.cover = jsonld["cover_url"]
-            audiobook.publisher = jsonld["publisher"]
-            audiobook.language = jsonld["language"]
-            if jsonld["is_abridged"]:
-                audiobook.is_abridged = jsonld["is_abridged"]
+    #         self.series_web = serie
+    #         self.volume = int(volume)
+    #     else:
+    #         print(f"Unknown format : {subtitle}")
 
-            audiobook.subtitle = html["subtitle"]
-            audiobook.copyright = html["copyright"]
-            audiobook.genres = html["genres"]
+    # def _parse_implicit_volume(self):
+    #     if not self.title:
+    #         return None
 
-            audiobook.series = json["series"]
-            audiobook.format = json["format"]
-            audiobook.categories = json["categories"]
+    #     # \d+ search for one or more consecutive digits
+    #     match = re.search(r"\d+", self.title)
 
-        return audiobook
+    #     if match:
+    #         self.volume = int(match.group())
 
-    def _handle_urls(
-        self,
-        listing: list[str],
-    ) -> list[Tag]:
-        tags: list[Tag] = []
-        # https://audible.readthedocs.io/en/latest/marketplaces/marketplaces.html
-        for suffix in listing:
-            items = self._parse_url(suffix)
-            if items:
-                tags = items
+    # def _extract_duration_human(self, data: Dict[str, Any]) -> str | None:
+    #     """Parse ISO 8601 to human duration"""
+    #     iso_duration = self._extract(data, "duration")
+    #     if not iso_duration:
+    #         return None
 
-        return tags
+    #     return (
+    #         iso_duration.replace("PT", "").replace("H", "h ").replace("M", "m").strip()
+    #     )
 
-    def _parse_url(self, locale: str = "com") -> list[Tag] | None:
-        """Parse Audible to find right URL"""
-        url = f"https://www.audible.{locale}/pd/{self.asin}"
-        language = "en-US,en;q=0.9"
-        # referer = f"https://www.audible.{locale}/"
-        referer = "https://www.google.com/"
+    # def _clean(self, text: str) -> str:
+    #     """Clean text"""
+    #     if not text:
+    #         return ""
 
-        try:
-            with httpx.Client(
-                headers={
-                    "User-Agent": (
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                    ),
-                    "Accept-Language": language,
-                    "Referer": referer,
-                },
-                cookies={"lc-main-av": "en_US"},
-                follow_redirects=True,
-                timeout=15,
-            ) as client:
-                res = client.get(url)
-                soup = BeautifulSoup(res.text, "html.parser")
-                scripts = soup.find_all("script", type="application/ld+json")
+    #     # Replace paragraph breaks with line breaks
+    #     text = re.sub(r"</p>|<br\s*/?>|</div>", "\n", text)
 
-                if len(scripts) > 1:
-                    self.url = url
+    #     # Remove all other HTML tags
+    #     clean = re.compile("<.*?>")
+    #     text = re.sub(clean, "", text)
 
-                    return scripts  # type: ignore
+    #     # Unescape, strip, and clean up unnecessary empty lines
+    #     text = html.unescape(text).strip()
 
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Error: {e}")
-
-        return None
+    #     # Optional: avoid having 4 line breaks if the HTML was complex
+    #     return "\n".join(line.strip() for line in text.splitlines() if line.strip())

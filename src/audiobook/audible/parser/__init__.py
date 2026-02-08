@@ -1,7 +1,9 @@
-from .jsonld import ParserJsonld
-from .web import ParserWeb
+from .data_object import DataObject
+from .html import ParserHtml
+from .json import ParserJson
 
 __all__ = [
-    "ParserJsonld",
-    "ParserWeb",
+    "DataObject",
+    "ParserHtml",
+    "ParserJson",
 ]
