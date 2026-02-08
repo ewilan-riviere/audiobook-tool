@@ -10,9 +10,9 @@ class Audible(AutoRepr):
     asin: str
     audiobook: AudibleAudiobook | None
 
-    def __init__(self, asin: str):
+    def __init__(self, asin: str, locale: str | None = None):
         self.asin = asin
-        fetch = AudibleFetch(self.asin)
+        fetch = AudibleFetch(self.asin, locale)
         if not fetch.success:
             return
 

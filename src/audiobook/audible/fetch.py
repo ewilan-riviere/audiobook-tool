@@ -11,6 +11,7 @@ class AudibleFetch(AutoRepr):
 
     # https://audible.readthedocs.io/en/latest/marketplaces/marketplaces.html
     domains: list[str] = ["fr", "com", "co.uk", "de"]
+    locale: str | None
     asin: str
     url: str | None
     soup: BeautifulSoup | None
@@ -19,16 +20,20 @@ class AudibleFetch(AutoRepr):
     _cookies = {}
     error: str | None = None
 
-    def __init__(self, asin: str):
+    def __init__(self, asin: str, locale: str | None):
         self.asin = asin
+        self.locale = locale
         self._set_headers()
 
         max_retries = 5
         attempts = 0
 
         while attempts < max_retries and not self.success:
-            for domain in self.domains:
-                self._fetch_session(domain)
+            if not locale:
+                for domain in self.domains:
+                    self._fetch_session(domain)
+            else:
+                self._fetch_session(locale)
             attempts += 1
             if not self.success and attempts < max_retries:
                 print(f"Attempt {attempts} failed for {asin}, new try...")

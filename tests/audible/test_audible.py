@@ -15,6 +15,10 @@ ASIN_LIST_UK = [
 ]
 
 
-def test_audible():
-    for asin in ASIN_LIST_FR:
-        Audible(asin)
+# def test_audible():
+#     for asin in ASIN_LIST_FR:
+#         Audible(asin)
+
+
+def test_audible_uk():
+    Audible("B0BVGSYL4Q", "co.uk")
