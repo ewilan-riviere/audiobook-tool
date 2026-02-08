@@ -8,32 +8,30 @@ from .fetch import AudibleFetch
 
 class Audible(AutoRepr):
     asin: str
-    audiobook: AudibleAudiobook | None
+    success: bool = False
 
     def __init__(self, asin: str, locale: str | None = None):
         self.asin = asin
         fetch = AudibleFetch(self.asin, locale)
+        self.audiobook = AudibleAudiobook(self.asin)
+
         if not fetch.success:
             return
 
         if not fetch.soup or not fetch.url:
             return
 
+        self.audiobook.url = fetch.url
         web = ParserHtml(fetch.soup)
         json = ParserJson(fetch.soup)
         self._handle_audiobook(fetch, web, json)
+        self.success = True
 
-        if self.audiobook:
-            print(self.audiobook)
-            print(self.audiobook.genres_all)
-            print(self.audiobook.duration_human)
+        # print(self.audiobook)
+        # print(self.audiobook.genres_all)
+        # print(self.audiobook.duration_human)
 
     def _handle_audiobook(self, fetch: AudibleFetch, web: ParserHtml, json: ParserJson):
-        if not fetch.url:
-            return
-
-        self.audiobook = AudibleAudiobook(self.asin, fetch.url)
-
         self.audiobook.title = web.html.get("title")
         self.audiobook.subtitle = web.html.get("subtitle")
         self.audiobook.description = web.html.get("description")
@@ -77,9 +75,6 @@ class Audible(AutoRepr):
                 self.audiobook.volume_clean = float(volume)
 
     def _handle_authors(self, audio: JsonAudiobook) -> list[str] | None:
-        if not self.audiobook:
-            return None
-
         items: list[str] = []
         authors = audio.get("authors")
         if not authors:
@@ -94,9 +89,6 @@ class Audible(AutoRepr):
         return items
 
     def _handle_series(self, audio: JsonAudiobook):
-        if not self.audiobook:
-            return
-
         self.audiobook.series = audio.get("series")
         if self.audiobook.series:
             self.audiobook.series_main = self.audiobook.series[0]

@@ -31,9 +31,9 @@ class AudibleFetch(AutoRepr):
         while attempts < max_retries and not self.success:
             if not locale:
                 for domain in self.domains:
-                    self._fetch_session(domain)
+                    self._fetch_session(domain, attempts)
             else:
-                self._fetch_session(locale)
+                self._fetch_session(locale, attempts)
             attempts += 1
             if not self.success and attempts < max_retries:
                 print(f"Attempt {attempts} failed for {asin}, new try...")
@@ -53,10 +53,11 @@ class AudibleFetch(AutoRepr):
         }
         self._cookies = {"lc-main-av": "en_US"}
 
-    def _fetch_session(self, locale: str = "com") -> str | None:
+    def _fetch_session(self, locale: str, attempts: int) -> str | None:
         """Parse Audible to find right URL"""
         url = f"https://www.audible.{locale}/pd/{self.asin}"
-        # url = f"{url}?ipRedirectOverride=true"
+        if self.locale or attempts > 0:
+            url = f"{url}?ipRedirectOverride=true"
 
         try:
             _session = requests.Session()

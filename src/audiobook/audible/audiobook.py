@@ -43,9 +43,8 @@ class AudibleAudiobook(AutoRepr):
     series_clean: Optional[str]
     volume_clean: Optional[float]
 
-    def __init__(self, asin: str, url: str):
+    def __init__(self, asin: str):
         self.asin = asin
-        self.url = url
         self.fetched_at = datetime.now()
 
     @property
