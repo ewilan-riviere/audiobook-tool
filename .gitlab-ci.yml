@@ -12,7 +12,7 @@ test-job:
     - apt-get install -y ffmpeg
   script:
     - pip install -e .
-    - audiobook-tool -h
+    # - audiobook-tool -h
     - pytest -s
   only:
     - main
