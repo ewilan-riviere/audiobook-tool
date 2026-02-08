@@ -1,11 +1,14 @@
-import httpx
+"""Fetch Audible URL"""
+
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import requests
-from urllib.parse import urlparse
 from audiobook.common import AutoRepr
 
 
 class AudibleFetch(AutoRepr):
+    """Fetch Audible URL"""
+
     # https://audible.readthedocs.io/en/latest/marketplaces/marketplaces.html
     domains: list[str] = ["fr", "com", "co.uk", "de"]
     asin: str
@@ -47,7 +50,8 @@ class AudibleFetch(AutoRepr):
 
     def _fetch_session(self, locale: str = "com") -> str | None:
         """Parse Audible to find right URL"""
-        url = f"https://www.audible.{locale}/pd/{self.asin}?ipRedirectOverride=true"
+        url = f"https://www.audible.{locale}/pd/{self.asin}"
+        # url = f"{url}?ipRedirectOverride=true"
 
         try:
             _session = requests.Session()

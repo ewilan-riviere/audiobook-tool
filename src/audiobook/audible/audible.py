@@ -1,5 +1,7 @@
+import re
 from audiobook.common import AutoRepr
 from .parser import ParserJson, ParserHtml
+from .typed import JsonAudiobook
 from .audiobook import AudibleAudiobook
 from .fetch import AudibleFetch
 
@@ -19,19 +21,16 @@ class Audible(AutoRepr):
 
         web = ParserHtml(fetch.soup)
         json = ParserJson(fetch.soup)
+        self._handle_audiobook(fetch, web, json)
 
-        # print("web.html")
-        # print(web.html)
-        # print()
-        # print("json.audiobook")
-        # print(json.audiobook)
-        # print()
-        # print("json.ld_audiobook")
-        # print(json.ld_audiobook)
-        # print()
-        # print("json.ld_product")
-        # print(json.ld_product)
-        # print()
+        if self.audiobook:
+            print(self.audiobook)
+            print(self.audiobook.genres_all)
+            print(self.audiobook.duration_human)
+
+    def _handle_audiobook(self, fetch: AudibleFetch, web: ParserHtml, json: ParserJson):
+        if not fetch.url:
+            return
 
         self.audiobook = AudibleAudiobook(self.asin, fetch.url)
 
@@ -41,7 +40,7 @@ class Audible(AutoRepr):
         self.audiobook.copyright = web.html.get("copyright")
         self.audiobook.publisher = json.ld_audiobook.get("publisher")
 
-        self.audiobook.authors = json.audiobook.get("authors")
+        self.audiobook.authors = self._handle_authors(json.audiobook)
         self.audiobook.narrators = json.audiobook.get("narrators")
 
         self.audiobook.published_at = json.ld_audiobook.get("date_published")
@@ -52,12 +51,7 @@ class Audible(AutoRepr):
         self.audiobook.abridged = json.ld_audiobook.get("abridged")
         self.audiobook.cover = json.ld_audiobook.get("image")
 
-        self.audiobook.series = json.audiobook.get("series")
-        if self.audiobook.series:
-            self.audiobook.series_main = self.audiobook.series[0]
-            self.audiobook.part = json.audiobook.get("part")
-            self.audiobook.volume = 1
-
+        self._handle_series(json.audiobook)
         self.audiobook.format = json.audiobook.get("format")
         self.audiobook.book_format = json.ld_audiobook.get("book_format")
         self.audiobook.sku = json.ld_product["sku"]
@@ -68,55 +62,51 @@ class Audible(AutoRepr):
         self.audiobook.genres = web.html.get("genres")
         self.audiobook.categories = json.audiobook.get("categories")
 
-        print(self.audiobook)
+        self.audiobook.title_clean = None
+        self.audiobook.series_clean = None
+        self.audiobook.volume_clean = None
 
-    # def _parse_series_from_subtitle(self, subtitle: str):
-    #     pattern = r"^(.*?)[, \-]+(?:Book|Tome|Volume)?\s*(\d+)$"
-    #     match = re.search(pattern, subtitle)
-    #     if match:
-    #         serie = match.group(1).strip()
-    #         serie = serie.replace(", Vol.", "")
-    #         volume = match.group(2)
+        clean = self.audiobook.clean()
+        if clean.get("title"):
+            self.audiobook.title_clean = str(clean.get("title"))
+        if clean.get("series"):
+            self.audiobook.series_clean = str(clean.get("series"))
+        if clean.get("volume"):
+            volume = clean.get("volume")
+            if volume:
+                self.audiobook.volume_clean = float(volume)
 
-    #         self.series_web = serie
-    #         self.volume = int(volume)
-    #     else:
-    #         print(f"Unknown format : {subtitle}")
+    def _handle_authors(self, audio: JsonAudiobook) -> list[str] | None:
+        if not self.audiobook:
+            return None
 
-    # def _parse_implicit_volume(self):
-    #     if not self.title:
-    #         return None
+        items: list[str] = []
+        authors = audio.get("authors")
+        if not authors:
+            return None
 
-    #     # \d+ search for one or more consecutive digits
-    #     match = re.search(r"\d+", self.title)
+        for author in authors:
+            if any(word in author for word in ["traducteur", "translator"]):
+                continue
+            else:
+                items.append(author)
 
-    #     if match:
-    #         self.volume = int(match.group())
+        return items
 
-    # def _extract_duration_human(self, data: Dict[str, Any]) -> str | None:
-    #     """Parse ISO 8601 to human duration"""
-    #     iso_duration = self._extract(data, "duration")
-    #     if not iso_duration:
-    #         return None
+    def _handle_series(self, audio: JsonAudiobook):
+        if not self.audiobook:
+            return
 
-    #     return (
-    #         iso_duration.replace("PT", "").replace("H", "h ").replace("M", "m").strip()
-    #     )
+        self.audiobook.series = audio.get("series")
+        if self.audiobook.series:
+            self.audiobook.series_main = self.audiobook.series[0]
 
-    # def _clean(self, text: str) -> str:
-    #     """Clean text"""
-    #     if not text:
-    #         return ""
+            self.audiobook.part = audio.get("part")
+            self.audiobook.volume = None
 
-    #     # Replace paragraph breaks with line breaks
-    #     text = re.sub(r"</p>|<br\s*/?>|</div>", "\n", text)
-
-    #     # Remove all other HTML tags
-    #     clean = re.compile("<.*?>")
-    #     text = re.sub(clean, "", text)
-
-    #     # Unescape, strip, and clean up unnecessary empty lines
-    #     text = html.unescape(text).strip()
-
-    #     # Optional: avoid having 4 line breaks if the HTML was complex
-    #     return "\n".join(line.strip() for line in text.splitlines() if line.strip())
+            if self.audiobook.part:
+                match = re.search(r"\d+", self.audiobook.part)
+                if match:
+                    number = int(match.group())
+                    if not self.audiobook.volume:
+                        self.audiobook.volume = number
