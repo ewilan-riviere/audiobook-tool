@@ -40,3 +40,10 @@ class AudibleAudiobook(AutoRepr):
         self.asin = asin
         self.url = url
         self.fetched_at = datetime.now()
+
+    def duration_human(self) -> str | None:
+        """Get duration as human readable"""
+        if not self.duration:
+            return None
+
+        return self.duration.strftime("%H:%M")

@@ -17,19 +17,6 @@ class Audible(AutoRepr):
         web = ParserHtml(fetch.soup)
         json = ParserJson(fetch.soup)
 
-        print("web.html")
-        print(web.html)
-        print()
-        print("json.audiobook")
-        print(json.audiobook)
-        print()
-        print("json.ld_audiobook")
-        print(json.ld_audiobook)
-        print()
-        print("json.ld_product")
-        print(json.ld_product)
-        print()
-
         self.audiobook = AudibleAudiobook(self.asin, fetch.url)
 
         self.audiobook.title = web.html["title"]
