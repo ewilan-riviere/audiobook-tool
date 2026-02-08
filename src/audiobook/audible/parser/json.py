@@ -42,6 +42,9 @@ class ParserJson(AutoRepr):
         item["narrators"] = self._to_list(authors.narrators, "name")
         item["release_date"] = language.releaseDate
         item["series"] = self._to_list(language.series, "name")
+        parts = self._to_list(language.series, "part")
+        if parts:
+            item["part"] = parts[0]
         item["duration"] = language.duration
         item["rating"] = self._to_float(authors.deep("rating.value"))
         item["format"] = language.format
@@ -84,7 +87,7 @@ class ParserJson(AutoRepr):
         item["name"] = data.name
         item["description"] = data.description
         item["image"] = data.image
-        item["abridged"] = self._to_bool(data.abridged)
+        item["abridged"] = self._to_bool(data.deep("abridged"))
         item["author"] = self._to_list(data.author, "name")
         item["read_by"] = self._to_list(data.readBy, "name")
         item["publisher"] = data.publisher

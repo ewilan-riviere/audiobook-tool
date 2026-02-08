@@ -1,6 +1,7 @@
 """Parse Audible web output"""
 
 from typing import List, cast
+import re
 from bs4 import BeautifulSoup
 from audiobook.common import AutoRepr
 from audiobook.audible.typed import AudibleHtml
@@ -39,21 +40,28 @@ class ParserHtml(AutoRepr):
 
     def _parse_description(self) -> dict[str, str]:
         data = {"description": "", "copyright": ""}
-        if self._soup:
-            description_html = self._soup.find(
-                "adbl-text-block",
-                attrs={"slot": "summary"},
-            )
-            if description_html:
-                paragraphs = [
-                    p.get_text().strip() for p in description_html.find_all("p")
-                ]
-                data["description"] = "\n\n".join(paragraphs)
+        if not self._soup:
+            return data
 
-                full_text = description_html.get_text(separator="|", strip=True)
-                parts = full_text.split("|")
-                if parts:
-                    data["copyright"] = parts[-1].strip()
+        description_html = self._soup.find("adbl-text-block", attrs={"slot": "summary"})
+
+        if description_html:
+            # 1. Clean up paragraphs for the description
+            paragraphs = [p.get_text().strip() for p in description_html.find_all("p")]
+            # Filter out paragraphs that look like copyright strings
+            description_parts = [p for p in paragraphs if not re.match(r"^©|\(P\)", p)]
+
+            description = "\n\n".join(description_parts)
+            data["description"] = description.replace(" . . .", "...")
+
+            # 2. Specifically look for the copyright string
+            # We look through all paragraphs for the one containing the copyright symbols
+            full_text_content = description_html.get_text("\n").split("\n")
+            for line in reversed(full_text_content):
+                line = line.strip()
+                if re.search(r"©\d{4}|\(P\)\d{4}", line):
+                    data["copyright"] = line
+                    break
 
         return data
 

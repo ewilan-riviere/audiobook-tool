@@ -24,6 +24,8 @@ class AudibleAudiobook(AutoRepr):
     cover: Optional[str]
 
     series: Optional[list[str]]
+    series_main: Optional[str]
+    part: Optional[str]
     volume: Optional[float]
 
     format: Optional[str]

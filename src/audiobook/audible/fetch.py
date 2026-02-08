@@ -45,31 +45,9 @@ class AudibleFetch(AutoRepr):
         }
         self._cookies = {"lc-main-av": "en_US"}
 
-    def _fetch(self, locale: str = "com") -> bool:
-        """Parse Audible to find right URL"""
-        url = f"https://www.audible.{locale}/pd/{self.asin}"
-
-        try:
-            with httpx.Client(
-                headers=self._headers,
-                cookies=self._cookies,
-                follow_redirects=True,
-                timeout=15,
-            ) as client:
-                res = client.get(url)
-                if str(res.url.path) != "/":
-                    self.soup = BeautifulSoup(res.text, "html.parser")
-                    self.url = str(res.url)
-                    self.success = True
-
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Error: {e}")
-
-        return self.success
-
     def _fetch_session(self, locale: str = "com") -> str | None:
         """Parse Audible to find right URL"""
-        url = f"https://www.audible.{locale}/pd/{self.asin}"
+        url = f"https://www.audible.{locale}/pd/{self.asin}?ipRedirectOverride=true"
 
         try:
             _session = requests.Session()

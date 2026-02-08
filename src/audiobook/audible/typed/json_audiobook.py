@@ -6,6 +6,7 @@ class JsonAudiobook(TypedDict):
     narrators: Optional[list[str]]
     release_date: Optional[str]
     series: Optional[list[str]]
+    part: Optional[str]
     duration: Optional[str]
     rating: Optional[float]
     format: Optional[str]
