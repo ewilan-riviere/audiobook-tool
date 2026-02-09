@@ -1,4 +1,6 @@
+from datetime import datetime, date, time
 from audiobook.audible import Audible, AudibleAudiobook
+
 
 ASIN_LIST_FR = [
     "B0D7D39LP5",  # La bataille des Jedi
@@ -15,14 +17,72 @@ ASIN_LIST_UK = [
 ]
 
 
-# def test_audible():
-#     for asin in ASIN_LIST_FR:
-#         Audible(asin)
+def test_audible():
+    audible = Audible("B0G5QKNT1J")
+
+    assert audible.asin == "B0G5QKNT1J"
+    assert audible.success is True
+
+    audiobook = audible.audiobook
+    assert audiobook.asin == "B0G5QKNT1J"
+    assert isinstance(audiobook.fetched_at, datetime)
+    assert isinstance(audiobook.url, str)
+    assert audiobook.title == "Assassin’s Apprentice (The Farseer Trilogy, Book 1)"
+    assert audiobook.subtitle is None
+    assert isinstance(audiobook.description, str)
+    assert audiobook.copyright == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
+    assert audiobook.publisher == "HarperVoyager"
+    assert audiobook.authors == ["Robin Hobb"]
+    assert audiobook.narrators == ["Joe Eyre"]
+    assert audiobook.published_at == date(2026, 1, 29)
+    assert audiobook.duration == time(16, 35)
+    assert audiobook.language == "English"
+    assert audiobook.abridged is False
+    assert isinstance(audiobook.cover, str)
+    assert audiobook.series == ["Farseer Trilogy"]
+    assert audiobook.series_main == "Farseer Trilogy"
+    assert audiobook.part is None
+    assert audiobook.volume is None
+    assert audiobook.format == "Version intégrale Livre audio"
+    assert audiobook.book_format == "AudiobookFormat"
+    assert audiobook.sku == "BK_HCUK_011245FR"
+    assert audiobook.rating is None
+    assert audiobook.price == 9.95
+    assert audiobook.genres == [
+        "Action et aventure",
+        "Animaux",
+        "Dragons et créatures mythiques",
+        "Fantasy",
+        "Fiction",
+    ]
+    assert audiobook.categories == ["Littérature, romans et fiction"]
+
+    assert audiobook.title_clean == "Assassin’s Apprentice"
+    assert audiobook.series_clean == "Farseer"
+    assert audiobook.volume_clean == 1.0
+
+    assert audiobook.genres_all == [
+        "Action et aventure",
+        "Animaux",
+        "Dragons et créatures mythiques",
+        "Fantasy",
+        "Fiction",
+        "Littérature, romans et fiction",
+    ]
+    assert audiobook.duration_human == "16:35:00"
+
+    assert (
+        audiobook.genres_list
+        == "Action et aventure/Animaux/Dragons et créatures mythiques/Fantasy/Fiction/Littérature, romans et fiction"
+    )
+    assert audiobook.authors_list == "Robin Hobb"
+    assert audiobook.narrators_list == "Joe Eyre"
+    assert audiobook.year == 2026
 
 
-# def test_audible_uk():
-#     Audible("B0BVGSYL4Q", "co.uk")
-#     Audible("B0BVGSYL4Q")
+def test_audible_uk():
+    Audible("B0BVGSYL4Q", "co.uk")
+    Audible("B0BVGSYL4Q")
 
 
 def test_audible_fr():

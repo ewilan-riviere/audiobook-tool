@@ -10,7 +10,7 @@ from audiobook.m4b import (
 import audiobook.utils as utils
 from audiobook.config import ConfigBuild
 from audiobook.forge import AudiobookForge
-from audiobook.audible import AudibleJson, AudibleYml
+from audiobook.audible.template import AudibleJson, AudibleYml
 
 
 class CommandBuild:

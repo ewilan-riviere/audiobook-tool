@@ -8,7 +8,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
 
-def path_join(base_path: str, *add_paths: str):
+def path_join(base_path: str | Path, *add_paths: str):
     """Join paths to get valid OS path"""
     return os.path.join(base_path, *add_paths)
 

@@ -4,6 +4,7 @@ from .parser import ParserJson, ParserHtml
 from .typed import JsonAudiobook
 from .audiobook import AudibleAudiobook
 from .fetch import AudibleFetch
+from .template import TemplateYml
 
 
 class Audible(AutoRepr):
@@ -27,9 +28,11 @@ class Audible(AutoRepr):
         self._handle_audiobook(fetch, web, json)
         self.success = True
 
-        # print(self.audiobook)
-        # print(self.audiobook.genres_all)
-        # print(self.audiobook.duration_human)
+    def save_metadata(self, save_path: str) -> str:
+        """Save audiobook as metadata.yml"""
+        yml = TemplateYml(self.audiobook, save_path)
+
+        return str(yml.save_path)
 
     def _handle_audiobook(self, fetch: AudibleFetch, web: ParserHtml, json: ParserJson):
         self.audiobook.title = web.html.get("title")

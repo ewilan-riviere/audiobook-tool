@@ -1,6 +1,9 @@
 from typing import Optional
 import re
+import os
+from pathlib import Path
 from datetime import datetime, date, time
+import requests
 from audiobook.common import AutoRepr
 
 
@@ -69,7 +72,82 @@ class AudibleAudiobook(AutoRepr):
 
         return self.duration.strftime("%H:%M:%S")
 
+    @property
+    def authors_list(self):
+        """Get authors"""
+        if self.authors:
+            return self._list_to_str(self.authors)
+
+        return None
+
+    @property
+    def narrators_list(self):
+        """Get narrators"""
+        if self.narrators:
+            return self._list_to_str(self.narrators)
+
+        return None
+
+    @property
+    def year(self):
+        """Get year"""
+        if self.published_at:
+            return self.published_at.year
+
+        return None
+
+    @property
+    def genres_list(self):
+        """Get genres"""
+        if self.genres_all:
+            return self._list_to_str(self.genres_all, "/")
+
+        return None
+
+    def save_cover(self, save_path: str) -> str | None:
+        """
+        Download cover and save it locally.
+        """
+        if not self.cover:
+            return
+
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
+        save_path = os.path.join(save_path, "cover.jpg")
+        real_path = Path(save_path).resolve()
+        # upscayl cover
+        # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
+        # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
+
+        try:
+            response = requests.get(
+                self.cover,
+                headers={"User-Agent": "Mozilla/5.0"},
+                stream=True,
+                timeout=30,
+            )
+
+            response.raise_for_status()
+
+            with open(real_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+
+            print(f"Success: cover saved as `{real_path}`")
+
+            return str(real_path)
+
+        except requests.exceptions.RequestException as e:
+            print(f"Download error: {e}")
+
+        return None
+
+    def _list_to_str(self, items: list[str], separator: str = " & ") -> str:
+        return separator.join(items)
+
     def clean(self) -> dict[str, str | float | None]:
+        """Clean title, series and volume to get more interesting data"""
         clean_title: str | None = None
         clean_series: str | None = None
         clean_volume: float | None = None
