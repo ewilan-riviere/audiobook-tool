@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime, date, time
 import requests
 from audiobook.common import AutoRepr
+from audiobook.audio import M4bAudiobook
 
 
 class AudibleAudiobook(AutoRepr):
@@ -114,29 +115,32 @@ class AudibleAudiobook(AutoRepr):
 
         return int(self.volume)
 
-    def to_tags(self) -> dict[str, str | None]:
-        return {
-            "title": self.title,
-            "album": self.title,
-            "artist": self.authors_list,
-            "album_artist": self.authors_list,
-            "composer": self.narrators_list,
-            "genre": self.genres_list,
-            "date": str(self.year) if self.year else None,
-            "copyright": self.copyright,
-            "comment": None,
-            "description": self.description,
-            "synopsis": self.description,
-            "compilation": None,
-            "lyrics": None,
-            "publisher": self.publisher,
-            "language": self.language,
-            "series": self.series,
-            "series-part": str(self.volume) if self.volume else None,
-            "subtitle": self.subtitle,
-            "isbn": None,
-            "asin": self.asin,
-        }
+    def to_m4b(self) -> M4bAudiobook:
+        """Convert AudibleAudiobook to M4bAudiobook"""
+        m4b = M4bAudiobook()
+
+        m4b.title = self.title
+        m4b.album = self.title
+        m4b.artist = self.authors_list
+        m4b.album_artist = self.authors_list
+        m4b.composer = self.narrators_list
+        m4b.genre = self.genres_list
+        m4b.date = str(self.year) if self.year else None
+        m4b.copyright = self.copyright
+        m4b.comment = None
+        m4b.description = self.description
+        m4b.synopsis = self.description
+        m4b.compilation = None
+        m4b.lyrics = None
+        m4b.publisher = self.publisher
+        m4b.language = self.language
+        m4b.series = self.series
+        m4b.series_part = str(self.volume) if self.volume else None
+        m4b.subtitle = self.subtitle
+        m4b.isbn = None
+        m4b.asin = self.asin
+
+        return m4b
 
     def save_cover(self, save_path: str) -> str | None:
         """

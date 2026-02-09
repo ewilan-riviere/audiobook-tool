@@ -1,5 +1,6 @@
 from src.audiobook.forge import AudiobookForge
 import src.audiobook.utils as utils
+from src.audiobook.audio import AudioReader
 
 
 def test_forge():
@@ -12,3 +13,6 @@ def test_forge():
     assert len(forge.blacksmith.chapters) == 2
     assert forge.blacksmith.target_bitrate == "128k"
     assert utils.file_exists(forge.m4b_file) is True
+
+    reader = AudioReader(forge.m4b_file)
+    print(reader)

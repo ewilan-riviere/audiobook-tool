@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 from audiobook.args import AudiobookArgs
-from audiobook.env import python_check
+from audiobook.env import python_check, LOGGER_LEVEL
 from .command import (
     # CommandAudible,
     CommandBuild,
@@ -17,7 +17,7 @@ from .command import (
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=LOGGER_LEVEL,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )

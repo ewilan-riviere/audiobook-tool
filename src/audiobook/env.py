@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PART_SIZE = int(os.environ.get("PART_SIZE", 500))
+LOGGER_LEVEL = str(os.environ.get("LOGGER_LEVEL", "info")).upper()
 
 
 def python_check() -> None:

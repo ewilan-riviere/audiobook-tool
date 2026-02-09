@@ -2,10 +2,11 @@
 
 import os
 import logging
-from audiobook.common import AutoRepr
 from typing import Any, cast
 import yaml
-from ..audiobook import AudibleAudiobook
+from audiobook.common import AutoRepr
+from audiobook.audio import M4bAudiobook
+
 
 logger = logging.getLogger("audiobook.metadata")
 
@@ -22,15 +23,32 @@ class YmlReader(AutoRepr):
         self.default_title = self._handle_default_title()
 
         self._read()
-        # self.metadata = MetadataAudiobook(self.yml_data, self.default_title)
 
     @property
-    def audiobook(self) -> AudibleAudiobook:
-        audiobook = AudibleAudiobook(self.yml_data.get("asin"))
+    def audiobook(self) -> M4bAudiobook:
+        m4b = M4bAudiobook()
+        m4b.title = self.yml_data.get("title") or self.default_title
+        m4b.album = self.yml_data.get("title") or self.default_title
+        m4b.artist = self.yml_data.get("authors")
+        m4b.album_artist = self.yml_data.get("authors")
+        m4b.composer = self.yml_data.get("narrators")
+        m4b.genre = self.yml_data.get("genres")
+        m4b.date = self.yml_data.get("year")
+        m4b.copyright = self.yml_data.get("copyright")
+        m4b.comment = None
+        m4b.description = self.yml_data.get("description")
+        m4b.synopsis = self.yml_data.get("description")
+        m4b.compilation = None
+        m4b.lyrics = self.yml_data.get("lyrics")
+        m4b.publisher = self.yml_data.get("publisher")
+        m4b.language = self.yml_data.get("language")
+        m4b.series = self.yml_data.get("series")
+        m4b.series_part = self.yml_data.get("volume")
+        m4b.subtitle = self.yml_data.get("subtitle")
+        m4b.isbn = None
+        m4b.asin = self.yml_data.get("asin")
 
-        audiobook.title = self.yml_data.get("title") or self.default_title
-
-        return audiobook
+        return m4b
 
     def _handle_default_title(self) -> str:
         if not self.yml_path:

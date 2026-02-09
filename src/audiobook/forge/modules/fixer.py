@@ -18,11 +18,14 @@ class BlacksmithFixer:
         if not self.input_path.exists():
             raise FileNotFoundError(f"File not found: {self.input_path}")
 
+    def run(self):
         fixed_path = self._fix_m4b()
         compatible = self._mutagen_compatibility(fixed_path)
         if compatible:
             print("🚀 File is now fully compatible with Mutagen!")
             self._rename_file()
+
+        return self
 
     def _rename_file(self) -> None:
         p = Path(self.input_path)

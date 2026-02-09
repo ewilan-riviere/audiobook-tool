@@ -137,4 +137,4 @@ class AudiobookBlacksmith(AutoRepr):
         finally:
             print("🧹 Cleaning temporary files...")
             self._cleanup()
-            BlacksmithFixer(self.output_path)
+            BlacksmithFixer(self.output_path).run()
