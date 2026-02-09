@@ -1,10 +1,11 @@
 """Handle config for forge audiobook-tool"""
 
 import audiobook.utils as utils
-from ..args import AudiobookArgs
+from audiobook.args import AudiobookArgs
+from audiobook.common import AutoRepr
 
 
-class ConfigForge:
+class ConfigForge(AutoRepr):
     """Handle config for forge audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):

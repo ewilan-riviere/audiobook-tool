@@ -1,3 +1,5 @@
+"""Fetch metadata from Audible from audiobook ASIN"""
+
 import re
 from audiobook.common import AutoRepr
 from .parser import ParserJson, ParserHtml
@@ -8,13 +10,13 @@ from .template import TemplateYml
 
 
 class Audible(AutoRepr):
-    asin: str
+    """Fetch metadata from Audible from audiobook ASIN"""
+
     success: bool = False
 
     def __init__(self, asin: str, locale: str | None = None):
-        self.asin = asin
-        fetch = AudibleFetch(self.asin, locale)
-        self.audiobook = AudibleAudiobook(self.asin)
+        fetch = AudibleFetch(asin, locale)
+        self.audiobook = AudibleAudiobook(asin)
 
         if not fetch.success:
             return
@@ -25,7 +27,7 @@ class Audible(AutoRepr):
         self.audiobook.url = fetch.url
         web = ParserHtml(fetch.soup)
         json = ParserJson(fetch.soup)
-        self._handle_audiobook(fetch, web, json)
+        self._handle_audiobook(web, json)
         self.success = True
 
     def save_metadata(self, save_path: str) -> str:
@@ -34,7 +36,7 @@ class Audible(AutoRepr):
 
         return str(yml.save_path)
 
-    def _handle_audiobook(self, fetch: AudibleFetch, web: ParserHtml, json: ParserJson):
+    def _handle_audiobook(self, web: ParserHtml, json: ParserJson):
         self.audiobook.title = web.html.get("title")
         self.audiobook.subtitle = web.html.get("subtitle")
         self.audiobook.description = web.html.get("description")

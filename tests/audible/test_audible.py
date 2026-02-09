@@ -20,9 +20,7 @@ ASIN_LIST_UK = [
 def test_audible():
     audible = Audible("B0G5QKNT1J")
 
-    assert audible.asin == "B0G5QKNT1J"
     assert audible.success is True
-
     audiobook = audible.audiobook
     assert audiobook.asin == "B0G5QKNT1J"
     assert isinstance(audiobook.fetched_at, datetime)

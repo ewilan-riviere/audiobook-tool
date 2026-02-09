@@ -1,3 +1,5 @@
+"""Represents an Audible audiobook"""
+
 from typing import Optional
 import re
 import os
@@ -8,6 +10,8 @@ from audiobook.common import AutoRepr
 
 
 class AudibleAudiobook(AutoRepr):
+    """Represents an Audible audiobook"""
+
     asin: Optional[str]
     url: Optional[str]
     fetched_at: Optional[datetime]

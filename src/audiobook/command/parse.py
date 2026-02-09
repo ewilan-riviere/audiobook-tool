@@ -1,9 +1,6 @@
 """parse command of audiobook-tool"""
 
-# import sys
 from audiobook.args import AudiobookArgs
-
-# from audiobook.audible import AudibleJson, AudibleYml
 from audiobook.audio import AudioReader
 
 
