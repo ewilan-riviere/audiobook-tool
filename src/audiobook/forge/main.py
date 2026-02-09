@@ -14,6 +14,7 @@ class AudiobookForge(AutoRepr):
         parent = Path(mp3_directory).name
         self.m4b_file = f"{self.mp3_directory}/{parent}.m4b"
         self.bytes = 0
+        self.blacksmith: AudiobookBlacksmith | None = None
 
         if clear_old_file:
             self._remove_old_file()
@@ -37,8 +38,8 @@ class AudiobookForge(AutoRepr):
             print(f"File {self.m4b_file} exists, skipping forge...")
             return self
 
-        blacksmith = AudiobookBlacksmith(self.mp3_directory)
-        blacksmith.process()
+        self.blacksmith = AudiobookBlacksmith(self.mp3_directory)
+        self.blacksmith.process()
 
         self._calculate_size()
 
