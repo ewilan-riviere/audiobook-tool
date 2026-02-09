@@ -6,3 +6,4 @@ tests/media/covers
 .DS_Store
 *.txt
 .env
+tests/media/the-wall/the-wall.m4b
