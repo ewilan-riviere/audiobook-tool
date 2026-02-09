@@ -286,3 +286,18 @@ def make_directory(directory_path: str | Path) -> Path:
     directory_path.mkdir(parents=True, exist_ok=True)
 
     return directory_path
+
+
+def confirm_action(msg: str = "Do you want to continue?"):
+    """Ask to user before continue"""
+    while True:
+        # .lower() makes it case-insensitive
+        choice = input(f"{msg} (Y/n): ").lower().strip()
+
+        # If user presses Enter without typing, default to 'yes'
+        if choice in ["y", "yes", ""]:
+            return True
+        elif choice in ["n", "no"]:
+            return False
+        else:
+            print("Please enter 'y' or 'n'.")

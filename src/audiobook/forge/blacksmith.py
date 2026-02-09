@@ -15,6 +15,7 @@ class AudiobookBlacksmith(AutoRepr):
 
     def __init__(self, directory_path: str):
         self.directory = Path(directory_path).resolve()
+        self.mp3_files: list[Path] = []
         self.chapters: list[BlacksmithChapter] = []
         self.target_bitrate: str = "128k"
         self.output_path = Path(
@@ -28,18 +29,16 @@ class AudiobookBlacksmith(AutoRepr):
 
         self._prepare_data()
 
-        print(self)
-
     def _prepare_data(self) -> None:
         """Initializes the chapter list, calculates the bitrate, and extracts titles from tags."""
-        mp3_files = utils.get_files_path(self.directory, "mp3")
-        if not mp3_files:
+        self.mp3_files = utils.get_files_path(self.directory, "mp3")
+        if not self.mp3_files:
             raise FileNotFoundError(f"No MP3 files found into {self.directory}")
 
         total_bitrate: int = 0
-        file_count = len(mp3_files)
+        file_count = len(self.mp3_files)
 
-        for mp3 in mp3_files:
+        for mp3 in self.mp3_files:
             reader = AudioReader(mp3)
             mp3_bitrate = reader.properties.bit_rate or 128000
             total_bitrate += mp3_bitrate

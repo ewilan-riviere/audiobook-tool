@@ -7,10 +7,10 @@ from audiobook.args import AudiobookArgs
 from audiobook.env import python_check
 from .command import (
     # CommandAudible,
-    # CommandBuild,
+    CommandBuild,
     # CommandClean,
     # CommandExtract,
-    # CommandForge,
+    CommandForge,
     # CommandFusion,
     CommandParse,
 )
@@ -42,14 +42,14 @@ def main() -> None:
             CommandParse(args)
         # if args.command == "audible":
         #     CommandAudible(args)
-        # elif args.command == "build":
-        #     CommandBuild(args)
+        elif args.command == "build":
+            CommandBuild(args)
         # elif args.command == "clean":
         #     CommandClean(args)
         # elif args.command == "extract":
         #     CommandExtract(args)
-        # elif args.command == "forge":
-        #     CommandForge(args)
+        elif args.command == "forge":
+            CommandForge(args)
         # elif args.command == "fusion":
         #     CommandFusion(args)
         # elif args.command == "parse":

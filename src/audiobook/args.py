@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser, Namespace
 from typing import Optional
+from pathlib import Path
 
 
 class AudiobookArgs:
@@ -18,6 +19,11 @@ class AudiobookArgs:
             "asin",
             help="ASIN of Audible book like `B008Y43GBY` (available in Audible book's URL)",
         )
+        m_audible.add_argument(
+            "-l",
+            "--locale",
+            help="Audiobook locale for Audible (can be `com`, `co.uk`, `fr`, `de`)",
+        )
 
         # Build
         m_build = subparsers.add_parser(
@@ -31,15 +37,14 @@ class AudiobookArgs:
             help="Clear old M4B audiobook if present.",
         )
         m_build.add_argument(
-            "-r",
-            "--rust",
-            action="store_true",
-            help="Use Rust with audiobook-forge crate to forge M4B",
-        )
-        m_build.add_argument(
             "-a",
             "--asin",
             help="Fetch metadata from Audible",
+        )
+        m_build.add_argument(
+            "-l",
+            "--locale",
+            help="Audiobook locale for Audible (can be `com`, `co.uk`, `fr`, `de`)",
         )
         m_build.add_argument("-o", "--output")
 
@@ -74,13 +79,27 @@ class AudiobookArgs:
         args: Namespace = parser.parse_args()
         self.command: str = args.command
 
+        # path
         self.mp3_directory: Optional[str] = getattr(args, "mp3_directory", None)
         self.m4b_output: Optional[str] = getattr(args, "output", None)
-        self.clear_old_m4b: bool = getattr(args, "clear", False)
-        self.use_rust: bool = getattr(args, "rust", False)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
-        self.asin: Optional[str] = getattr(args, "asin", None)
         self.audio_to_parse: Optional[str] = getattr(args, "audio_to_parse", None)
+
+        # bool
+        self.clear: bool = getattr(args, "clear", False)
+
+        # misc
+        self.asin: Optional[str] = getattr(args, "asin", None)
+        self.locale: Optional[str] = getattr(args, "locale", None)
+
+        if self.mp3_directory:
+            self.mp3_directory = self._path_absolute(self.mp3_directory)
+        if self.m4b_output:
+            self.m4b_output = self._path_absolute(self.m4b_output)
+        if self.m4b_directory:
+            self.m4b_directory = self._path_absolute(self.m4b_directory)
+        if self.audio_to_parse:
+            self.audio_to_parse = self._path_absolute(self.audio_to_parse)
 
         if self.command in ["audible"] and self.asin is None:
             parser.error(
@@ -104,3 +123,6 @@ class AudiobookArgs:
             parser.error(
                 f"L'argument 'mp3_directory' est requis pour la commande {self.command}"
             )
+
+    def _path_absolute(self, path: str) -> str:
+        return str(Path(path).resolve())

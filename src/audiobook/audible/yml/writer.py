@@ -7,7 +7,7 @@ from ..audiobook import AudibleAudiobook
 from .block_style import BlockStyleDumper
 
 
-class TemplateYml:
+class YmlWriter:
     """Write metadata into YML file"""
 
     def __init__(self, audiobook: AudibleAudiobook, save_path: str):

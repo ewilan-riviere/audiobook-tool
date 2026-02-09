@@ -22,6 +22,13 @@ class AudibleAudiobook(AutoRepr):
     copyright: Optional[str]
     publisher: Optional[str]
 
+    original_title: Optional[str]
+    original_series: Optional[list[str]]
+    part: Optional[str]
+
+    series: Optional[str]
+    volume: Optional[float]
+
     authors: Optional[list[str]]
     narrators: Optional[list[str]]
 
@@ -30,11 +37,6 @@ class AudibleAudiobook(AutoRepr):
     language: Optional[str]
     abridged: Optional[bool]
     cover: Optional[str]
-
-    series: Optional[list[str]]
-    series_main: Optional[str]
-    part: Optional[str]
-    volume: Optional[float]
 
     format: Optional[str]
     book_format: Optional[str]
@@ -46,11 +48,7 @@ class AudibleAudiobook(AutoRepr):
     genres: Optional[list[str]]
     categories: Optional[list[str]]
 
-    title_clean: Optional[str]
-    series_clean: Optional[str]
-    volume_clean: Optional[float]
-
-    def __init__(self, asin: str):
+    def __init__(self, asin: str | None):
         self.asin = asin
         self.fetched_at = datetime.now()
 
@@ -108,6 +106,38 @@ class AudibleAudiobook(AutoRepr):
 
         return None
 
+    @property
+    def volume_int(self):
+        """Get volume as `int`"""
+        if not self.volume:
+            return None
+
+        return int(self.volume)
+
+    def to_tags(self) -> dict[str, str | None]:
+        return {
+            "title": self.title,
+            "album": self.title,
+            "artist": self.authors_list,
+            "album_artist": self.authors_list,
+            "composer": self.narrators_list,
+            "genre": self.genres_list,
+            "date": str(self.year) if self.year else None,
+            "copyright": self.copyright,
+            "comment": None,
+            "description": self.description,
+            "synopsis": self.description,
+            "compilation": None,
+            "lyrics": None,
+            "publisher": self.publisher,
+            "language": self.language,
+            "series": self.series,
+            "series-part": str(self.volume) if self.volume else None,
+            "subtitle": self.subtitle,
+            "isbn": None,
+            "asin": self.asin,
+        }
+
     def save_cover(self, save_path: str) -> str | None:
         """
         Download cover and save it locally.
@@ -152,13 +182,84 @@ class AudibleAudiobook(AutoRepr):
 
     def clean(self) -> dict[str, str | float | None]:
         """Clean title, series and volume to get more interesting data"""
-        clean_title: str | None = None
-        clean_series: str | None = None
-        clean_volume: float | None = None
+        series = None
+        if self.original_series:
+            series = self.original_series[0]
 
+        parsed_volume = self._clean_volume(series)
+        parsed_title = self._clean_title(series)
+        parsed_series = self._clean_series(series)
+
+        if parsed_volume:
+            self.volume = parsed_volume
+        if parsed_title:
+            self.title = parsed_title
+        if parsed_series:
+            self.series = parsed_series
+
+        return {
+            "title": parsed_title,
+            "series": parsed_series,
+            "volume": parsed_volume,
+        }
+
+    def _clean_series(self, series: str | None):
+        series_raw = str(series)
+        series = series if series else self.subtitle
+
+        if not series:
+            return None
+
+        # On retire les numéros de tome qui traînent à la fin
+        s = re.sub(
+            r"(?i)\s*[,:\-]?\s*(?:book|tome|vol|volume|livre|part)?\s*\d+.*$",
+            "",
+            series_raw,
+        )
+
+        # Gestion des préfixes d'univers (ex: Star Wars - La croisade...)
+        # On split et on prend la partie la plus longue pour éviter les préfixes courts
+        if " - " in s or " : " in s:
+            parts = re.split(r"[:\-\u2013\u2014]", s)
+            s = max(parts, key=len).strip()
+
+        # Nettoyage des suffixes de type de collection
+        return re.sub(
+            r"(?i)\b(Novels|Trilogy|Series|Collection|Novela|Saga)\b", "", s
+        ).strip()
+
+    def _clean_title(self, series: str | None):
+        if not self.original_title:
+            return None
+
+        # On enlève d'abord les parenthèses (souvent des infos techniques)
+        t = re.sub(r"\(.*?\)", "", self.original_title)
+
+        # Au lieu de split sur le tiret (qui casse Passe-Miroir),
+        # on ne coupe que si le tiret est suivi d'un mot-clé de volume ou de série
+        t = re.sub(
+            r"(?i)\s*[:\-\u2013\u2014]\s*(?:book|tome|vol|volume|livre|part).*$",
+            "",
+            t,
+        )
+
+        # Si le titre contient encore un ":" ou "-" (souvent "Série - Titre"),
+        # on essaie d'isoler le titre s'il y a un doublon avec series_main
+        if series and (" - " in t or " : " in t):
+            parts = re.split(r"\s*[:\-\u2013\u2014]\s*", t)
+            # On garde la partie qui n'est pas le nom de la série
+            t = next(
+                (p for p in parts if p.lower() not in series.lower()),
+                parts[0],
+            )
+
+        return str(t).strip()
+
+    def _clean_volume(self, series: str | None):
+        parsed_volume = None
         # 1. Extraction du Volume (Logique renforcée)
         # On cherche d'abord les mots-clés, puis un chiffre isolé à la fin si rien n'est trouvé
-        full_text = f"{self.title or ''} {self.subtitle or ''} {self.series_main or ''}"
+        full_text = f"{self.original_title or ''} {self.subtitle or ''} {series or ''}"
 
         # Tentative A : Mot-clé + Chiffre (Tome 2, Book 1.5)
         volume_match = re.search(
@@ -167,7 +268,7 @@ class AudibleAudiobook(AutoRepr):
         )
 
         if volume_match:
-            clean_volume = float(volume_match.group(1))
+            parsed_volume = float(volume_match.group(1))
         else:
             # Tentative B : Chiffre isolé à la fin du titre ou du sous-titre
             # (ex: "La croisade noire 2")
@@ -175,60 +276,10 @@ class AudibleAudiobook(AutoRepr):
                 r"(\d+(?:\.\d+)?)$", (self.subtitle or self.title or "").strip()
             )
             if digit_match:
-                clean_volume = float(digit_match.group(1))
-
-        # 2. Nettoyage du Titre
-        if self.title:
-            # On enlève d'abord les parenthèses (souvent des infos techniques)
-            t = re.sub(r"\(.*?\)", "", self.title)
-
-            # Au lieu de split sur le tiret (qui casse Passe-Miroir),
-            # on ne coupe que si le tiret est suivi d'un mot-clé de volume ou de série
-            t = re.sub(
-                r"(?i)\s*[:\-\u2013\u2014]\s*(?:book|tome|vol|volume|livre|part).*$",
-                "",
-                t,
-            )
-
-            # Si le titre contient encore un ":" ou "-" (souvent "Série - Titre"),
-            # on essaie d'isoler le titre s'il y a un doublon avec series_main
-            if self.series_main and (" - " in t or " : " in t):
-                parts = re.split(r"\s*[:\-\u2013\u2014]\s*", t)
-                # On garde la partie qui n'est pas le nom de la série
-                t = next(
-                    (p for p in parts if p.lower() not in self.series_main.lower()),
-                    parts[0],
-                )
-
-            clean_title = t.strip()
-
-        # 3. Nettoyage de la Série
-        series_raw = self.series_main if self.series_main else self.subtitle
-        if series_raw:
-            # On retire les numéros de tome qui traînent à la fin
-            s = re.sub(
-                r"(?i)\s*[,:\-]?\s*(?:book|tome|vol|volume|livre|part)?\s*\d+.*$",
-                "",
-                series_raw,
-            )
-
-            # Gestion des préfixes d'univers (ex: Star Wars - La croisade...)
-            # On split et on prend la partie la plus longue pour éviter les préfixes courts
-            if " - " in s or " : " in s:
-                parts = re.split(r"[:\-\u2013\u2014]", s)
-                s = max(parts, key=len).strip()
-
-            # Nettoyage des suffixes de type de collection
-            clean_series = re.sub(
-                r"(?i)\b(Novels|Trilogy|Series|Collection|Novela|Saga)\b", "", s
-            ).strip()
+                parsed_volume = float(digit_match.group(1))
 
         # Fallback sur le volume d'origine si l'extraction a échoué
-        if clean_volume is None and hasattr(self, "volume") and self.volume:
-            clean_volume = float(self.volume)
+        if parsed_volume is None and hasattr(self, "volume") and self.volume:
+            parsed_volume = float(self.volume)
 
-        return {
-            "title": clean_title,
-            "series": clean_series,
-            "volume": clean_volume,
-        }
+        return parsed_volume

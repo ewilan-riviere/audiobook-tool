@@ -6,7 +6,7 @@ from .parser import ParserJson, ParserHtml
 from .typed import JsonAudiobook
 from .audiobook import AudibleAudiobook
 from .fetch import AudibleFetch
-from .template import TemplateYml
+from .yml import YmlWriter
 
 
 class Audible(AutoRepr):
@@ -32,12 +32,12 @@ class Audible(AutoRepr):
 
     def save_metadata(self, save_path: str) -> str:
         """Save audiobook as metadata.yml"""
-        yml = TemplateYml(self.audiobook, save_path)
+        writer = YmlWriter(self.audiobook, save_path)
 
-        return str(yml.save_path)
+        return str(writer.save_path)
 
     def _handle_audiobook(self, web: ParserHtml, json: ParserJson):
-        self.audiobook.title = web.html.get("title")
+        self.audiobook.original_title = web.html.get("title")
         self.audiobook.subtitle = web.html.get("subtitle")
         self.audiobook.description = web.html.get("description")
         self.audiobook.copyright = web.html.get("copyright")
@@ -54,7 +54,12 @@ class Audible(AutoRepr):
         self.audiobook.abridged = json.ld_audiobook.get("abridged")
         self.audiobook.cover = json.ld_audiobook.get("image")
 
+        self.audiobook.volume = None
+        self.audiobook.part = None
+        self.audiobook.title = None
+        self.audiobook.series = None
         self._handle_series(json.audiobook)
+
         self.audiobook.format = json.audiobook.get("format")
         self.audiobook.book_format = json.ld_audiobook.get("book_format")
         self.audiobook.sku = json.ld_product["sku"]
@@ -65,19 +70,7 @@ class Audible(AutoRepr):
         self.audiobook.genres = web.html.get("genres")
         self.audiobook.categories = json.audiobook.get("categories")
 
-        self.audiobook.title_clean = None
-        self.audiobook.series_clean = None
-        self.audiobook.volume_clean = None
-
-        clean = self.audiobook.clean()
-        if clean.get("title"):
-            self.audiobook.title_clean = str(clean.get("title"))
-        if clean.get("series"):
-            self.audiobook.series_clean = str(clean.get("series"))
-        if clean.get("volume"):
-            volume = clean.get("volume")
-            if volume:
-                self.audiobook.volume_clean = float(volume)
+        self.audiobook.clean()
 
     def _handle_authors(self, audio: JsonAudiobook) -> list[str] | None:
         items: list[str] = []
@@ -94,12 +87,10 @@ class Audible(AutoRepr):
         return items
 
     def _handle_series(self, audio: JsonAudiobook):
-        self.audiobook.series = audio.get("series")
+        self.audiobook.original_series = audio.get("series")
         if self.audiobook.series:
-            self.audiobook.series_main = self.audiobook.series[0]
-
+            self.audiobook.series = self.audiobook.series[0]
             self.audiobook.part = audio.get("part")
-            self.audiobook.volume = None
 
             if self.audiobook.part:
                 match = re.search(r"\d+", self.audiobook.part)

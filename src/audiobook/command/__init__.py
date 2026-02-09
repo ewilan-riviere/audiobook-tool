@@ -1,17 +1,19 @@
 # from .audible import CommandAudible
-# from .build import CommandBuild
+from .build import CommandBuild
+
 # from .clean import CommandClean
 # from .extract import CommandExtract
-# from .forge import CommandForge
+from .forge import CommandForge
+
 # from .fusion import CommandFusion
 from .parse import CommandParse
 
 __all__ = [
     # "CommandAudible",
-    # "CommandBuild",
+    "CommandBuild",
     # "CommandClean",
     # "CommandExtract",
-    # "CommandForge",
+    "CommandForge",
     # "CommandFusion",
     "CommandParse",
 ]

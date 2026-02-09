@@ -25,7 +25,10 @@ def test_audible():
     assert audiobook.asin == "B0G5QKNT1J"
     assert isinstance(audiobook.fetched_at, datetime)
     assert isinstance(audiobook.url, str)
-    assert audiobook.title == "Assassin’s Apprentice (The Farseer Trilogy, Book 1)"
+    assert (
+        audiobook.original_title
+        == "Assassin’s Apprentice (The Farseer Trilogy, Book 1)"
+    )
     assert audiobook.subtitle is None
     assert isinstance(audiobook.description, str)
     assert audiobook.copyright == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
@@ -37,10 +40,9 @@ def test_audible():
     assert audiobook.language == "English"
     assert audiobook.abridged is False
     assert isinstance(audiobook.cover, str)
-    assert audiobook.series == ["Farseer Trilogy"]
-    assert audiobook.series_main == "Farseer Trilogy"
+    assert audiobook.original_series == ["Farseer Trilogy"]
     assert audiobook.part is None
-    assert audiobook.volume is None
+    assert audiobook.volume == 1.0
     assert audiobook.format == "Version intégrale Livre audio"
     assert audiobook.book_format == "AudiobookFormat"
     assert audiobook.sku == "BK_HCUK_011245FR"
@@ -55,9 +57,9 @@ def test_audible():
     ]
     assert audiobook.categories == ["Littérature, romans et fiction"]
 
-    assert audiobook.title_clean == "Assassin’s Apprentice"
-    assert audiobook.series_clean == "Farseer"
-    assert audiobook.volume_clean == 1.0
+    assert audiobook.title == "Assassin’s Apprentice"
+    assert audiobook.series == "Farseer"
+    assert audiobook.volume == 1.0
 
     assert audiobook.genres_all == [
         "Action et aventure",
@@ -116,4 +118,4 @@ def test_audible_de():
 
 
 def _test_halway_to_the_grave(audiobook: AudibleAudiobook):
-    assert audiobook.title_clean == "Halfway to the Grave"
+    assert audiobook.title == "Halfway to the Grave"

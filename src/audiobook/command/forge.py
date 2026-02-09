@@ -2,6 +2,7 @@
 
 from audiobook.args import AudiobookArgs
 import audiobook.utils as utils
+from audiobook.forge import AudiobookForge
 from .config import ConfigForge
 
 
@@ -10,7 +11,7 @@ class CommandForge:
 
     def __init__(self, args: AudiobookArgs):
         config = ConfigForge(args)
-        forge = AudiobookForge(config.mp3_directory, True).build_native()
-        print(f"\nM4B: `{forge.m4b_file}` ({forge.size})\n")
+        forge = AudiobookForge(config.mp3_directory, True).build()
+        print(f"\nM4B: `{forge.m4b_file}` ({forge.size_human})\n")
 
         utils.alert_sound()

@@ -17,6 +17,7 @@ from .utilitaries import (
     file_exists,
     delete_file,
     make_directory,
+    confirm_action,
 )
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "file_exists",
     "delete_file",
     "make_directory",
+    "confirm_action",
 ]
