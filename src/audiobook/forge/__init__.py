@@ -1,4 +1,4 @@
-from .audiobook_forge import AudiobookForge
+from .main import AudiobookForge
 
 __all__ = [
     "AudiobookForge",

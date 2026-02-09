@@ -16,3 +16,15 @@ class AudioChapter(AutoRepr):
     end_time: str
     tags: dict[str, Any]
     time_base: str = "1/44100"
+
+    @property
+    def title(self) -> str | None:
+        """Get chapter title"""
+        if not self.tags:
+            return None
+
+        value = self.tags.get("title")
+        if not value:
+            return None
+
+        return str(value)

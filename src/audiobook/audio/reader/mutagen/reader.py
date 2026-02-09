@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Optional, Union, Any, cast, Dict, List
+import subprocess
 import mutagen
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4, MP4FreeForm
@@ -166,3 +167,19 @@ class MutagenReader:
 
         target.write_bytes(data)  # Replaces open().write() and handles overwriting
         return target
+
+    def get_exact_duration_ms(self) -> int:
+        """Get exact duration with ffprobe"""
+        cmd = [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(self.path),
+        ]
+        result = subprocess.check_output(cmd).decode("utf-8").strip()
+
+        return int(float(result) * 1000)

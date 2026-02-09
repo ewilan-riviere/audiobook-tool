@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 
 
-class FFmpegRunner:
-    """Forge FFmpeg runner"""
+class BlacksmithRunner:
+    """Blacksmith FFmpeg runner"""
 
     @staticmethod
     def encode_to_aac(input_path: Path, output_path: Path, bitrate: str) -> str:
@@ -38,23 +38,6 @@ class FFmpegRunner:
             "error",  # <--- Nettoie ta console des erreurs non fatales
             str(output_path),
         ]
-        # cmd = [
-        #     "ffmpeg",
-        #     "-y",
-        #     "-i",
-        #     str(input_path),
-        #     "-c:a",
-        #     "aac",
-        #     "-b:a",
-        #     bitrate,
-        #     "-ar",
-        #     "44100",  # Force la fréquence à 44.1kHz (Standard M4B)
-        #     "-ac",
-        #     "2",  # Force le passage en Stéréo (2 canaux)
-        #     "-loglevel",
-        #     "error",
-        #     str(output_path),
-        # ]
         subprocess.run(cmd, check=True)
         return input_path.name
 
@@ -81,24 +64,6 @@ class FFmpegRunner:
             "error",
             temp_combined.name,
         ]
-        # concat_cmd = [
-        #     "ffmpeg",
-        #     "-y",
-        #     "-f",
-        #     "concat",
-        #     "-safe",
-        #     "0",
-        #     "-i",
-        #     input_list.name,
-        #     "-c",
-        #     "copy",
-        #     "-bsf:a",
-        #     "aac_adtstoasc",  # <--- Syntaxe corrigée ici
-        #     "-loglevel",
-        #     "error",
-        #     temp_combined.name,
-        # ]
-
         metadata_cmd = [
             "ffmpeg",
             "-y",
@@ -121,23 +86,6 @@ class FFmpegRunner:
             "error",
             output_path.name,
         ]
-        # metadata_cmd = [
-        #     "ffmpeg",
-        #     "-y",
-        #     "-i",
-        #     temp_combined.name,
-        #     "-i",
-        #     meta_file.name,
-        #     "-map_metadata",
-        #     "1",
-        #     "-c",
-        #     "copy",
-        #     "-movflags",
-        #     "+faststart",
-        #     "-loglevel",
-        #     "error",
-        #     output_path.name,
-        # ]
 
         try:
             # 1. Concaténation

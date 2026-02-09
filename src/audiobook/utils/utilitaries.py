@@ -140,7 +140,9 @@ def get_file(directory_path: str, extension: str) -> Optional[str]:
     return None
 
 
-def get_files(directory_path: str, extension: str, printing: bool = False) -> list[str]:
+def get_files(
+    directory_path: str | Path, extension: str, printing: bool = False
+) -> list[str]:
     """
     Recherche les fichiers avec une extension spécifique dans un dossier,
     les trie alphanumériquement et retourne leurs chemins absolus.
@@ -158,6 +160,16 @@ def get_files(directory_path: str, extension: str, printing: bool = False) -> li
 
     # On retourne la liste triée alphanumériquement
     return sorted(files)
+
+
+def get_files_path(directory_path: str | Path, extension: str) -> list[Path]:
+    """Get list of files as Path"""
+    files = get_files(directory_path, extension)
+    items: list[Path] = []
+    for f in files:
+        items.append(Path(f))
+
+    return items
 
 
 def move_files(paths: list[str], path_to_move: str) -> None:

@@ -21,7 +21,8 @@ class AudioProperties(AutoRepr):
         channels = reader.properties["channels"]
         channel_layout = reader.properties["channel_layout"]
 
-        self.duration: float | None = None  # 10.032
+        self.duration: float = 0  # 10.032
+        self.duration_ms: int = 0  # 10032
         self.bit_rate: int | None = None  # 128000
         self.codec: str | None = codec  # mp3
         self.sample_rate: int | None = None  # 48000
@@ -32,6 +33,7 @@ class AudioProperties(AutoRepr):
 
         if length:
             self.duration = float(length)
+            self.duration_ms = reader.get_exact_duration_ms()
         if bitrate:
             self.bit_rate = int(bitrate)
         if sample_rate:

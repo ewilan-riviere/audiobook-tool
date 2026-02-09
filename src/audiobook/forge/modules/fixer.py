@@ -1,3 +1,5 @@
+"""Repair M4B"""
+
 import subprocess
 from pathlib import Path
 from typing import Optional
@@ -5,24 +7,28 @@ from mutagen.mp4 import MP4
 import audiobook.utils as utils
 
 
-class AudiobookFixer:
-    """
-    A utility class to repair and normalize M4B files,
-    making them readable by Mutagen and standard audio players.
-    """
+class BlacksmithFixer:
+    """Repair M4B"""
 
-    def __init__(self, input_path: str):
+    def __init__(self, input_path: str | Path):
         self.success = False
         self.final_output: Path | None = None
         self.input_path = Path(input_path).resolve()
+
         if not self.input_path.exists():
             raise FileNotFoundError(f"File not found: {self.input_path}")
 
-    def replace(self) -> None:
+        fixed_path = self._fix_m4b()
+        compatible = self._mutagen_compatibility(fixed_path)
+        if compatible:
+            print("🚀 File is now fully compatible with Mutagen!")
+            self._rename_file()
+
+    def _rename_file(self) -> None:
         p = Path(self.input_path)
         utils.rename_file(str(self.final_output), p.stem)
 
-    def fix_structure(self, output_path: Optional[str] = None) -> Path:
+    def _fix_m4b(self, output_path: Optional[str] = None) -> Path:
         if output_path:
             self.final_output = Path(output_path).resolve()
         else:
@@ -96,7 +102,7 @@ class AudiobookFixer:
                 self.success = False
                 raise err
 
-    def verify_with_mutagen(self, file_path: Path) -> bool:
+    def _mutagen_compatibility(self, file_path: Path) -> bool:
         """
         Checks if the file is now readable by Mutagen's MP4 class.
         """

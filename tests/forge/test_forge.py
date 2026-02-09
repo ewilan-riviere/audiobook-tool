@@ -1,4 +1,5 @@
 from src.audiobook.forge import AudiobookForge
+import src.audiobook.utils as utils
 
 
 def test_forge():
@@ -7,3 +8,5 @@ def test_forge():
     forge = AudiobookForge(mp3_dir, True)
     forge = forge.build()
     print(forge)
+
+    assert utils.file_exists(forge.m4b_file) is True
