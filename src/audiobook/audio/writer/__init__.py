@@ -1,4 +1,4 @@
-from .writer import AudioWriter
+from .main import AudioWriter
 
 __all__ = [
     "AudioWriter",

@@ -3,12 +3,14 @@ from datetime import datetime
 from typing import List
 from pathlib import Path
 import pytest
-from audiobook.reader import (
+from audiobook.audio import (
     AudioReader,
+    AudioType,
+)
+from audiobook.audio.reader import (
     AudioTags,
     AudioProperties,
     AudioContainer,
-    AudioType,
 )
 from tests.test_files import ALL_FILES, ALL_FILES_IDS
 

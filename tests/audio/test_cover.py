@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 import pytest
 from pytest import FixtureRequest
-from audiobook.reader import AudioReader
-from audiobook.writer import AudioWriter
+from audiobook.audio import AudioReader, AudioWriter
 from audiobook.utils import (
     copy_file,
     path_join,

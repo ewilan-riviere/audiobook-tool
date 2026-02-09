@@ -1,6 +1,6 @@
 from .container import AudioContainer
 from .properties import AudioProperties
-from .reader import AudioReader
+from .main import AudioReader
 from .tags import AudioTags
 from .type import AudioType
 

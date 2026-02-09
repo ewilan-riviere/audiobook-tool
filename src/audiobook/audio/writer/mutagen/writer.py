@@ -6,7 +6,7 @@ from mutagen.mp4 import MP4, MP4FreeForm
 from mutagen.id3 import Frames, TXXX, COMM, APIC  # type: ignore
 from mutagen.mp4 import MP4Cover
 from audiobook.common import TAGS_MAPPING, AudioChapter
-from audiobook.reader.mutagen import MutagenReader
+from audiobook.audio.reader.mutagen import MutagenReader
 from .chapter import ChapterWriter
 
 
