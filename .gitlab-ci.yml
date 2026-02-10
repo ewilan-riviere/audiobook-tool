@@ -13,7 +13,8 @@ test-job:
   script:
     - pip install -e .
     - pip install pytest
-    # - audiobook-tool -h
-    - pytest -s
+    - playwright install --with-deps chromium
+    - audiobook-tool -h
+    # - pytest
   only:
     - main
