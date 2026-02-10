@@ -15,6 +15,6 @@ test-job:
     - pip install pytest
     - playwright install --with-deps chromium
     - audiobook-tool -h
-    # - pytest
+    - pytest
   only:
     - main

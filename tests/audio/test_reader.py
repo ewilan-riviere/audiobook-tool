@@ -47,7 +47,7 @@ def test_reader_container(path: str):
     if reader.type == AudioType.MP3:
         assert container.extension == "mp3"
         assert container.filename == "the-wall.mp3"
-        assert container.inode == 23280300
+        assert isinstance(container.inode, int)
         assert container.size == 322560
         assert container.size_human == "315.00 KB"
     if reader.type == AudioType.M4B:
@@ -60,7 +60,7 @@ def test_reader_container(path: str):
         if basename == "the-wall.m4b":
             assert container.extension == "m4b"
             assert container.filename == "the-wall.m4b"
-            assert container.inode == 36636283
+            assert isinstance(container.inode, int)
             assert container.size == 324999
             assert container.size_human == "317.38 KB"
 
