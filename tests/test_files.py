@@ -1,6 +1,7 @@
 PATH_MP3 = "tests/media/the-wall.mp3"
 PATH_M4B = "tests/media/the-wall.m4b"
 PATH_AAC_M4B = "tests/media/the-wall-aac.m4b"
+PATH_BUILD_M4B = "tests/media/the-wall-build.m4b"
 PATH_AAC_FFMPEG_M4B = "tests/media/the-wall-aac-ffmpeg.m4b"
 PATH_COVER = "tests/media/cover.jpg"
 

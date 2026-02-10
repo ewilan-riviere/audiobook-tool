@@ -165,9 +165,9 @@ def remove_directory(directory_path: str | Path | None) -> bool:
 
 def remove_file(file_path: str | Path) -> bool:
     """Delete file"""
-    path = Path(file_path)
-    if path.exists():
-        path.unlink()
+    file_path = Path(file_path).resolve()
+    if file_path.exists():
+        file_path.unlink()
         return True
 
     return False

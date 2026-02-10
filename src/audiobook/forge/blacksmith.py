@@ -13,20 +13,16 @@ from .modules import BlacksmithChapter, BlacksmithRunner
 class AudiobookBlacksmith(AutoRepr):
     """Compile MP3 files into M4B"""
 
-    _source_path: Path
-    _working_directory: Path
-    _source_files: list[Path] = []
-    _chapters: list[BlacksmithChapter] = []
-    _target_bitrate: str = "128k"
-    _output_path: Path | None
-    _metadata_txt_path: Path
-    _inputs_txt_path: Path
-
     def __init__(self, source_path: Path, working_directory: Path):
         self._source_path = source_path
         self._working_directory = working_directory
         self._metadata_txt_path = self._working_directory / "metadata.txt"
         self._inputs_txt_path = self._working_directory / "inputs.txt"
+
+        self._chapters: list[BlacksmithChapter] = []
+        self._target_bitrate: str = "128k"
+        self._output_path: Path | None = None
+        self._source_files: list[Path] = []
 
     @property
     def output_path(self):
@@ -100,7 +96,7 @@ class AudiobookBlacksmith(AutoRepr):
 
         self._metadata_txt_path.write_text("\n".join(metadata_lines), encoding="utf-8")
 
-    def run(self) -> None:
+    def run(self):
         """Start parallel encoding and final merging."""
         self._prepare_data()
 
@@ -133,6 +129,7 @@ class AudiobookBlacksmith(AutoRepr):
                         raise
 
             print("📦 Final merger and creation of chapters...")
+
             self._write_assets()
             m4b_path = BlacksmithRunner.merge_to_m4b(
                 self._inputs_txt_path,
@@ -151,3 +148,5 @@ class AudiobookBlacksmith(AutoRepr):
                     print("Failed on AudioReader!")
             else:
                 print("Failed on AudioReader!")
+
+        return self

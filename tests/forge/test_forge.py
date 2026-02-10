@@ -1,11 +1,16 @@
 import tempfile
 from pathlib import Path
+import audiobook.utils as utils
 from audiobook.forge import AudiobookForge
 from audiobook.audio import AudioReader
 
 
 def test_forge():
     mp3_directory = "./tests/media/the-wall"
+    mp3_directory_test = "./tests/media/the-wall-test"
+    utils.remove_directory(mp3_directory_test)
+    utils.copy_directory(mp3_directory, mp3_directory_test)
+
     temporary_directory = tempfile.TemporaryDirectory()
     forge = AudiobookForge(
         source_path=Path(mp3_directory),
@@ -13,6 +18,7 @@ def test_forge():
         clear=True,
     ).run()
 
+    print(forge.output_path)
     m4b_file = Path(forge.output_path)
 
     reader = AudioReader(m4b_file)

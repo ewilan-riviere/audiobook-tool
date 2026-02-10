@@ -51,7 +51,7 @@ class AudioTags(AutoRepr):
         # Audio Series
         self.series: str | None = reader.get_tag("series")
         # 2
-        self.series_part: str | None = reader.get_tag("series_part")
+        self.series_part: str | None = reader.get_tag("series-part")
         # Audio Subtitle
         self.subtitle: str | None = reader.get_tag("subtitle")
         # Audio Synopsis

@@ -42,7 +42,7 @@ def test_cover(writer_path: str):
 def test_save_cover(writer_path: str):
     cwd = os.getcwd()
     output_path = utils.path_join(cwd, "tests", "media", "covers")
-    utils.remove_file(output_path)
+    utils.remove_directory(output_path)
     reader = AudioReader(writer_path)
 
     utils.make_directory(output_path)

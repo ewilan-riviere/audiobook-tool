@@ -8,3 +8,4 @@ tests/media/covers
 .env
 tests/media/the-wall/the-wall.m4b
 tests/media/the-wall-test
+tests/media/the-wall-forge

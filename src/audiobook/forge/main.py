@@ -12,17 +12,13 @@ class AudiobookForge(AutoRepr):
     _source_path: Path
     _working_directory: Path
     _bytes: int = 0
-    _blacksmith: AudiobookBlacksmith
     _clear: bool = False
     _output_path: Path | None = None
 
     def __init__(self, source_path: Path, working_directory: Path, clear: bool = False):
         self._source_path = source_path.resolve()
         self._working_directory = working_directory.resolve()
-        self._blacksmith = AudiobookBlacksmith(
-            self._source_path,
-            self._working_directory,
-        )
+
         self._clear = clear
 
     @property
@@ -42,8 +38,11 @@ class AudiobookForge(AutoRepr):
     def run(self):
         """Execute build command"""
 
-        self._blacksmith.run()
-        self._output_path = self._blacksmith.output_path
+        blacksmith = AudiobookBlacksmith(
+            self._source_path,
+            self._working_directory,
+        ).run()
+        self._output_path = blacksmith.output_path
         self._calculate_size()
 
         return self

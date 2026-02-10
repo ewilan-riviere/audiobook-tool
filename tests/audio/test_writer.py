@@ -57,7 +57,7 @@ def test_writer(writer_path: str):
         "lyrics": "New Lyrics",
         "publisher": "New Publisher",
         "series": "New Series",
-        "series_part": "2",
+        "series-part": "2",
         "subtitle": "New Subtitle",
         "synopsis": "New Synopsis",
         "title": None,
@@ -87,7 +87,7 @@ def test_writer(writer_path: str):
     assert reader.tags.lyrics == new_tags["lyrics"]
     assert reader.tags.publisher == new_tags["publisher"]
     assert reader.tags.series == new_tags["series"]
-    assert reader.tags.series_part == new_tags["series_part"]
+    assert reader.tags.series_part == new_tags["series-part"]
     assert reader.tags.subtitle == new_tags["subtitle"]
     assert reader.tags.synopsis == new_tags["synopsis"]
     assert reader.tags.title == new_tags["title"]

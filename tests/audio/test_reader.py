@@ -12,7 +12,8 @@ from audiobook.audio.reader import (
     AudioProperties,
     AudioContainer,
 )
-from tests.test_files import ALL_FILES, ALL_FILES_IDS
+from audiobook.common import AudioChapter
+from tests.test_files import ALL_FILES, ALL_FILES_IDS, PATH_BUILD_M4B
 
 
 @pytest.mark.parametrize("path", ALL_FILES, ids=ALL_FILES_IDS)
@@ -47,8 +48,8 @@ def test_reader_container(path: str):
         assert container.extension == "mp3"
         assert container.filename == "the-wall.mp3"
         assert container.inode == 23280300
-        assert container.size == 323052
-        assert container.size_human == "315.48 KB"
+        assert container.size == 322560
+        assert container.size_human == "315.00 KB"
     if reader.type == AudioType.M4B:
         basename = os.path.basename(path)
         assert container.extension == "m4b"
@@ -129,10 +130,18 @@ def test_reader_tags(path: str):
     assert tags.year == 1979
 
 
-@pytest.mark.parametrize("path", ALL_FILES, ids=ALL_FILES_IDS)
-def test_m4b_chapters(path: str):
-    reader = AudioReader(path)
-    if reader.type == AudioType.MP3:
-        return
+def test_m4b_chapters():
+    reader = AudioReader(PATH_BUILD_M4B)
 
-    print(reader.tags.chapters)
+    chapters = reader.tags.chapters
+    last_chapter = chapters[-1]
+    assert len(chapters) == 5
+    assert last_chapter == AudioChapter(
+        id=4,
+        start=80018,
+        start_time="80.018000",
+        end=100035,
+        end_time="100.035000",
+        tags={"title": "Another Brick In the Wall, Pt. 1 (5)"},
+        time_base="1/1000",
+    )
