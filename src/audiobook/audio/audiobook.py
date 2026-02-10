@@ -1,53 +1,37 @@
-"""Represents an M4B audiobook"""
-
-from typing import Optional
-from audiobook.common import AutoRepr
+from dataclasses import dataclass, asdict
 
 
-class M4bAudiobook(AutoRepr):
+@dataclass
+class M4bAudiobook:
     """Represents an M4B audiobook"""
 
-    title: Optional[str]
-    album: Optional[str]
-    artist: Optional[str]
-    album_artist: Optional[str]
-    composer: Optional[str]
-    genre: Optional[str]
-    date: Optional[str]
-    copyright: Optional[str]
-    comment: Optional[str]
-    description: Optional[str]
-    synopsis: Optional[str]
-    compilation: Optional[str]
-    lyrics: Optional[str]
-    publisher: Optional[str]
-    language: Optional[str]
-    series: Optional[str]
-    series_part: Optional[str]
-    subtitle: Optional[str]
-    isbn: Optional[str]
-    asin: Optional[str]
+    title: str | None = None
+    album: str | None = None
+    artist: str | None = None
+    album_artist: str | None = None
+    composer: str | None = None
+    genre: str | None = None
+    date: str | None = None
+    copyright: str | None = None
+    comment: str | None = None
+    description: str | None = None
+    synopsis: str | None = None
+    compilation: str | None = None
+    lyrics: str | None = None
+    publisher: str | None = None
+    language: str | None = None
+    series: str | None = None
+    series_part: str | None = None
+    subtitle: str | None = None
+    isbn: str | None = None
+    asin: str | None = None
 
-    def to_tags(self):
-        return {
-            "title": self.title,
-            "album": self.title,
-            "artist": self.artist,
-            "album_artist": self.album_artist,
-            "composer": self.composer,
-            "genre": self.genre,
-            "date": self.date,
-            "copyright": self.copyright,
-            "comment": self.comment,
-            "description": self.description,
-            "synopsis": self.synopsis,
-            "compilation": self.compilation,
-            "lyrics": self.lyrics,
-            "publisher": self.publisher,
-            "language": self.language,
-            "series": self.series,
-            "series-part": self.series_part,
-            "subtitle": self.subtitle,
-            "isbn": self.isbn,
-            "asin": self.asin,
-        }
+    @property
+    def to_tags(self) -> dict[str, str]:
+        """Convert M4bAudiobook to tags for audio tags"""
+        tags = asdict(self)
+
+        tags["album"] = self.album or self.title
+        tags["series-part"] = tags.pop("series_part")
+
+        return tags
