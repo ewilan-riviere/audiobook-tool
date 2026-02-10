@@ -1,6 +1,7 @@
 # Audiobook Tool
 
 [![python][python-src]][python-href]
+[![pipeline][pipeline-src]][pipeline-href]
 
 Python CLI to handle audiobooks.
 
@@ -57,7 +58,5 @@ pytest
 
 [python-src]: https://img.shields.io/static/v1?style=flat&label=Python&message=v3.12&color=3776AB&logo=python&logoColor=ffffff&labelColor=18181b
 [python-href]: https://www.python.org/
-
-```
-
-```
+[pipeline-src]: https://gitlab.com/kiwilan/audiobook-tool/badges/main/pipeline.svg
+[pipeline-href]: https://gitlab.com/kiwilan/audiobook-tool/-/pipelines
