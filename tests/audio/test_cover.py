@@ -39,7 +39,7 @@ def writer_file(request: FixtureRequest):
 
 def test_cover(writer_path: str):
     writer = AudioWriter(writer_path)
-    writer.delete_cover()
+    writer.remove_cover()
     writer.set_cover(PATH_COVER)
 
     reader = AudioReader(writer_path)

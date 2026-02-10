@@ -66,7 +66,7 @@ def test_writer(writer_path: str):
     }
     writer = AudioWriter(writer_path)
     writer.set_tags(new_tags)
-    writer.delete_cover()
+    writer.remove_cover()
 
     reader = AudioReader(writer_path)
 
@@ -101,7 +101,7 @@ def test_writer(writer_path: str):
         assert reader.tags.compilation is None
         assert reader.tags.is_compilation is False
 
-    writer.delete_tag("album_artist")
+    writer.remove_tag("album_artist")
     reader = AudioReader(writer_path)
 
     assert reader.tags.album_artist is None

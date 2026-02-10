@@ -46,6 +46,7 @@ class MutagenWriter:
             self._write_mp4_tag(target_dict["m4b"], value)
 
     def set_chapters(self, chapters: List[AudioChapter]):
+        """Set chapters on M4B"""
         if not isinstance(self.audio, MP4):
             return
 
@@ -157,7 +158,7 @@ class MutagenWriter:
 
         self.save_audio()
 
-    def delete_cover(self) -> None:
+    def remove_cover(self) -> None:
         """Supprime toutes les couvertures du fichier."""
         if isinstance(self.audio, MP3):
             self.audio.tags.delall("APIC")  # type: ignore
@@ -167,7 +168,7 @@ class MutagenWriter:
 
         self.save_audio()
 
-    def delete_tag(self, human_key: str) -> None:
+    def remove_tag(self, human_key: str) -> None:
         """Supprime un tag du fichier."""
         target_dict = self.tags_map.get(human_key)
         if not target_dict:

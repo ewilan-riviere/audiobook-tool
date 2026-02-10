@@ -8,8 +8,11 @@ def path_join(base_path: str | Path, *add_paths: str | Path) -> Path:
     return Path(base_path).joinpath(*add_paths)
 
 
-def path_exists(path: str | Path) -> bool:
+def path_exists(path: str | Path | None) -> bool:
     """Check if path exists"""
+    if not path:
+        return False
+
     return Path(path).exists()
 
 
@@ -137,8 +140,11 @@ def rename_directory(absolute_path: str | Path, new_name: str) -> Path:
     return new_path.resolve()
 
 
-def delete_directory(directory_path: str | Path) -> bool:
+def delete_directory(directory_path: str | Path | None) -> bool:
     """Delete directory"""
+    if not directory_path:
+        return False
+
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
         return True

@@ -24,10 +24,10 @@ class AudioWriter:
         """Write cover on audio file"""
         return self._writer.set_cover(path)
 
-    def delete_tag(self, key: str):
+    def remove_tag(self, key: str):
         """Delete specific tag on audio file"""
-        return self._writer.delete_tag(key)
+        return self._writer.remove_tag(key)
 
-    def delete_cover(self):
+    def remove_cover(self):
         """Delete cover on audio file"""
-        return self._writer.delete_cover()
+        return self._writer.remove_cover()

@@ -1,6 +1,5 @@
 """Read metadata from YML file"""
 
-import os
 import logging
 from typing import Any, cast
 from pathlib import Path
@@ -15,9 +14,14 @@ logger = logging.getLogger("audiobook.metadata")
 class YmlReader(AutoRepr):
     """Read metadata from YML file"""
 
-    def __init__(self, yml_path: str | None):
-        self.yml_path = yml_path
-        if not self.yml_path or not os.path.exists(self.yml_path):
+    yml_path: Path | None = None
+
+    def __init__(self, yml_path: str | Path | None):
+        if not yml_path:
+            raise FileNotFoundError("`yml_path` have to be not empty")
+
+        self.yml_path = Path(yml_path)
+        if not self.yml_path.exists():
             logger.info("No metadata.yml found, using defaults.")
 
         self.yml_data: dict[str, Any] = {}

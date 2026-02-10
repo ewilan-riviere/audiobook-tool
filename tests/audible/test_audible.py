@@ -19,6 +19,7 @@ ASIN_LIST_UK = [
 
 def test_audible():
     audible = Audible("B0G5QKNT1J")
+    print(audible.audiobook)
 
     assert audible.success is True
     audiobook = audible.audiobook
@@ -78,11 +79,6 @@ def test_audible():
     assert audiobook.authors_list == "Robin Hobb"
     assert audiobook.narrators_list == "Joe Eyre"
     assert audiobook.year == 2026
-
-
-def test_audible_uk():
-    Audible("B0BVGSYL4Q", "co.uk")
-    Audible("B0BVGSYL4Q")
 
 
 def test_audible_fr():
