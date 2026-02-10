@@ -13,7 +13,7 @@ class CommandBuild:
         self.args = args
 
         print(f"Handle {args.mp3_directory}...")
-        if not utils.path_exists(str(args.mp3_directory)):
+        if not utils.path_exists(args.mp3_directory):
             raise FileNotFoundError(
                 f"Failed! Path {args.mp3_directory} doesn't exists!"
             )
@@ -23,12 +23,11 @@ class CommandBuild:
 
         # Setup config
         config = ConfigBuild(args)
-        print(config)
-        # utils.delete_directory(config.m4b_directory_output)
+        utils.rprint_(config)
 
-        # if args.clear:
-        #     print("🖼️ Remove MP3 files source covers...")
-        #     config.remove_covers()
+        if args.clear:
+            print("🖼️ Remove MP3 files source covers...")
+            config.remove_covers()
 
         # print("🔨 Forge M4B...")
         # forge = AudiobookForge(config.mp3_directory, args.clear)
@@ -87,13 +86,15 @@ class CommandBuild:
                 )
 
             audible = Audible(self.args.asin, self.args.locale)
-            if audible.success:
-                audible.save_metadata(self.args.mp3_directory)
-                audible.audiobook.save_cover(self.args.mp3_directory)
-                print()
-                print(
-                    "You can check `metadata.yml` to validate by yourself "
-                    "Audible data..."
-                )
-                if not utils.confirm_action():
-                    exit()
+            if not audible.success:
+                return
+
+            audible.save_metadata(self.args.mp3_directory)
+            audible.audiobook.save_cover(self.args.mp3_directory)
+            print()
+            print(
+                "You can check `metadata.yml` to validate by yourself "
+                "Audible data..."
+            )
+            if not utils.confirm_action():
+                exit()

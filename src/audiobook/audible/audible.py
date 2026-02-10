@@ -15,24 +15,25 @@ class Audible(AutoRepr):
     success: bool = False
 
     def __init__(self, asin: str, locale: str | None = None):
-        fetch = AudibleFetch(asin, locale)
+        self.fetch = AudibleFetch(asin, locale)
         self.audiobook = AudibleAudiobook(asin)
 
-        if not fetch.success:
+        if not self.fetch.success:
             return
 
-        if not fetch.soup or not fetch.url:
+        if not self.fetch.soup or not self.fetch.url:
             return
 
-        self.audiobook.url = fetch.url
-        web = ParserHtml(fetch.soup)
-        json = ParserJson(fetch.soup)
+        self.audiobook.url = self.fetch.url
+        web = ParserHtml(self.fetch.soup)
+        json = ParserJson(self.fetch.soup)
         self._handle_audiobook(web, json)
         self.success = True
 
     def save_metadata(self, save_path: str) -> str:
         """Save audiobook as metadata.yml"""
         writer = YmlWriter(self.audiobook, save_path)
+        writer.write()
 
         return str(writer.save_path)
 

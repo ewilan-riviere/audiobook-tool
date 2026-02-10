@@ -1,52 +1,68 @@
 """Handle config for build audiobook-tool"""
 
-# import tempfile
-import os
-
-# from typing import List
-# from pathlib import Path
+import tempfile
+from dataclasses import dataclass, field
+from pathlib import Path
 import audiobook.utils as utils
 from audiobook.args import AudiobookArgs
-from audiobook.common import AutoRepr
 from audiobook.audible import YmlReader
+from audiobook.audio import AudioWriter
 
 
-class ConfigBuild(AutoRepr):
+@dataclass
+class ConfigBuild:
     """Handle config for build audiobook-tool"""
 
+    # /path/to/the-wall (with .mp3, metadata.yml, cover.jpg)
+    source_path: Path
+    # /path/to (parent directory of `source_path`)
+    source_parent_path: Path
+    # /var/folders/m0/xhm5c_mx7yn2b8mqtqhdpc840000gn/T/tmppa8g2g_n
+    temporary_directory: tempfile.TemporaryDirectory[str]
+    # /path/to/the-wall/Assassin’s Apprentice
+    m4b_output_path: Path
+    # /path/to/the-wall/Assassin’s Apprentice/Assassin’s Apprentice.m4b
+    m4b_forge_path: Path
+    # Audio tags from metadata.yml to print inside future M4B
+    audio_tags: dict[str, str] = field(default_factory=dict[str, str])
+    # /path/to/the-wall/metadata.yml
+    yml_path: Path | None = None
+    # /path/to/the-wall/cover.jpg
+    cover_path: Path | None = None
+
     def __init__(self, args: AudiobookArgs):
-        # /path/to/audiobook_mp3
-        self.mp3_directory = str(args.mp3_directory)
+        source_path = self._to_path(args.mp3_directory)
+        if not source_path:
+            raise FileNotFoundError(f"Path {source_path} is not valid!")
+        self.source_path = source_path
 
-        # /path/to/audiobook_mp3/metadata.yml
-        self.metadata_yml_path = utils.get_file(self.mp3_directory, "yml")
-        reader = YmlReader(self.metadata_yml_path)
-        print(reader)
-        print(reader.audiobook)
+        # Load parent path
+        self.source_parent_path = Path(self.source_path)
 
-        # /path/to/audiobook_mp3/m4b
-        # m4b_output = Path(str(args.mp3_directory)).name
-        # self.m4b_directory_output = os.path.join(
-        #     str(args.mp3_directory), self.metadata_yml.title
-        # )
+        # Setup temporary directory (for clean work)
+        self.temporary_directory = tempfile.TemporaryDirectory()
 
-    #     # /path/to/audiobook_mp3/audiobook_mp3.m4b
-    #     self.m4b_forge_path = utils.get_file(self.mp3_directory, "m4b")
+        # Load metadata.yml and get tags
+        self.yml_path = utils.get_file(self.source_path, "yml")
+        reader = YmlReader(self.yml_path).read()
+        self.audio_tags = reader.audiobook.to_tags
 
-    #     # Load metadata.yml
-    #     yml = MetadataYml(self.metadata_yml_path)
-    #     self.metadata_yml = yml.get_yml()
+        # Load cover
+        self.cover_path = utils.get_file(self.source_path, "jpg")
+        if not self.cover_path:
+            self.cover_path = utils.get_file(self.source_path, "jpeg")
 
-    #     # /path/to/audiobook_mp3/cover.jpg
-    #     self.cover_path = utils.get_file(self.mp3_directory, "jpg")
-    #     if not self.cover_path:
-    #         self.cover_path = utils.get_file(self.mp3_directory, "png")
-    #     # /var/folders/m0/xhm5c_mx7yn2b8mqtqhdpc840000gn/T/tmppa8g2g_n
-    #     self.temporary_directory = tempfile.TemporaryDirectory()
+        # Set M4B output path, based on metadata
+        self.m4b_output_path = utils.path_join(
+            self.source_path,
+            reader.audiobook.title or reader.default_title,
+        )
 
-    #     # /path/to
-    #     mp3_parent_directory = Path(self.mp3_directory)
-    #     self.mp3_parent_directory = str(mp3_parent_directory.parent)
+        # Load M4B file if exists (rebuild)
+        m4b_forge_path = utils.get_file(self.source_path, "m4b")
+        if not m4b_forge_path:
+            raise FileNotFoundError(f"Error on {m4b_forge_path}")
+        self.m4b_forge_path = m4b_forge_path
 
     #     # List of MP3 file paths as `list[str]` from `mp3_directory`
     #     self.mp3_list = utils.get_files(self.mp3_directory, "mp3")
@@ -70,19 +86,24 @@ class ConfigBuild(AutoRepr):
 
     #     return items
 
-    # @property
-    # def temporary_directory_path(self):
-    #     """Get temporary_directory"""
-    #     return self.temporary_directory.name
+    @property
+    def temporary_directory_path(self) -> Path:
+        """Get `temporary_directory` as `Path`"""
+        return Path(self.temporary_directory.name)
 
-    # def temporary_directory_delete(self):
-    #     """Delete temporary_directory"""
-    #     self.temporary_directory.cleanup()
+    def temporary_directory_delete(self):
+        """Delete `temporary_directory`"""
+        self.temporary_directory.cleanup()
 
-    # def remove_covers(self):
-    #     """Remove covers from MP3 files"""
-    #     for file in self.mp3_metadata:
-    #         file.remove_cover()
+    def remove_covers(self):
+        """Remove covers from MP3 files"""
+        mp3_files = utils.get_files(self.source_path, "mp3")
+        items: list[AudioWriter] = []
+        for mp3_file in mp3_files:
+            items.append(AudioWriter(mp3_file))
+
+        for item in items:
+            item.remove_cover()
 
     # def set_m4b_forge_path(self, m4b_forge_path: str):
     #     """Set fresh M4B output"""
@@ -92,3 +113,9 @@ class ConfigBuild(AutoRepr):
     #     self.m4b_forge_path = m4b_forge_path
     #     if self.m4b_forge_path:
     #         self.m4b_forge_metadata = MetadataFile(self.m4b_forge_path)
+
+    def _to_path(self, path: str | Path | None) -> Path | None:
+        if not path:
+            return None
+
+        return Path(path)
