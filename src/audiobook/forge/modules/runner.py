@@ -42,7 +42,7 @@ class BlacksmithRunner:
         return input_path.name
 
     @staticmethod
-    def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> None:
+    def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> Path:
         """Merge M4A to one M4B"""
         temp_combined = output_path.with_suffix(".temp.m4a")
         working_dir = input_list.parent
@@ -104,3 +104,5 @@ class BlacksmithRunner:
         finally:
             if temp_combined.exists():
                 temp_combined.unlink()
+
+        return output_path

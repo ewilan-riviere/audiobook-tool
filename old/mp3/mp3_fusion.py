@@ -89,11 +89,11 @@ class Mp3Fusion:
                 os.remove(temp_list_file)
 
             for path in files:
-                utils.delete_file(path)
+                utils.remove_file(path)
 
             new_file = utils.copy_file(output_file, str(first_file))
             self._inject_metadata(new_file, metadata)
-            utils.delete_file(output_file)
+            utils.remove_file(output_file)
 
     def _extract_metadata(self, path: str) -> Dict[str, Dict[str, Any]]:
         # 1. Analyse structurelle (Atoms pour M4B / Frames pour MP3)

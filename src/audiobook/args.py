@@ -34,7 +34,7 @@ class AudiobookArgs:
             "-c",
             "--clear",
             action="store_true",
-            help="Clear old M4B audiobook if present.",
+            help="Clear old M4B audiobook if present, remove MP3 covers too",
         )
         m_build.add_argument(
             "-a",
@@ -46,7 +46,11 @@ class AudiobookArgs:
             "--locale",
             help="Audiobook locale for Audible (can be `com`, `co.uk`, `fr`, `de`)",
         )
-        m_build.add_argument("-o", "--output")
+        m_build.add_argument(
+            "-o",
+            "--output",
+            help="Specify a path to save the M4B file (default is same as MP3 source)",
+        )
 
         # Clean
         m_clean = subparsers.add_parser("clean", help="Clean MP3 files from silences")

@@ -7,3 +7,4 @@ tests/media/covers
 *.txt
 .env
 tests/media/the-wall/the-wall.m4b
+tests/media/the-wall-test

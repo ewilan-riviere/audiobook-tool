@@ -9,38 +9,41 @@ from .blacksmith import AudiobookBlacksmith
 class AudiobookForge(AutoRepr):
     """Forge audiobook from MP3 to M4B"""
 
-    def __init__(self, mp3_directory: str, clear_old_file: bool = False):
-        self.mp3_directory = mp3_directory
-        parent = Path(mp3_directory).name
-        self.m4b_file = f"{self.mp3_directory}/{parent}.m4b"
-        self.bytes = 0
-        self.blacksmith: AudiobookBlacksmith | None = None
+    _source_path: Path
+    _working_directory: Path
+    _bytes: int = 0
+    _blacksmith: AudiobookBlacksmith
+    _clear: bool = False
+    _output_path: Path | None = None
 
-        if clear_old_file:
-            self._remove_old_file()
+    def __init__(self, source_path: Path, working_directory: Path, clear: bool = False):
+        self._source_path = source_path.resolve()
+        self._working_directory = working_directory.resolve()
+        self._blacksmith = AudiobookBlacksmith(
+            self._source_path,
+            self._working_directory,
+        )
+        self._clear = clear
+
+    @property
+    def output_path(self) -> str:
+        """Get M4B file path"""
+        return str(self._output_path)
 
     @property
     def size_human(self) -> str:
         """Get M4B file size"""
-        return utils.size_human_readable(self.bytes)
-
-    def _remove_old_file(self):
-        if Path(self.m4b_file).is_file():
-            utils.delete_file(self.m4b_file)
+        return utils.size_human_readable(self._bytes)
 
     def _calculate_size(self):
-        if Path(self.m4b_file).is_file():
-            self.bytes = utils.get_file_size(self.m4b_file)
+        if self._output_path and Path(self._output_path).is_file():
+            self._bytes = utils.get_file_size(self._output_path)
 
-    def build(self):
+    def run(self):
         """Execute build command"""
-        if utils.file_exists(self.m4b_file):
-            print(f"File {self.m4b_file} exists, skipping forge...")
-            return self
 
-        self.blacksmith = AudiobookBlacksmith(self.mp3_directory)
-        self.blacksmith.process()
-
+        self._blacksmith.run()
+        self._output_path = self._blacksmith.output_path
         self._calculate_size()
 
         return self

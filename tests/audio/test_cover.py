@@ -3,14 +3,7 @@ from pathlib import Path
 import pytest
 from pytest import FixtureRequest
 from audiobook.audio import AudioReader, AudioWriter
-from audiobook.utils import (
-    copy_file,
-    path_join,
-    delete_file,
-    make_directory,
-    delete_directory,
-    file_exists,
-)
+import audiobook.utils as utils
 from tests.test_files import ALL_FILES, ALL_FILES_IDS, PATH_COVER
 
 
@@ -26,15 +19,15 @@ def writer_file(request: FixtureRequest):
         pytest.skip(f"Missing file : {audio_path}")
 
     extension = audio_path.suffix[1:].lower()
-    writer_audio = path_join(
+    writer_audio = utils.path_join(
         str(audio_path.parent), f"{audio_path.stem}_writer.{extension}"
     )
 
-    copy_file(audio_path, writer_audio)
+    utils.copy_file(audio_path, writer_audio)
 
     yield writer_audio
 
-    delete_file(writer_audio)
+    utils.remove_file(writer_audio)
 
 
 def test_cover(writer_path: str):
@@ -48,15 +41,15 @@ def test_cover(writer_path: str):
 
 def test_save_cover(writer_path: str):
     cwd = os.getcwd()
-    output_path = path_join(cwd, "tests", "media", "covers")
-    delete_directory(output_path)
+    output_path = utils.path_join(cwd, "tests", "media", "covers")
+    utils.remove_file(output_path)
     reader = AudioReader(writer_path)
 
-    make_directory(output_path)
-    cover_path = reader.tags.save_cover(output_path)
+    utils.make_directory(output_path)
+    cover_path = reader.tags.save_cover(str(output_path))
 
     assert isinstance(cover_path, Path)
-    assert file_exists(cover_path) is True
+    assert utils.file_exists(cover_path) is True
 
 
 def test_cover_override(writer_path: str):

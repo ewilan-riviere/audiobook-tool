@@ -30,8 +30,14 @@ class MutagenWriter:
         """Écrit un dictionnaire de tags et sauvegarde le fichier."""
         for human_key, value in tags_to_write.items():
             if human_key in self.tags_map:
-                self._set_tag(human_key, value)
+                if value is not None:
+                    self._set_tag(human_key, value)
 
+        self.save_audio()
+
+    def set_tag(self, tag: str, value: Any) -> None:
+        """Write a tag on audio file"""
+        self._set_tag(tag, value)
         self.save_audio()
 
     def _set_tag(self, human_key: str, value: Any) -> None:

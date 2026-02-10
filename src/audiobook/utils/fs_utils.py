@@ -71,7 +71,12 @@ def get_files(
     return sorted(list(root.glob(pattern)), key=lambda p: p.name.lower())
 
 
-def move_files(paths: list[str | Path], destination_dir: str | Path) -> bool:
+def get_all_files(directory_path: str | Path) -> list[Path]:
+    """Get all files into directory"""
+    return [f for f in Path(directory_path).iterdir() if f.is_file()]
+
+
+def move_files(paths: list[Path], destination_dir: str | Path) -> bool:
     """
     Moves a list of files to a target directory.
 
@@ -127,6 +132,12 @@ def copy_file(from_path: str | Path, to_path: str | Path) -> Path:
     return Path(copy_path)
 
 
+def copy_directory(from_path: str | Path, to_path: str | Path) -> Path:
+    """Copy directory"""
+    shutil.copytree(from_path, to_path, dirs_exist_ok=True)
+    return Path(to_path)
+
+
 def rename_directory(absolute_path: str | Path, new_name: str) -> Path:
     """Renames a directory while keeping its original location"""
     path = Path(absolute_path)
@@ -140,7 +151,7 @@ def rename_directory(absolute_path: str | Path, new_name: str) -> Path:
     return new_path.resolve()
 
 
-def delete_directory(directory_path: str | Path | None) -> bool:
+def remove_directory(directory_path: str | Path | None) -> bool:
     """Delete directory"""
     if not directory_path:
         return False
@@ -152,7 +163,7 @@ def delete_directory(directory_path: str | Path | None) -> bool:
     return False
 
 
-def delete_file(file_path: str | Path) -> bool:
+def remove_file(file_path: str | Path) -> bool:
     """Delete file"""
     path = Path(file_path)
     if path.exists():

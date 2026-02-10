@@ -10,6 +10,8 @@ class BlacksmithChapter:
 
     source_path: Path
     temp_aac_path: Path
+    file_name: str
     title: str
+    track: int | None
     duration_ms: int = 0
     start_time_ms: int = 0

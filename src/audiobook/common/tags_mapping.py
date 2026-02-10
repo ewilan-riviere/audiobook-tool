@@ -17,7 +17,7 @@ TAGS_MAPPING: Dict[str, Dict[str, Union[str, List[str]]]] = {
     "language": {"mp3": "TLAN", "m4b": "----:com.apple.iTunes:LANGUAGE"},
     "copyright": {"mp3": "TCOP", "m4b": "cprt"},
     "series": {"mp3": "TXXX:SERIES", "m4b": "----:com.apple.iTunes:SERIES"},
-    "series_part": {
+    "series-part": {
         "mp3": "TXXX:SERIES-PART",
         "m4b": "----:com.apple.iTunes:SERIES-PART",
     },

@@ -19,7 +19,6 @@ ASIN_LIST_UK = [
 
 def test_audible():
     audible = Audible("B0G5QKNT1J")
-    print(audible.audiobook)
 
     assert audible.success is True
     audiobook = audible.audiobook

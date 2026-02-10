@@ -3,7 +3,10 @@
 from audiobook.args import AudiobookArgs
 import audiobook.utils as utils
 from audiobook.audible import Audible
+from audiobook.forge import AudiobookForge
+from audiobook.audio import M4bSplitter, M4bTagger, M4bRenamer
 from .config import ConfigBuild
+from audiobook.env import PART_SIZE
 
 
 class CommandBuild:
@@ -23,47 +26,47 @@ class CommandBuild:
 
         # Setup config
         config = ConfigBuild(args)
-        utils.rprint_(config)
-
         if args.clear:
             print("🖼️ Remove MP3 files source covers...")
             config.remove_covers()
 
-        # print("🔨 Forge M4B...")
-        # forge = AudiobookForge(config.mp3_directory, args.clear)
-        # if args.use_rust:
-        #     print("Use audiobook-forge crate")
-        #     forge = forge.build_rust()
-        # else:
-        #     forge = forge.build_native()
-        # print(f"\n📦 M4B: `{forge.m4b_file}` ({forge.size})\n")
+        print("🔨 Forge M4B...")
+        forge = AudiobookForge(
+            source_path=config.source_path,
+            working_directory=config.get_temporary_directory,
+            clear=args.clear,
+        ).run()
+        print(f"\n📦 M4B: `{forge.output_path}` ({forge.size_human})\n")
 
-        # # Set audiobook-forge M4B output
-        # config.set_m4b_forge_path(forge.m4b_file)
+        print("📤 Split M4B file into multiple M4B...")
+        # part_size = PART_SIZE
+        part_size = 1
+        splitter = M4bSplitter(
+            m4b_file=forge.output_path,
+            working_directory=config.get_temporary_directory,
+            part_size=part_size,
+        ).run()
 
-        # # Only with audiobook-forge
-        # # Edit chapters of audiobook-forge M4B output
-        # # with MP3 source files `title`
-        # if args.use_rust:
-        #     M4bChapterEditor(config).run()
+        print("🔖 Update tags with metadata.yml...")
+        M4bTagger(
+            m4b_files=splitter.m4b_files,
+            audiobook=config.audiobook,
+            cover=config.cover_path,
+        ).run()
 
-        # print("📤 Split M4B file into multiple M4B...")
-        # split = M4bSplit(config).run()
-        # config.m4b_split_paths = split.m4b_split_paths
+        print("📐 Rename M4B splitted...")
+        m4b_files = M4bRenamer(
+            m4b_files=splitter.m4b_files,
+            title=config.audiobook.title,
+        ).run()
 
-        # print("🔖 Update tags with metadata.yml...")
-        # M4bTagger(config).run()
+        print("🧹 Cleaning...")
+        utils.make_directory(config.m4b_directory)
+        utils.move_files(m4b_files, config.m4b_directory)
+        # Delete temporary directory for M4B generation
+        config.remove_temporary_directory()
 
-        # print("📐 Rename M4B splitted...")
-        # config.m4b_split_paths = M4bRenamer(config).run()
-
-        # print("🧹 Cleaning...")
-        # # Move files to m4b_directory_output
-        # utils.move_files(config.m4b_split_paths, config.m4b_directory_output)
-        # # Delete temporary directory for M4B generation
-        # config.temporary_directory_delete()
-
-        # utils.alert_sound()
+        utils.alert_sound()
 
     def _handle_audible(self):
         if not self.args.asin or not self.args.mp3_directory:

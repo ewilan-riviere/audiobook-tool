@@ -8,7 +8,7 @@ from audiobook.audio import (
     AudioWriter,
 )
 from audiobook.common import AudioChapter
-from audiobook.utils import copy_file, path_join, delete_file
+import audiobook.utils as utils
 from tests.test_files import ALL_FILES, ALL_FILES_IDS
 
 
@@ -24,15 +24,15 @@ def writer_file(request: FixtureRequest):
         pytest.skip(f"Missing file : {audio_path}")
 
     extension = audio_path.suffix[1:].lower()
-    writer_audio = path_join(
+    writer_audio = utils.path_join(
         str(audio_path.parent), f"{audio_path.stem}_writer.{extension}"
     )
 
-    copy_file(audio_path, writer_audio)
+    utils.copy_file(audio_path, writer_audio)
 
     yield writer_audio
 
-    delete_file(writer_audio)
+    utils.remove_file(writer_audio)
 
 
 def test_writer(writer_path: str):

@@ -12,6 +12,10 @@ class AudioWriter:
     def __init__(self, path: str | Path):
         self._writer = MutagenWriter(path)
 
+    def set_tag(self, tag: str, value: str):
+        """Write tag on audio file"""
+        return self._writer.set_tag(tag, value)
+
     def set_tags(self, tags: Dict[str, Any]):
         """Write tags on audio file"""
         return self._writer.set_tags(tags)

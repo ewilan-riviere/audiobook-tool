@@ -67,6 +67,16 @@ class AudioTags(AutoRepr):
         self.raw: Dict[str, str] = reader.get_all()
 
     @property
+    def track_int(self) -> int | None:
+        """Get track as `int`"""
+        if not self.track:
+            return None
+
+        clean_track = self.track.split("/")[0].lstrip("0")
+
+        return int(clean_track) or None
+
+    @property
     def is_compilation(self) -> bool:
         """Know if audio file is a part of compilation"""
         if self.compilation == "1":
