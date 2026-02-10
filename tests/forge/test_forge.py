@@ -18,7 +18,6 @@ def test_forge():
         clear=True,
     ).run()
 
-    print(forge.output_path)
     m4b_file = Path(forge.output_path)
 
     reader = AudioReader(m4b_file)

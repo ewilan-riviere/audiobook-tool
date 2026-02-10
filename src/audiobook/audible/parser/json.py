@@ -3,7 +3,7 @@
 from typing import cast
 import json
 import re
-from datetime import time, date
+from datetime import time, datetime
 from bs4 import BeautifulSoup, Tag
 from audiobook.common import AutoRepr
 from audiobook.audible.typed import (
@@ -93,7 +93,9 @@ class ParserJson(AutoRepr):
         item["publisher"] = data.publisher
         date_published = data.datePublished
         if date_published:
-            item["date_published"] = date.strptime(date_published, "%Y-%m-%d")
+            item["date_published"] = datetime.strptime(
+                date_published, "%Y-%m-%d"
+            ).date()
         item["in_language"] = data.inLanguage
         item["duration"] = self._to_duration(data.duration)
         item["regions_allowed"] = data.regionsAllowed
