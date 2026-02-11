@@ -41,3 +41,12 @@ dependencies = [
   "fake-useragent~=1.5.1"
 ]
 ```
+
+```bash
+# brew install uv
+alias py-sync="uv sync" # Create the venv and install everything according to the lockfile
+alias py-add="uv add"   # Adds a lib and freezes it immediately
+alias py-run="uv run"   # Run a command in the environment
+alias py-update="uv lock --upgrade" # Updates versions according to your toml
+alias py-export="uv export --format requirements-txt > requirements.txt" # Create requirements.txt based on locked dependencies
+```
