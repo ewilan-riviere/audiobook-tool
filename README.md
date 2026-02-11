@@ -3,6 +3,8 @@
 [![python][python-src]][python-href]
 [![pipeline][pipeline-src]][pipeline-href]
 
+![logo](/public/logo-small.webp)
+
 Python CLI to handle audiobooks.
 
 > [!IMPORTANT]
