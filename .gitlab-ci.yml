@@ -17,7 +17,7 @@ test-job:
 
   before_script:
     - apt-get update && apt-get install -y ffmpeg
-    - uv sync --frozen
+    - uv sync --extra dev --frozen
 
   script:
     - uv run playwright install --with-deps chromium
