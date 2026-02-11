@@ -20,6 +20,9 @@
 > [!IMPORTANT]
 > Not ready for production.
 
+> [!TIP]
+> Built to be used with [audiobookshelf](https://www.audiobookshelf.org/).
+
 ## Features
 
 - Build from MP3
