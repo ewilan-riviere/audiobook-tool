@@ -5,16 +5,38 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "audiobook-cli"
 version = "0.1.0"
-dependencies = ["pyyaml", "mutagen", "dotenv", "isodate", "httpx", "bs4", "requests", "ffmpeg", "rich", "playwright", "playwright_stealth", "fake_useragent"]
-requires-python = ">=3.12"
-readme = "README.md"
 description = "Ultimate Python CLI to handle audiobooks."
+readme = "README.md"
 authors = [{ name = "Ewilan Rivière" }]
+requires-python = ">=3.12"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Environment :: Console",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+  "pyyaml~=6.0.1",
+  "mutagen~=1.47.0",
+  "python-dotenv~=1.0.1",
+  "isodate~=0.7.2",
+  "httpx~=0.28.0",
+  "beautifulsoup4~=4.12.3",
+  "requests~=2.32.0",
+  "ffmpeg-python~=0.2.0", # Wrapper Python pour FFmpeg
+  "rich~=13.7.0",
+  "playwright~=1.49.0",
+  "playwright-stealth~=1.0.6",
+  "fake-useragent~=1.5.1"
+]
 
 [project.scripts]
 audiobook-tool = "audiobook.app:main"
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=7.0",
+  "pytest~=8.0.0",
+  "uv>=0.5.0"
 ]

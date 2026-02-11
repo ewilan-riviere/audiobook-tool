@@ -5,6 +5,7 @@ audiobook_cli.egg-info
 tests/media/covers
 .DS_Store
 *.txt
+!requirements.txt
 .env
 tests/media/the-wall/the-wall.m4b
 tests/media/the-wall-test

@@ -34,4 +34,9 @@ class M4bAudiobook:
         tags["album"] = self.album or self.title
         tags["series-part"] = tags.pop("series_part")
 
+        tags = {
+            k: (str(v) if v is not None else "") if not isinstance(v, str) else v
+            for k, v in tags.items()
+        }
+
         return tags
