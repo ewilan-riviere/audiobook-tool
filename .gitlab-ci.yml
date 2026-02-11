@@ -1,6 +1,13 @@
 variables:
-  DOCKER_IMAGE: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
-  UV_CACHE_DIR: ".uv-cache"
+  DOCKER_IMAGE: "python:3.12-slim"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+
+cache:
+  paths:
+    - .cache/pip
+    - .cache/uv
+    - .venv/
 
 stages:
   - test
@@ -8,21 +15,15 @@ stages:
 test-job:
   stage: test
   image: $DOCKER_IMAGE
-
-  cache:
-    key: deps-cache
-    paths:
-      - .uv-cache
-      - /usr/bin/ffmpeg
-
   before_script:
-    - apt-get update && apt-get install -y ffmpeg
-    - uv sync --frozen --extra dev
-
+    - apt-get update && apt-get install -y --no-install-recommends ffmpeg curl
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.cargo/bin:$PATH"
   script:
+    - uv sync --frozen --extra dev
+    - source .venv/bin/activate
     - uv run playwright install --with-deps chromium
     - uv run audiobook-tool -h
     - uv run pytest
-
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"

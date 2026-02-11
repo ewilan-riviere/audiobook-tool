@@ -15,14 +15,15 @@ docker run -it --rm python:3.12-slim bash
 
 ```sh
 apt-get update && apt-get upgrade -y
-apt-get install -y ffmpeg git
+apt-get install -y ffmpeg curl git
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="/root/.local/bin:$PATH"
 git clone https://gitlab.com/kiwilan/audiobook-tool.git /home
 cd /home
-pip install -e .
-pip install pytest
-playwright install --with-deps chromium
-audiobook-tool -h
-pytest
+uv sync --frozen --extra dev
+uv run playwright install --with-deps chromium
+uv run audiobook-tool -h
+uv run pytest
 ```
 
 ```toml
