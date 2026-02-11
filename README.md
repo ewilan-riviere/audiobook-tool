@@ -29,9 +29,19 @@
 
 ## Using as CLI
 
+With [`uv`](https://docs.astral.sh/uv/)
+
+```sh
+uv sync
+```
+
+Or with `pip`
+
 ```sh
 pip install -e .
 ```
+
+Use `audiobook-tool` CLI
 
 ```sh
 audiobook-tool build ./path/to/mp3_directory
