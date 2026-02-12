@@ -4,9 +4,8 @@ from audiobook.args import AudiobookArgs
 import audiobook.utils as utils
 from audiobook.audible import Audible
 from audiobook.forge import AudiobookForge
-from audiobook.audio import M4bSplitter, M4bTagger, M4bRenamer
+from audiobook.audio import M4bSplitter, M4bTagger
 from .config import ConfigBuild
-from audiobook.env import PART_SIZE
 
 
 class CommandBuild:
@@ -33,38 +32,31 @@ class CommandBuild:
         print("🔨 Forge M4B...")
         forge = AudiobookForge(
             source_path=config.source_path,
-            working_directory=config.get_temporary_directory,
+            working_directory=config.working_path,
             clear=args.clear,
         ).run()
-        print(f"\n📦 M4B: `{forge.output_path}` ({forge.size_human})\n")
 
         print("📤 Split M4B file into multiple M4B...")
-        # part_size = PART_SIZE
-        part_size = 1
         splitter = M4bSplitter(
             m4b_file=forge.output_path,
-            working_directory=config.get_temporary_directory,
-            part_size=part_size,
+            working_directory=config.working_path,
+            part_size=config.part_size,
         ).run()
 
         print("🔖 Update tags with metadata.yml...")
-        M4bTagger(
+        tagger = M4bTagger(
             m4b_files=splitter.m4b_files,
             audiobook=config.audiobook,
             cover=config.cover_path,
-        ).run()
-
-        print("📐 Rename M4B splitted...")
-        m4b_files = M4bRenamer(
-            m4b_files=splitter.m4b_files,
             title=config.audiobook.title,
         ).run()
 
         print("🧹 Cleaning...")
-        utils.make_directory(config.m4b_directory)
-        utils.move_files(m4b_files, config.m4b_directory)
-        # Delete temporary directory for M4B generation
-        config.remove_temporary_directory()
+        utils.make_directory(config.output_path)
+        utils.move_files(tagger.m4b_paths, config.output_path)
+        config.remove_working_path()
+
+        print(f"📚 Audiobook available at {config.output_path}")
 
         utils.alert_sound()
 

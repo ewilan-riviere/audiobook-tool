@@ -7,8 +7,8 @@ from audiobook.common import AudioChapter
 
 
 class ChapterWriter:
-    def __init__(self, file_path: str | Path):
-        self.path = Path(file_path)
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
 
     def write_chapters(self, chapters: List["AudioChapter"]) -> None:
         """Injecte uniquement les chapitres."""
@@ -20,9 +20,9 @@ class ChapterWriter:
             f_meta.write(self._generate_ffmetadata_block(chapters))
 
         try:
-            temp_output = self.path.with_suffix(".tmp" + self.path.suffix)
+            temp_output = self.file_path.with_suffix(".tmp" + self.file_path.suffix)
 
-            extension = self.path.suffix.lower()
+            extension = self.file_path.suffix.lower()
             muxer_flags = []
 
             if extension in [".m4b", ".m4a", ".mp4"]:
@@ -32,7 +32,7 @@ class ChapterWriter:
                 "ffmpeg",
                 "-y",
                 "-i",
-                str(self.path),
+                str(self.file_path),
                 "-i",
                 meta_path,
                 "-map_metadata",
@@ -49,7 +49,7 @@ class ChapterWriter:
                 "error",
             ]
             subprocess.run(cmd, check=True)
-            temp_output.replace(self.path)
+            temp_output.replace(self.file_path)
         finally:
             if os.path.exists(meta_path):
                 os.remove(meta_path)

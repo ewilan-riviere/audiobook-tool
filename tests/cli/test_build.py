@@ -1,7 +1,8 @@
 from typing import Any
 import sys
-from src.audiobook import app
-import src.audiobook.utils as utils
+from audiobook import app
+import audiobook.utils as utils
+from audiobook.audio import AudioReader, AudiobookReader
 
 
 def test_build(monkeypatch: Any, capsys: Any):
@@ -10,16 +11,31 @@ def test_build(monkeypatch: Any, capsys: Any):
     utils.remove_directory(source_path_test)
     utils.copy_directory(source_path, source_path_test)
 
+    output_path = "tests/media/output"
+    utils.remove_directory(output_path)
+
     monkeypatch.setattr(
         sys,
         "argv",
-        ["audiobook-tool", "build", source_path_test, "--clear"],
+        [
+            "audiobook-tool",
+            "build",
+            source_path_test,
+            "--clear",
+            "--part-size",
+            "1",
+            "--output-path",
+            output_path,
+        ],
     )
 
     try:
         app.main()
     except SystemExit as e:
         assert e.code == 0
+
+    audiobook = AudiobookReader(output_path)
+    # reader = AudioReader(output_path)
 
     # captured = capsys.readouterr()
     # assert "audiobook-tool" in captured.out

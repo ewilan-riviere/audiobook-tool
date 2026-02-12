@@ -12,24 +12,20 @@ def alert_sound():
         try:
             import winsound  # pylint: disable=import-outside-toplevel
 
-            # Note: winsound.Beep est bloquant par nature.
-            # Pour Windows, on utilise PlaySound avec le flag SND_ASYNC
             winsound.PlaySound(  # type: ignore
                 "SystemAsterisk", winsound.SND_ALIAS | winsound.SND_ASYNC  # type: ignore
             )
         except ImportError:
             print("\a")
 
-    elif current_os == "Darwin":  # macOS
+    elif current_os == "Darwin":
         try:
-            # Popen ne bloque pas le script
             subprocess.Popen(["afplay", "/System/Library/Sounds/Glass.aiff"])
         except FileNotFoundError:
             print("\a")
 
     elif current_os == "Linux":
         try:
-            # Utilisation de Popen ici aussi
             subprocess.Popen(["canberra-gtk-play", "--id", "message-new-instant"])
         except FileNotFoundError:
             print("\x07", end="", flush=True)

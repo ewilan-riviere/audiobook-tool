@@ -143,7 +143,7 @@ class AudiobookBlacksmith(AutoRepr):
             if self._output_path:
                 reader = AudioReader(self._output_path)
                 if reader.properties.bit_rate:
-                    print(f"✨ Successfully completed: {self._output_path.name}")
+                    print("✨ Successfully completed!")
                 else:
                     print("Failed on AudioReader!")
             else:

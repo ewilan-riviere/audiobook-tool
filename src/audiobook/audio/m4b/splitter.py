@@ -28,7 +28,7 @@ class M4bSplitter(AutoRepr):
     ):
         self._m4b_file = Path(m4b_file)
         self._working_directory = working_directory
-        self._part_size = part_size
+        self._part_size = int(part_size)
         if not self._m4b_file.exists():
             raise FileNotFoundError(f"{self._m4b_file} not exists")
 

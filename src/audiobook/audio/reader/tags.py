@@ -3,65 +3,68 @@
 from pathlib import Path
 from typing import Dict, Optional, List
 import re
+from datetime import timedelta, date, datetime
 from audiobook.common import AutoRepr, AudioChapter
+from audiobook.audible.yml import YmlWriter
+from audiobook.audible.audiobook import AudibleAudiobook
 from .mutagen import MutagenReader
 
 
 class AudioTags(AutoRepr):
     """Tags of audio file"""
 
-    def __init__(self, path: str):
-        reader = MutagenReader(path)
+    def __init__(self, file_path: Path):
+        reader = MutagenReader(file_path)
 
-        self._path = path
+        self._file_path = file_path
         # Audio Album
-        self.album: str | None = reader.get_tag("album")
+        self.album = reader.get_tag("album")
         # Audio Album Artist
-        self.album_artist: str | None = reader.get_tag("album_artist")
+        self.album_artist = reader.get_tag("album_artist")
         # Audio Artist 1;Audio Artist 2
-        self.artist: str | None = reader.get_tag("artist")
+        self.artist = reader.get_tag("artist")
         # B0G5QKNT1J
-        self.asin: str | None = reader.get_tag("asin")
+        self.asin = reader.get_tag("asin")
         # Audio Comment
-        self.comment: str | None = reader.get_tag("comment")
+        self.comment = reader.get_tag("comment")
         # 1
-        self.compilation: str | None = reader.get_tag("compilation")
+        self.compilation = reader.get_tag("compilation")
         # Audio Composer
-        self.composer: str | None = reader.get_tag("composer")
+        self.composer = reader.get_tag("composer")
         # Audio Copyright
-        self.copyright: str | None = reader.get_tag("copyright")
+        self.copyright = reader.get_tag("copyright")
         # Audio Description
-        self.description: str | None = reader.get_tag("description")
+        self.description = reader.get_tag("description")
         # 1/2
-        self.disc: str | None = reader.get_tag("disc")
+        self.disc = reader.get_tag("disc")
         # Audio Encoded by
-        self.encoded_by: str | None = reader.get_tag("encoded_by")
+        self.encoded_by = reader.get_tag("encoded_by")
         # Audio Encoder
-        self.encoder: str | None = reader.get_tag("encoder")
+        self.encoder = reader.get_tag("encoder")
         # Audio Genre 1;Audio Genre 2
-        self.genre: str | None = reader.get_tag("genre")
+        self.genre = reader.get_tag("genre")
         # 9780007531486
-        self.isbn: str | None = reader.get_tag("isbn")
+        self.isbn = reader.get_tag("isbn")
         # Audio Language
-        self.language: str | None = reader.get_tag("language")
+        self.language = reader.get_tag("language")
         # Audio Lyrics
-        self.lyrics: str | None = reader.get_tag("lyrics")
+        self.lyrics = reader.get_tag("lyrics")
         # Audio Publisher
-        self.publisher: str | None = reader.get_tag("publisher")
+        self.publisher = reader.get_tag("publisher")
         # Audio Series
-        self.series: str | None = reader.get_tag("series")
+        self.series = reader.get_tag("series")
         # 2
-        self.series_part: str | None = reader.get_tag("series-part")
+        self.series_part = reader.get_tag("series-part")
         # Audio Subtitle
-        self.subtitle: str | None = reader.get_tag("subtitle")
+        self.subtitle = reader.get_tag("subtitle")
         # Audio Synopsis
-        self.synopsis: str | None = reader.get_tag("synopsis")
+        self.synopsis = reader.get_tag("synopsis")
         # Audio Title
-        self.title: str | None = reader.get_tag("title")
+        self.title = reader.get_tag("title")
         # 1/10
-        self.track: str | None = reader.get_tag("track")
+        self.track = reader.get_tag("track")
         # 1979-11-30
-        self.date: str | None = reader.get_tag("date")
+        self.date = reader.get_tag("date")
         self.chapters: List[AudioChapter] = reader.chapters
         self.has_cover: bool = reader.has_cover
         self.raw: Dict[str, str] = reader.get_all()
@@ -94,11 +97,75 @@ class AudioTags(AutoRepr):
 
         return None
 
-    def save_cover(self, output_dir: str | None) -> Path | None:
-        """Save cover to `output_dir`"""
-        reader = MutagenReader(self._path)
+    def to_audible_audiobook(
+        self,
+        duration: int | None = None,
+        authors_separator: str = "&",
+        narrators_separator: str = "&",
+        genres_separator: str = "/",
+    ) -> AudibleAudiobook:
+        """Convert tags to AudibleAudiobook"""
+        audible = AudibleAudiobook(self.asin)
 
-        return reader.save_cover(output_dir)
+        audible.title = self.title
+        audible.subtitle = self.subtitle
+        audible.description = self.description
+        audible.copyright = self.copyright
+        audible.publisher = self.publisher
+
+        audible.original_title = self.title
+        audible.original_series = [self.series] if self.series else None
+        audible.part = self.series_part
+
+        audible.series = self.series
+        audible.volume = float(self.series_part) if self.series_part else None
+
+        audible.authors = (
+            self.album_artist.split(authors_separator) if self.album_artist else None
+        )
+        audible.narrators = (
+            self.composer.split(narrators_separator) if self.composer else None
+        )
+
+        audible.published_at = date(self.year, 1, 1) if self.year else None
+
+        audible.duration = None
+        dt = timedelta(milliseconds=duration) if duration else None
+        if dt:
+            time_dt = (datetime.min + dt).time() if dt else None
+            audible.duration = time_dt
+
+        audible.language = self.language
+        audible.abridged = False
+
+        audible.genres = self.genre.split(genres_separator) if self.genre else None
+
+        return audible
+
+    def save_yml(
+        self,
+        save_path: Path,
+        duration: int | None = None,
+        authors_separator: str = "&",
+        narrators_separator: str = "&",
+        genres_separator: str = "/",
+    ):
+        """Save metadata of audiobook as metadata.yml in same directory"""
+
+        audible = self.to_audible_audiobook(
+            duration,
+            authors_separator,
+            narrators_separator,
+            genres_separator,
+        )
+        writer = YmlWriter(audible, save_path)
+        writer.write()
+
+    def save_cover(self, save_path: Path) -> Path | None:
+        """Save cover to `save_path`"""
+        reader = MutagenReader(self._file_path)
+
+        return reader.save_cover(save_path)
 
     def _extract_year(self, date_str: str) -> Optional[str]:
         if not date_str:

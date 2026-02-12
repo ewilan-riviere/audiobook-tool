@@ -13,7 +13,7 @@ from .chapter import ChapterWriter
 class MutagenWriter:
     """Écrit des tags dans un fichier audio via mutagen"""
 
-    def __init__(self, file_path: Union[str, Path]):
+    def __init__(self, file_path: Path):
         self.path = Path(file_path)
         self.tags_map = TAGS_MAPPING
         data = mutagen.File(str(self.path))  # type: ignore

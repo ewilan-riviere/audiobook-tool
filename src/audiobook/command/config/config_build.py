@@ -1,67 +1,65 @@
 """Handle config for build audiobook-tool"""
 
 import tempfile
-from dataclasses import dataclass
 from pathlib import Path
 import audiobook.utils as utils
 from audiobook.args import AudiobookArgs
 from audiobook.audible import YmlReader
-from audiobook.audio import AudioWriter, M4bAudiobook
+from audiobook.audio import AudioWriter
+from audiobook.env import PART_SIZE
+from audiobook.common import AutoRepr
 
 
-@dataclass
-class ConfigBuild:
+class ConfigBuild(AutoRepr):
     """Handle config for build audiobook-tool"""
 
-    # /path/to/the-wall (with .mp3, metadata.yml, cover.jpg)
-    source_path: Path
-    # /path/to (parent directory of `source_path`)
-    source_directory: Path
-    # /var/folders/m0/xhm5c_mx7yn2b8mqtqhdpc840000gn/T/tmppa8g2g_n
-    temporary_directory: tempfile.TemporaryDirectory[str]
-    # /path/to/the-wall/Assassin’s Apprentice
-    m4b_directory: Path
-    # M4bAudiobook for tags from metadata.yml to write inside future M4B
-    audiobook: M4bAudiobook
-    # /path/to/the-wall/metadata.yml
-    yml_path: Path | None = None
-    # /path/to/the-wall/cover.jpg
-    cover_path: Path | None = None
-
     def __init__(self, args: AudiobookArgs):
+        # /path/to/the-wall (with .mp3, metadata.yml, cover.jpg)
         source_path = self._to_path(args.mp3_directory)
         if not source_path:
             raise FileNotFoundError(f"Path {source_path} is not valid!")
         self.source_path = source_path
 
-        # Load parent path
-        self.source_directory = Path(self.source_path)
-
         # Setup temporary directory (for clean work)
+        # /var/folders/m0/xhm5c_mx7yn2b8mqtqhdpc840000gn/T/tmppa8g2g_n
         self.temporary_directory = tempfile.TemporaryDirectory()
 
         # Load metadata.yml and get tags
+        # /path/to/the-wall/metadata.yml
         self.yml_path = utils.get_file(self.source_path, "yml")
         reader = YmlReader(self.yml_path).read()
+        # M4bAudiobook for tags from metadata.yml to write inside future M4B
         self.audiobook = reader.audiobook
 
         # Load cover
+        # /path/to/the-wall/cover.jpg
         self.cover_path = utils.get_file(self.source_path, "jpg")
         if not self.cover_path:
             self.cover_path = utils.get_file(self.source_path, "jpeg")
 
         # Set M4B output path, based on metadata
-        self.m4b_directory = utils.path_join(
-            self.source_path,
-            reader.audiobook.title or reader.default_title,
-        )
+        # /path/to/the-wall/Assassin’s Apprentice
+        custom_output_path = self._to_path(args.output_path)
+        if custom_output_path:
+            self.output_path = custom_output_path
+        else:
+            container_name = reader.audiobook.title or reader.default_title
+            self.output_path = self.source_path / container_name
+
+        # Single or multiple
+        self.single = args.single
+        # Part of each size (if not single)
+        if args.part_size:
+            self.part_size = int(args.part_size)
+        else:
+            self.part_size = int(PART_SIZE)
 
     @property
-    def get_temporary_directory(self) -> Path:
+    def working_path(self) -> Path:
         """Get `temporary_directory` as `Path`"""
         return Path(self.temporary_directory.name)
 
-    def remove_temporary_directory(self):
+    def remove_working_path(self):
         """Delete `temporary_directory`"""
         self.temporary_directory.cleanup()
 

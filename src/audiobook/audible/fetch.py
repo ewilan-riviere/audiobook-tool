@@ -1,12 +1,12 @@
 """Fetch Audible URL"""
 
 import time
+from typing import Any
 import random
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, Browser, Error as PlaywrightError
 from playwright_stealth.stealth import Stealth  # type: ignore
-from fake_useragent import UserAgent
 from audiobook.common import AutoRepr
 
 
@@ -23,7 +23,6 @@ class AudibleFetch(AutoRepr):
         self.success: bool = False
         self.error: str | None = None
 
-        self.ua = UserAgent(browsers=["chrome"], os=["windows"])
         self._run_fetch_loop()
 
     def _run_fetch_loop(self):
@@ -31,6 +30,12 @@ class AudibleFetch(AutoRepr):
         attempts = 0
 
         with sync_playwright() as p:
+            desktop_devices = [  # type: ignore
+                name for name, device in p.devices.items() if "Desktop" in name  # type: ignore
+            ]
+            random_device_name = random.choice(desktop_devices)  # type: ignore
+            self.device_config: Any = p.devices[random_device_name]  # type: ignore
+
             browser = p.chromium.launch(
                 headless=True,
                 args=["--disable-dev-shm-usage", "--disable-gpu"],
@@ -61,19 +66,11 @@ class AudibleFetch(AutoRepr):
         if self.locale or attempts > 0:
             url = f"{url}?ipRedirectOverride=true"
 
-        # New context
-        context = browser.new_context(
-            user_agent=self.ua.random,
-            viewport={"width": 1920, "height": 1080},
-        )
+        context = browser.new_context(**self.device_config)
         page = context.new_page()
 
         stealth_config = Stealth()
         stealth_config.apply_stealth_sync(page)
-
-        # page.on(
-        #     "response", lambda res: print(f"   <- Res: {res.status} {res.url[:60]}")
-        # )
 
         page.route(
             "**/*.{png,jpg,jpeg,gif,webp,woff,woff2,svg,css}",

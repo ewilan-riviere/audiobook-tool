@@ -21,12 +21,11 @@ class BlockStyleDumper(SafeDumper):
 class YmlWriter:
     """Write metadata into YML file"""
 
-    def __init__(self, audiobook: AudibleAudiobook, save_path: str):
+    def __init__(self, audiobook: AudibleAudiobook, save_path: Path):
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
-        save_path = os.path.join(save_path, "metadata.yml")
-        self.save_path = Path(save_path).resolve()
+        self.save_path = Path(save_path / "metadata.yml").resolve()
 
         self.data: dict[str, str | int | float | None] = {
             "title": audiobook.title,

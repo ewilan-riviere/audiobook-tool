@@ -11,9 +11,13 @@ class AudioReader:
     """read audio file"""
 
     def __init__(self, path: str | Path):
-        self.container = AudioContainer(path)
-        self.tags = AudioTags(self.container.path_str)
-        self.properties = AudioProperties(self.container.path_str)
+        file_path = Path(path)
+        if not file_path.exists() or not file_path.is_file():
+            raise FileNotFoundError(f"{file_path} is not valid file!")
+
+        self.container = AudioContainer(file_path)
+        self.tags = AudioTags(file_path)
+        self.properties = AudioProperties(file_path)
 
         if self.container.extension == "mp3":
             self.type = AudioType.MP3

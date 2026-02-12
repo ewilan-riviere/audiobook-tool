@@ -13,12 +13,12 @@ from .chapter import ChapterReader
 class MutagenReader:
     """Read audio file with mutagen"""
 
-    def __init__(self, file_path: Union[str, Path]):
-        self.path = Path(file_path)
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
         self.tags_map = TAGS_MAPPING
-        data = mutagen.File(str(self.path))  # type: ignore
+        data = mutagen.File(self.file_path)  # type: ignore
         if data is None:
-            raise ValueError(f"Unable to read : {self.path}")
+            raise ValueError(f"Unable to read : {self.file_path}")
         self.audio = cast(Union[MP3, MP4], data)
 
     @property
@@ -53,7 +53,7 @@ class MutagenReader:
     @property
     def chapters(self) -> List[AudioChapter]:
         """Get M4B chapters"""
-        reader = ChapterReader(str(self.path))
+        reader = ChapterReader(self.file_path)
 
         return reader.chapters
 
@@ -157,13 +157,13 @@ class MutagenReader:
             return None
 
         # Path and folder management
-        out = Path(output_dir or self.path.parent).expanduser()
+        out = Path(output_dir or self.file_path.parent).expanduser()
         out.mkdir(parents=True, exist_ok=True)
 
         # Detect the extension (Magic Numbers)
         # JPEG begins with \xff\xd8 | PNG begins with \x89PNG
         ext = ".png" if data.startswith(b"\x89PNG") else ".jpg"
-        target = out / f"{self.path.stem}{ext}"
+        target = out / f"{self.file_path.stem}{ext}"
 
         target.write_bytes(data)  # Replaces open().write() and handles overwriting
         return target
@@ -178,7 +178,7 @@ class MutagenReader:
             "format=duration",
             "-of",
             "default=noprint_wrappers=1:nokey=1",
-            str(self.path),
+            str(self.file_path),
         ]
         result = subprocess.check_output(cmd).decode("utf-8").strip()
 

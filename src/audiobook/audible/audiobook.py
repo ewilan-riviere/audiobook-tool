@@ -5,7 +5,8 @@ import re
 import os
 from pathlib import Path
 from datetime import datetime, date, time
-import requests
+import urllib3
+from urllib3.exceptions import HTTPError, MaxRetryError
 from audiobook.common import AutoRepr
 from audiobook.audio import M4bAudiobook
 
@@ -142,7 +143,7 @@ class AudibleAudiobook(AutoRepr):
 
         return m4b
 
-    def save_cover(self, save_path: str) -> str | None:
+    def save_cover(self, save_path: str) -> Path | None:
         """
         Download cover and save it locally.
         """
@@ -158,28 +159,57 @@ class AudibleAudiobook(AutoRepr):
         # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
         # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
 
+        http = urllib3.PoolManager()
+
         try:
-            response = requests.get(
-                self.cover,
-                headers={"User-Agent": "Mozilla/5.0"},
-                stream=True,
-                timeout=30,
+            response = http.request("GET", self.cover, preload_content=False)
+
+            if response.status == 200:
+                with open(real_path, "wb") as f:
+                    for chunk in response.stream(1024):
+                        f.write(chunk)
+                response.release_conn()
+
+                return real_path
+
+        except TimeoutError:
+            print(
+                "[bold orange3]⌛ Le serveur a mis trop de temps à répondre.[/bold orange3]"
             )
-
-            response.raise_for_status()
-
-            with open(real_path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    file.write(chunk)
-
-            print(f"Success: cover saved as `{real_path}`")
-
-            return str(real_path)
-
-        except requests.exceptions.RequestException as e:
-            print(f"Download error: {e}")
+        except MaxRetryError:
+            print(
+                "[bold red]❌ Impossible de joindre le serveur (problème DNS ou URL invalide).[/bold red]"
+            )
+        except HTTPError as e:
+            print(f"[bold red]❌ Erreur réseau urllib3 :[/bold red] {e}")
+        except IOError as e:
+            print(f"[bold red]❌ Erreur d'écriture sur le disque :[/bold red] {e}")
 
         return None
+
+        # try:
+        #     response = page.request.get(url_cover)
+        #     response = requests.get(
+        #         self.cover,
+        #         headers={"User-Agent": "Mozilla/5.0"},
+        #         stream=True,
+        #         timeout=30,
+        #     )
+
+        #     response.raise_for_status()
+
+        #     with open(real_path, "wb") as file:
+        #         for chunk in response.iter_content(chunk_size=8192):
+        #             file.write(chunk)
+
+        #     print(f"Success: cover saved as `{real_path}`")
+
+        #     return str(real_path)
+
+        # except requests.exceptions.RequestException as e:
+        #     print(f"Download error: {e}")
+
+        # return None
 
     def _list_to_str(self, items: list[str], separator: str = " & ") -> str:
         return separator.join(items)

@@ -1,6 +1,7 @@
 """M4B chapter reader"""
 
 from typing import List, cast, Union
+from pathlib import Path
 import subprocess
 import json
 import mutagen
@@ -12,8 +13,8 @@ from audiobook.common import AudioChapter, AutoRepr
 class ChapterReader(AutoRepr):
     """M4B chapter reader"""
 
-    def __init__(self, path: str, use_mutagen: bool = False):
-        self._path = path
+    def __init__(self, file_path: Path, use_mutagen: bool = False):
+        self._file_path = file_path
         self._mode = "ffprobe"
         if use_mutagen:
             self._mode = "mutagen"
@@ -35,7 +36,7 @@ class ChapterReader(AutoRepr):
         cmd = [
             "ffprobe",
             "-i",
-            str(self._path),
+            str(self._file_path),
             "-print_format",
             "json",
             "-show_chapters",
@@ -63,7 +64,7 @@ class ChapterReader(AutoRepr):
 
     def _with_mutagen(self) -> List[AudioChapter]:
         """Get M4B chapters (mutagen is less accurate)"""
-        data = mutagen.File(str(self._path))  # type: ignore
+        data = mutagen.File(str(self._file_path))  # type: ignore
         audio = cast(Union[MP3, MP4], data)
 
         chapters: list[AudioChapter] = []

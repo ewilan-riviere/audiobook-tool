@@ -17,26 +17,31 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
+# deptry .
+# uv sync
+# uv export --format requirements-txt > requirements.txt
 dependencies = [
-  "pyyaml",
-  "mutagen",
-  "python-dotenv",
-  "isodate",
-  "httpx",
-  "beautifulsoup4",
-  "requests",
-  "ffmpeg-python",
-  "rich",
-  "playwright",
-  "playwright-stealth",
-  "fake-useragent"
+  "pyyaml",             # import yaml (to handle .yml files)
+  "mutagen",            # import mutagen (to handle .mp3 and .m4b files)
+  "python-dotenv",      # import dotenv (to handle .env variables)
+  "beautifulsoup4",     # import bs4 (to parse HTML)
+  "urllib3",            # import urllib3 (to download audiobook cover)
+  "rich",               # import rich (help for debugging)
+  "playwright",         # import playwright (for Audible web scraping)
+  "playwright-stealth", # import playwright_stealth
 ]
 
 [project.scripts]
 audiobook-tool = "audiobook.app:main"
 
 [project.optional-dependencies]
-dev = [
-  "pytest~=8.0.0",
-  "uv>=0.5.0"
-]
+dev = ["pytest~=8.0.0", "uv>=0.5.0"]
+
+[tool.deptry]
+known_first_party = ["audiobook"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["pytest", "uv"]
+
+[tool.deptry.package_module_name_map]
+uv = "uv"

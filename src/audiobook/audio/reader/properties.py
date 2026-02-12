@@ -1,5 +1,6 @@
 """Properties of audio file"""
 
+from pathlib import Path
 from datetime import timedelta
 from audiobook.common import AutoRepr
 from .mutagen import MutagenReader
@@ -8,8 +9,8 @@ from .mutagen import MutagenReader
 class AudioProperties(AutoRepr):
     """Properties of audio file"""
 
-    def __init__(self, path: str):
-        reader = MutagenReader(path)
+    def __init__(self, file_path: Path):
+        reader = MutagenReader(file_path)
 
         length = reader.properties["length"]
         bitrate = reader.properties["bitrate"]

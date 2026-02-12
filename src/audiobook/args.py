@@ -3,9 +3,10 @@
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 from pathlib import Path
+from audiobook.common import AutoRepr
 
 
-class AudiobookArgs:
+class AudiobookArgs(AutoRepr):
     """CLI args for audiobook-tool"""
 
     def __init__(self, parser: ArgumentParser):
@@ -48,8 +49,19 @@ class AudiobookArgs:
         )
         m_build.add_argument(
             "-o",
-            "--output",
+            "--output-path",
             help="Specify a path to save the M4B file (default is same as MP3 source)",
+        )
+        m_build.add_argument(
+            "-s",
+            "--single",
+            action="store_true",
+            help="Skip splitting M4B into mutliple parts",
+        )
+        m_build.add_argument(
+            "-p",
+            "--part-size",
+            help="Size in MB of each part (can be set into `.env` for global settings)",
         )
 
         # Clean
@@ -85,21 +97,23 @@ class AudiobookArgs:
 
         # path
         self.mp3_directory: Optional[str] = getattr(args, "mp3_directory", None)
-        self.m4b_output: Optional[str] = getattr(args, "output", None)
+        self.output_path: Optional[str] = getattr(args, "output_path", None)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
         self.audio_to_parse: Optional[str] = getattr(args, "audio_to_parse", None)
 
         # bool
         self.clear: bool = getattr(args, "clear", False)
+        self.single: bool = getattr(args, "single", False)
 
         # misc
         self.asin: Optional[str] = getattr(args, "asin", None)
         self.locale: Optional[str] = getattr(args, "locale", None)
+        self.part_size: Optional[int] = getattr(args, "part_size", None)
 
         if self.mp3_directory:
             self.mp3_directory = self._path_absolute(self.mp3_directory)
-        if self.m4b_output:
-            self.m4b_output = self._path_absolute(self.m4b_output)
+        if self.output_path:
+            self.output_path = self._path_absolute(self.output_path)
         if self.m4b_directory:
             self.m4b_directory = self._path_absolute(self.m4b_directory)
         if self.audio_to_parse:

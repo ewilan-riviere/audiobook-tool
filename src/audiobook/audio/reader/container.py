@@ -1,7 +1,6 @@
 """Container of audio file"""
 
 import os
-import pathlib
 from pathlib import Path
 from datetime import datetime
 from audiobook.common import AutoRepr
@@ -10,17 +9,16 @@ from audiobook.common import AutoRepr
 class AudioContainer(AutoRepr):
     """Container of audio file"""
 
-    def __init__(self, path: str | Path):
-        pl = pathlib.Path(path)
-        stat = pl.stat()
+    def __init__(self, file_path: Path):
+        stat = file_path.stat()
 
-        if not pl.exists():
-            raise FileNotFoundError(f"{path} not exists!")
+        if not file_path.exists():
+            raise FileNotFoundError(f"{str(file_path)} not exists!")
 
-        self.path: Path = pl.resolve()  # /tests/media/the-wall.mp3
-        self.extension: str = pl.suffix[1:].lower()  # mp3
-        self.filename: str = pl.name  # the-wall.mp3
-        self.basename: str = pl.stem  # the-wall
+        self.path: Path = file_path.resolve()  # /tests/media/the-wall.mp3
+        self.extension: str = file_path.suffix[1:].lower()  # mp3
+        self.filename: str = file_path.name  # the-wall.mp3
+        self.basename: str = file_path.stem  # the-wall
         self.inode: int = stat.st_ino  # 23280300
         self.size: int = stat.st_size  # 323052
         self.access_time: datetime = datetime.fromtimestamp(
@@ -33,12 +31,12 @@ class AudioContainer(AutoRepr):
             stat.st_ctime
         )  # 2026-02-03 06:12:11
 
-        self.writable: bool = os.access(path, os.W_OK)  # True
-        self.readable: bool = os.access(path, os.R_OK)  # True
-        self.is_file: bool = pl.is_file()  # True
-        self.is_directory: bool = pl.is_dir()  # False
-        self.is_exists: bool = pl.exists()  # True
-        self.is_link: bool = pl.is_symlink()  # False
+        self.writable: bool = os.access(file_path, os.W_OK)  # True
+        self.readable: bool = os.access(file_path, os.R_OK)  # True
+        self.is_file: bool = file_path.is_file()  # True
+        self.is_directory: bool = file_path.is_dir()  # False
+        self.is_exists: bool = file_path.exists()  # True
+        self.is_link: bool = file_path.is_symlink()  # False
 
     @property
     def path_str(self) -> str:
