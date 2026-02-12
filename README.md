@@ -30,6 +30,27 @@
 - Fusion MP3 to M4B
 - Fetch metadata
 
+## Docker
+
+### Docker compose (recommanded)
+
+```sh
+docker compose up -d
+```
+
+### Docker run
+
+```sh
+docker build -t audiobook-tool .
+```
+
+```sh
+docker run -it \
+  -v "$(pwd):/app/data" \
+  --env-file .env \
+  audiobook-tool
+```
+
 ## Using as CLI
 
 With [`uv`](https://docs.astral.sh/uv/)
