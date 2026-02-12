@@ -18,7 +18,6 @@ from .fs_utils import (
     make_directory,
 )
 from .ui_utils import (
-    alert_sound,
     format_duration,
     confirm_action,
     rprint_,
@@ -44,7 +43,6 @@ __all__ = [
     "remove_file",
     "make_directory",
     # ui_utils
-    "alert_sound",
     "format_duration",
     "confirm_action",
     "rprint_",

@@ -17,5 +17,3 @@ class CommandClean:
         clean = CleanSilences(mp3_directory)
         clean.remove_silences()
         clean.finalize()
-
-        utils.alert_sound()

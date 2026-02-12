@@ -58,8 +58,6 @@ class CommandBuild:
 
         print(f"📚 Audiobook available at {config.output_path}")
 
-        utils.alert_sound()
-
     def _handle_audible(self):
         if not self.args.asin or not self.args.mp3_directory:
             return

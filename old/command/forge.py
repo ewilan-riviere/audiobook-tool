@@ -13,5 +13,3 @@ class CommandForge:
         config = ConfigForge(args)
         forge = AudiobookForge(config.mp3_directory, True).build_native()
         print(f"\nM4B: `{forge.m4b_file}` ({forge.size})\n")
-
-        utils.alert_sound()

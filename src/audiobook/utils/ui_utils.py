@@ -1,37 +1,5 @@
-import platform
-import subprocess
 from typing import Any
 from rich import print as rprint
-
-
-def alert_sound():
-    """Play alert sound depends of OS"""
-    current_os = platform.system()
-
-    if current_os == "Windows":
-        try:
-            import winsound  # pylint: disable=import-outside-toplevel
-
-            winsound.PlaySound(  # type: ignore
-                "SystemAsterisk", winsound.SND_ALIAS | winsound.SND_ASYNC  # type: ignore
-            )
-        except ImportError:
-            print("\a")
-
-    elif current_os == "Darwin":
-        try:
-            subprocess.Popen(["afplay", "/System/Library/Sounds/Glass.aiff"])
-        except FileNotFoundError:
-            print("\a")
-
-    elif current_os == "Linux":
-        try:
-            subprocess.Popen(["canberra-gtk-play", "--id", "message-new-instant"])
-        except FileNotFoundError:
-            print("\x07", end="", flush=True)
-
-    else:
-        print("\a")
 
 
 def confirm_action(msg: str = "Do you want to continue?"):

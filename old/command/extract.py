@@ -71,5 +71,3 @@ class CommandExtract:
         # audio = AudioMetadataManager(to_tag_m4b)
         # audio.clear()
         # print(audio.has_cover())
-
-        utils.alert_sound()
