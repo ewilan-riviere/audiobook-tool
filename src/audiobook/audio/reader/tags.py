@@ -5,8 +5,8 @@ from typing import Dict, Optional, List
 import re
 from datetime import timedelta, date, datetime
 from audiobook.common import AutoRepr, AudioChapter
-from audiobook.audible.yml import YmlWriter
-from audiobook.audible.audiobook import AudibleAudiobook
+from audiobook.yml import YmlWriter
+from audiobook.models import AudibleAudiobook
 from .mutagen import MutagenReader
 
 
@@ -161,8 +161,9 @@ class AudioTags(AutoRepr):
         writer = YmlWriter(audible, save_path)
         writer.write()
 
-    def save_cover(self, save_path: Path) -> Path | None:
+    def save_cover(self, save_path: Path | str) -> Path | None:
         """Save cover to `save_path`"""
+        save_path = Path(save_path).resolve()
         reader = MutagenReader(self._file_path)
 
         return reader.save_cover(save_path)

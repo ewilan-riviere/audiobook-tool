@@ -1,4 +1,5 @@
-from audiobook.audible import Audible, AudibleAudiobook
+from audiobook.audible import Audible
+from audiobook.models import AudibleAudiobook
 
 
 def test_audible_fr():

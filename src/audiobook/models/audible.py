@@ -8,7 +8,7 @@ from datetime import datetime, date, time
 import urllib3
 from urllib3.exceptions import HTTPError, MaxRetryError
 from audiobook.common import AutoRepr
-from audiobook.audio import M4bAudiobook
+from .m4b import M4bAudiobook
 
 
 class AudibleAudiobook(AutoRepr):
@@ -48,7 +48,7 @@ class AudibleAudiobook(AutoRepr):
     price: Optional[float]
 
     genres: Optional[list[str]]
-    categories: Optional[list[str]]
+    categories: Optional[list[str]] = []
 
     def __init__(self, asin: str | None):
         self.asin = asin
@@ -57,8 +57,8 @@ class AudibleAudiobook(AutoRepr):
     @property
     def genres_all(self) -> list[str] | None:
         """Get genres with categories"""
-        genres = self.genres
-        categories = self.categories
+        genres = self.genres if self.genres else []
+        categories = self.categories if self.categories else []
         if not genres:
             genres = []
         if not categories:
@@ -120,7 +120,7 @@ class AudibleAudiobook(AutoRepr):
         """Convert AudibleAudiobook to M4bAudiobook"""
         m4b = M4bAudiobook()
 
-        m4b.title = self.title
+        m4b.title = self.title if self.title else "Unknown"
         m4b.album = self.title
         m4b.artist = self.authors_list
         m4b.album_artist = self.authors_list
@@ -186,30 +186,6 @@ class AudibleAudiobook(AutoRepr):
             print(f"[bold red]❌ Erreur d'écriture sur le disque :[/bold red] {e}")
 
         return None
-
-        # try:
-        #     response = page.request.get(url_cover)
-        #     response = requests.get(
-        #         self.cover,
-        #         headers={"User-Agent": "Mozilla/5.0"},
-        #         stream=True,
-        #         timeout=30,
-        #     )
-
-        #     response.raise_for_status()
-
-        #     with open(real_path, "wb") as file:
-        #         for chunk in response.iter_content(chunk_size=8192):
-        #             file.write(chunk)
-
-        #     print(f"Success: cover saved as `{real_path}`")
-
-        #     return str(real_path)
-
-        # except requests.exceptions.RequestException as e:
-        #     print(f"Download error: {e}")
-
-        # return None
 
     def _list_to_str(self, items: list[str], separator: str = " & ") -> str:
         return separator.join(items)

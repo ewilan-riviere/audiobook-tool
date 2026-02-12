@@ -1,7 +1,8 @@
 """Update M4B files"""
 
 from pathlib import Path
-from audiobook.audio import AudioWriter, M4bAudiobook
+from audiobook.audio import AudioWriter
+from audiobook.models import M4bAudiobook
 import audiobook.utils as utils
 
 

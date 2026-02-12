@@ -6,7 +6,7 @@ import re
 from datetime import time, datetime
 from bs4 import BeautifulSoup, Tag
 from audiobook.common import AutoRepr
-from audiobook.audible.typed import (
+from audiobook.audible.types import (
     JsonAudiobook,
     JsonLdAudiobook,
     JsonLdProduct,

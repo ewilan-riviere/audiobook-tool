@@ -1,12 +1,13 @@
 """Fetch metadata from Audible from audiobook ASIN"""
 
 import re
+from pathlib import Path
 from audiobook.common import AutoRepr
+from audiobook.models import AudibleAudiobook
+from audiobook.yml import YmlWriter
 from .parser import ParserJson, ParserHtml
-from .typed import JsonAudiobook
-from .audiobook import AudibleAudiobook
+from .types import JsonAudiobook
 from .fetch import AudibleFetch
-from .yml import YmlWriter
 
 
 class Audible(AutoRepr):
@@ -30,8 +31,9 @@ class Audible(AutoRepr):
         self._handle_audiobook(web, json)
         self.success = True
 
-    def save_metadata(self, save_path: str) -> str:
+    def save_metadata(self, save_path: str | Path) -> str:
         """Save audiobook as metadata.yml"""
+        save_path = Path(save_path).resolve()
         writer = YmlWriter(self.audiobook, save_path)
         writer.write()
 

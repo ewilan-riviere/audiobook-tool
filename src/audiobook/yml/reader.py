@@ -5,7 +5,7 @@ from typing import Any, cast
 from pathlib import Path
 import yaml
 from audiobook.common import AutoRepr
-from audiobook.audio import M4bAudiobook
+from audiobook.models import M4bAudiobook, MetadataAudiobook
 
 
 logger = logging.getLogger("audiobook.metadata")
@@ -14,49 +14,47 @@ logger = logging.getLogger("audiobook.metadata")
 class YmlReader(AutoRepr):
     """Read metadata from YML file"""
 
-    yml_path: Path | None = None
-
     def __init__(self, yml_path: str | Path | None):
         if not yml_path:
             raise FileNotFoundError("`yml_path` have to be not empty")
 
-        self.yml_path = Path(yml_path)
+        self.yml_path = Path(yml_path).resolve()
         if not self.yml_path.exists():
             logger.info("No metadata.yml found, using defaults.")
 
         self.yml_data: dict[str, Any] = {}
         self.default_title = self._handle_default_title()
+        self.metadata: MetadataAudiobook | None = None
 
-    @property
-    def audiobook(self) -> M4bAudiobook:
+    def to_audiobook(self) -> M4bAudiobook:
         """Convert metadata.yml to M4bAudiobook"""
+
         m4b = M4bAudiobook()
+        m4b.title = self.default_title
 
-        year = self.yml_data.get("year")
-        volume = self.yml_data.get("volume")
-        if volume:
-            volume = int(volume)
+        if not self.metadata:
+            return m4b
 
-        m4b.title = self.yml_data.get("title") or self.default_title
-        m4b.album = self.yml_data.get("title") or self.default_title
-        m4b.artist = self.yml_data.get("authors")
-        m4b.album_artist = self.yml_data.get("authors")
-        m4b.composer = self.yml_data.get("narrators")
-        m4b.genre = self.yml_data.get("genres")
-        m4b.date = str(year) if year else None
-        m4b.copyright = self.yml_data.get("copyright")
+        m4b.title = self.metadata.title
+        m4b.album = self.metadata.title
+        m4b.artist = self.metadata.authors
+        m4b.album_artist = self.metadata.authors
+        m4b.composer = self.metadata.narrators
+        m4b.genre = self.metadata.genres
+        m4b.date = str(self.metadata.year) if self.metadata.year else None
+        m4b.copyright = self.metadata.copyright
         m4b.comment = None
-        m4b.description = self.yml_data.get("description")
-        m4b.synopsis = self.yml_data.get("description")
+        m4b.description = self.metadata.description
+        m4b.synopsis = self.metadata.description
         m4b.compilation = None
-        m4b.lyrics = self.yml_data.get("lyrics")
-        m4b.publisher = self.yml_data.get("publisher")
-        m4b.language = self.yml_data.get("language")
-        m4b.series = self.yml_data.get("series")
-        m4b.series_part = str(volume) if volume else None
-        m4b.subtitle = self.yml_data.get("subtitle")
+        m4b.lyrics = self.metadata.lyrics
+        m4b.publisher = self.metadata.publisher
+        m4b.language = self.metadata.language
+        m4b.series = self.metadata.series
+        m4b.series_part = str(self.metadata.volume) if self.metadata.volume else None
+        m4b.subtitle = self.metadata.subtitle
         m4b.isbn = None
-        m4b.asin = self.yml_data.get("asin")
+        m4b.asin = self.metadata.asin
 
         return m4b
 
@@ -79,10 +77,17 @@ class YmlReader(AutoRepr):
         except yaml.YAMLError as e:
             logger.warning("Failed to parse YAML in %s: %s", self.yml_path, e)
 
+        if self.yml_data:
+            self.metadata = MetadataAudiobook(self.yml_data, self.default_title)
+
         return self
 
     def _handle_default_title(self) -> str:
         if not self.yml_path:
             return "audiobook"
 
-        return Path(str(self.yml_path)).parent.name
+        default_parent_name = self.yml_path.parent.name
+        if default_parent_name == "":
+            return "Unknown"
+
+        return default_parent_name

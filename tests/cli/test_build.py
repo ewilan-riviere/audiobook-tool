@@ -34,7 +34,7 @@ def test_build(monkeypatch: Any, capsys: Any):
     except SystemExit as e:
         assert e.code == 0
 
-    audiobook = AudiobookReader(output_path)
+    # audiobook = AudiobookReader(output_path)
     # reader = AudioReader(output_path)
 
     # captured = capsys.readouterr()

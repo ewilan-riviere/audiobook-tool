@@ -4,7 +4,7 @@ from audiobook.args import AudiobookArgs
 import audiobook.utils as utils
 from audiobook.audible import Audible
 from audiobook.forge import AudiobookForge
-from audiobook.audio import M4bSplitter, M4bTagger
+from audiobook.m4b import M4bSplitter, M4bTagger
 from .config import ConfigBuild
 
 

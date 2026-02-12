@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 import audiobook.utils as utils
 from audiobook.args import AudiobookArgs
-from audiobook.audible import YmlReader
+from audiobook.yml import YmlReader
 from audiobook.audio import AudioWriter
 from audiobook.env import PART_SIZE
 from audiobook.common import AutoRepr
@@ -29,7 +29,7 @@ class ConfigBuild(AutoRepr):
         self.yml_path = utils.get_file(self.source_path, "yml")
         reader = YmlReader(self.yml_path).read()
         # M4bAudiobook for tags from metadata.yml to write inside future M4B
-        self.audiobook = reader.audiobook
+        self.audiobook = reader.to_audiobook()
 
         # Load cover
         # /path/to/the-wall/cover.jpg
@@ -43,8 +43,10 @@ class ConfigBuild(AutoRepr):
         if custom_output_path:
             self.output_path = custom_output_path
         else:
-            container_name = reader.audiobook.title or reader.default_title
-            self.output_path = self.source_path / container_name
+            container_name = (
+                self.audiobook.title if self.audiobook else reader.default_title
+            )
+            self.output_path = self.source_path / str(container_name)
 
         # Single or multiple
         self.single = args.single

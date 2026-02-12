@@ -34,7 +34,7 @@ genres: "Fantasy/Fiction"
 # Series will be set as `series`
 series: "The Lord of the Rings"
 # Volume will be set as `series-part`
-volume: 1
+volume: 1.0
 # Language will be set as `language`
 language: "English"
 # Year will be set as `year`

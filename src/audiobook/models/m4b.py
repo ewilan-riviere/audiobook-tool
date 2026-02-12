@@ -1,11 +1,16 @@
+"""Represents an M4B audiobook"""
+
 from dataclasses import dataclass, asdict
 
 
 @dataclass
 class M4bAudiobook:
-    """Represents an M4B audiobook"""
+    """
+    Represents an M4B audiobook
+    All data are `str` because audiotags are only `str`
+    """
 
-    title: str | None = None
+    title: str = "Unknown"
     album: str | None = None
     artist: str | None = None
     album_artist: str | None = None

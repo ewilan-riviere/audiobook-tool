@@ -9,7 +9,8 @@ from .mutagen import MutagenWriter
 class AudioWriter:
     """write on audio file"""
 
-    def __init__(self, file_path: Path):
+    def __init__(self, file_path: Path | str):
+        file_path = Path(file_path).resolve()
         self._writer = MutagenWriter(file_path)
 
     def set_tag(self, tag: str, value: str):

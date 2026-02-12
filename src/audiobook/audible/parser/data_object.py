@@ -1,12 +1,16 @@
+"""To handle easily JSON web scraping"""
+
 import html
 from typing import Any, Dict, List, Union
 from audiobook.common import AutoRepr
 
 
 class DataObject(AutoRepr):
+    """To handle easily JSON web scraping"""
+
     def __getattr__(self, name: str) -> Any:
-        # On lève une AttributeError au lieu de renvoyer None
-        # pour signaler proprement l'absence de la clé
+        # Raise an AttributeError instead of returning None
+        # to properly signal the absence of the key
         if name in self.__dict__:
             return self.__dict__[name]
         raise AttributeError(f"'{name}' non trouvé dans {self}")
@@ -28,7 +32,7 @@ class DataObject(AutoRepr):
 
     def deep(self, path: str, default: Any = None) -> Any:
         """
-        Permet de faire : data.deep("aggregateRating.ratingValue")
+        Allows you to do: data.deep(“aggregateRating.ratingValue”)
         """
         keys = path.split(".")
         current = self

@@ -4,8 +4,9 @@ import os
 from pathlib import Path
 from typing import Any
 import yaml
+from audiobook.common import AutoRepr
 from yaml import SafeDumper, ScalarNode
-from ..audiobook import AudibleAudiobook
+from audiobook.models import AudibleAudiobook
 
 
 class BlockStyleDumper(SafeDumper):
@@ -18,14 +19,17 @@ class BlockStyleDumper(SafeDumper):
         return super().represent_scalar(tag, value, style)  # type: ignore
 
 
-class YmlWriter:
+class YmlWriter(AutoRepr):
     """Write metadata into YML file"""
 
-    def __init__(self, audiobook: AudibleAudiobook, save_path: Path):
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+    def __init__(self, audiobook: AudibleAudiobook, save_path: Path | str):
+        save_path = Path(save_path).resolve()
+        save_path = save_path / "metadata.yml"
+        if not os.path.exists(save_path.parent):
+            os.makedirs(save_path.parent)
 
-        self.save_path = Path(save_path / "metadata.yml").resolve()
+        self.save_path = save_path
+        self.success = False
 
         self.data: dict[str, str | int | float | None] = {
             "title": audiobook.title,
@@ -63,3 +67,6 @@ class YmlWriter:
             )
 
         print(f"Success: metadata.yml saved as `{self.save_path}`")
+        self.success = True
+
+        return self

@@ -1,14 +1,14 @@
-"""Parse Audible web output"""
+"""Parse Audible HTML web output"""
 
 from typing import List, cast
 import re
 from bs4 import BeautifulSoup
 from audiobook.common import AutoRepr
-from audiobook.audible.typed import AudibleHtml
+from audiobook.audible.types import AudibleHtml
 
 
 class ParserHtml(AutoRepr):
-    """Parse Audible HTML"""
+    """Parse Audible HTML web output"""
 
     def __init__(self, soup: BeautifulSoup):
         self._soup = soup

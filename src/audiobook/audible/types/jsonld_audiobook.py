@@ -1,8 +1,12 @@
+"""Represents JSON-LD audiobook from Audible website"""
+
 from typing import TypedDict, Optional
 from datetime import time, date
 
 
 class JsonLdAudiobook(TypedDict):
+    """Represents JSON-LD audiobook from Audible website"""
+
     context: Optional[str]
     type: Optional[str]
     book_format: Optional[str]

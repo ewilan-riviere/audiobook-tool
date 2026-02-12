@@ -1,7 +1,11 @@
+"""Represents JSON-LD product from Audible website"""
+
 from typing import TypedDict, Optional
 
 
 class JsonLdProduct(TypedDict):
+    """Represents JSON-LD product from Audible website"""
+
     context: Optional[str]
     type: Optional[str]
     additional_type: Optional[str]
