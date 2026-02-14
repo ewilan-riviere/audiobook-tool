@@ -1,54 +1,55 @@
 """Represents an Audible audiobook"""
 
-from typing import Optional
 import re
 import os
 from pathlib import Path
 from datetime import datetime, date, time
+from dataclasses import dataclass
 import urllib3
 from urllib3.exceptions import HTTPError, MaxRetryError
 from audiobook.common import AutoRepr
 from .m4b import M4bAudiobook
 
 
+@dataclass
 class AudibleAudiobook(AutoRepr):
     """Represents an Audible audiobook"""
 
-    asin: Optional[str]
-    url: Optional[str]
-    fetched_at: Optional[datetime]
+    asin: str | None = None
+    url: str | None = None
+    fetched_at: datetime | None = None
 
-    title: Optional[str]
-    subtitle: Optional[str]
-    description: Optional[str]
-    copyright: Optional[str]
-    publisher: Optional[str]
+    title: str | None = None
+    subtitle: str | None = None
+    description: str | None = None
+    copyright: str | None = None
+    publisher: str | None = None
 
-    original_title: Optional[str]
-    original_series: Optional[list[str]]
-    part: Optional[str]
+    original_title: str | None = None
+    original_series: list[str] | None = None
+    part: str | None = None
 
-    series: Optional[str]
-    volume: Optional[float]
+    series: str | None = None
+    volume: float | None = None
 
-    authors: Optional[list[str]]
-    narrators: Optional[list[str]]
+    authors: list[str] | None = None
+    narrators: list[str] | None = None
 
-    published_at: Optional[date]
-    duration: Optional[time]
-    language: Optional[str]
-    abridged: Optional[bool]
-    cover: Optional[str]
+    published_at: date | None = None
+    duration: time | None = None
+    language: str | None = None
+    abridged: bool | None = None
+    cover: str | None = None
 
-    format: Optional[str]
-    book_format: Optional[str]
-    sku: Optional[str]
+    format: str | None = None
+    book_format: str | None = None
+    sku: str | None = None
 
-    rating: Optional[float]
-    price: Optional[float]
+    rating: float | None = None
+    price: float | None = None
 
-    genres: Optional[list[str]]
-    categories: Optional[list[str]] = []
+    genres: list[str] | None = None
+    categories: list[str] | None = None
 
     def __init__(self, asin: str | None):
         self.asin = asin
