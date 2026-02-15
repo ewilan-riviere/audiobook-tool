@@ -22,8 +22,9 @@ class M4bTagger:
     ):
         self._m4b_files = m4b_files
         self._tags = audiobook.to_tags
+        self._cover = None
         if cover:
-            self._cover = Path(cover)
+            self._cover = Path(cover).resolve()
         self._title = title
         self.m4b_paths: list[Path] = []
 
