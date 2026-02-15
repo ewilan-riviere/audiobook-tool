@@ -1,0 +1,60 @@
+"""Represents an audiobook from .m4b files"""
+
+from __future__ import annotations
+from pathlib import Path
+from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from audiobook.common import AutoRepr
+import audiobook.utils as utils
+
+if TYPE_CHECKING:
+    from audiobook.audio import AudioReader
+    from audiobook.audio.reader import AudioTags
+
+
+@dataclass
+class ContainerAudiobook(AutoRepr):
+    """Represents an audiobook from .m4b files"""
+
+    audiobook_path: Path
+    m4b_parts: int
+    audio_tags: AudioTags
+    audiobook_duration_ms: int
+    m4b_files: list[Path]
+    m4b_readers: list[AudioReader]
+
+    def __init__(self, audiobook_path: str | Path):
+        self.audiobook_path = Path(audiobook_path).resolve()
+        self.m4b_files: list[Path] = utils.get_files(self.audiobook_path, "m4b")
+        if not self.m4b_files:
+            raise FileNotFoundError(
+                f"Path {str(self.audiobook_path)} doesn't have any M4B file!"
+            )
+        self.m4b_parts: int = len(self.m4b_files)
+
+        self.audiobook_duration_ms: int = 0
+        self.m4b_readers: list[AudioReader] = []
+
+        # pylint: disable=import-outside-toplevel
+        from audiobook.audio import AudioReader
+
+        for m4b_file in self.m4b_files:
+            self.m4b_readers.append(AudioReader(m4b_file))
+
+        first_m4b = self.m4b_readers[0]
+        self.audio_tags = first_m4b.tags
+
+        self.audiobook_duration_ms = self._calculate_duration()
+
+        self.audio_tags.save_yml(
+            save_path=self.audiobook_path,
+            duration=self.audiobook_duration_ms,
+        )
+        self.audio_tags.save_cover(self.audiobook_path)
+
+    def _calculate_duration(self) -> int:
+        audiobook_duration_ms: int = 0
+        for m4b_reader in self.m4b_readers:
+            audiobook_duration_ms += m4b_reader.properties.duration_ms
+
+        return audiobook_duration_ms

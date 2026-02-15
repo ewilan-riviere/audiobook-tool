@@ -1,11 +1,16 @@
 """Read metadata from YML file"""
 
+from __future__ import annotations
 import logging
-from typing import Any, cast
+from typing import Any, cast, TYPE_CHECKING
 from pathlib import Path
 import yaml
 from audiobook.common import AutoRepr
-from audiobook.models import M4bAudiobook, MetadataAudiobook
+
+
+if TYPE_CHECKING:
+    from audiobook.models import MetadataAudiobook
+    from audiobook.models import M4bAudiobook
 
 
 logger = logging.getLogger("audiobook.metadata")
@@ -28,6 +33,8 @@ class YmlReader(AutoRepr):
 
     def to_audiobook(self) -> M4bAudiobook:
         """Convert metadata.yml to M4bAudiobook"""
+        # pylint: disable=import-outside-toplevel
+        from audiobook.models import M4bAudiobook
 
         m4b = M4bAudiobook()
         m4b.title = self.default_title
@@ -78,6 +85,9 @@ class YmlReader(AutoRepr):
             logger.warning("Failed to parse YAML in %s: %s", self.yml_path, e)
 
         if self.yml_data:
+            # pylint: disable=import-outside-toplevel
+            from audiobook.models import MetadataAudiobook
+
             self.metadata = MetadataAudiobook(self.yml_data, self.default_title)
 
         return self

@@ -12,7 +12,7 @@ def test_parse(monkeypatch: Any, capsys: Any):
     monkeypatch.setattr(
         sys,
         "argv",
-        ["audiobook-tool", "parse", str(m4b)],
+        ["audiobook-tool", "parse", str(m4b.parent)],
     )
 
     try:
@@ -26,16 +26,19 @@ def test_parse(monkeypatch: Any, capsys: Any):
 
 
 def forge_m4b():
-    mp3_directory = "./tests/media/the-wall"
-    mp3_directory_test = "./tests/media/the-wall-test"
+    mp3_directory = Path("./tests/media/the-wall").resolve()
+    mp3_directory_test = Path("./tests/media/the-wall-test").resolve()
     utils.remove_directory(mp3_directory_test)
     utils.copy_directory(mp3_directory, mp3_directory_test)
 
     temporary_directory = tempfile.TemporaryDirectory()
     forge = AudiobookForge(
-        source_path=Path(mp3_directory),
+        source_path=Path(mp3_directory_test),
         working_directory=Path(temporary_directory.name),
         clear=True,
     ).run()
+
+    if not forge.output_path:
+        raise FileNotFoundError(f"File not found at path {str(forge.output_path)}")
 
     return utils.copy_file(forge.output_path, mp3_directory_test)

@@ -1,7 +1,8 @@
 """parse command of audiobook-tool"""
 
 from audiobook.args import AudiobookArgs
-from audiobook.audio import AudioReader
+from audiobook.models import ContainerAudiobook
+from audiobook.utils import ui_utils
 
 
 class CommandParse:
@@ -14,5 +15,5 @@ class CommandParse:
         if not self._args.audio_to_parse:
             print("Path is necessary!")
 
-        audio = AudioReader(str(self._args.audio_to_parse))
-        print(audio)
+        container = ContainerAudiobook(str(args.audio_to_parse))
+        ui_utils.rprint_(container)

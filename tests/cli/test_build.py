@@ -2,7 +2,8 @@ from typing import Any
 import sys
 from audiobook import app
 import audiobook.utils as utils
-from audiobook.audio import AudioReader, AudiobookReader
+from audiobook.audio import AudioReader
+from audiobook.models import ContainerAudiobook
 
 
 def test_build(monkeypatch: Any, capsys: Any):
@@ -34,7 +35,7 @@ def test_build(monkeypatch: Any, capsys: Any):
     except SystemExit as e:
         assert e.code == 0
 
-    # audiobook = AudiobookReader(output_path)
+    # container = ContainerAudiobook(output_path)
     # reader = AudioReader(output_path)
 
     # captured = capsys.readouterr()

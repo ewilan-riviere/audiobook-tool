@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from concurrent.futures import as_completed, Future
 from concurrent.futures.process import ProcessPoolExecutor
-from audiobook.audio import AudioReader
 from audiobook.common import AutoRepr
 import audiobook.utils as utils
 from .modules import BlacksmithChapter, BlacksmithRunner
@@ -29,6 +28,13 @@ class AudiobookBlacksmith(AutoRepr):
         """Get output path"""
         return self._output_path
 
+    def _get_reader(self, path: Path):
+        """Helper centralisé pour éviter les redéfinitions et les cycles"""
+        # pylint: disable=import-outside-toplevel
+        from audiobook.audio import AudioReader
+
+        return AudioReader(path)
+
     def _prepare_data(self) -> None:
         """Initializes the chapter list, calculates the bitrate, and extracts titles from tags."""
         self._source_files = utils.get_files(self._source_path, "mp3")
@@ -39,7 +45,7 @@ class AudiobookBlacksmith(AutoRepr):
         file_count = len(self._source_files)
 
         for mp3 in self._source_files:
-            reader = AudioReader(mp3)
+            reader = self._get_reader(mp3)
             mp3_bitrate = reader.properties.bit_rate or 128000
             total_bitrate += mp3_bitrate
 
@@ -85,7 +91,7 @@ class AudiobookBlacksmith(AutoRepr):
             for chapter in self._chapters:
                 # 💡 CALCULER LA DURÉE SUR LE FICHIER AAC TEMP, PAS LE MP3
                 # Le format AAC/ADTS n'a pas toujours de header de durée
-                reader = AudioReader(chapter.temp_aac_path)
+                reader = self._get_reader(chapter.temp_aac_path)
                 metadata_lines.append(
                     f"\n[CHAPTER]\nTIMEBASE=1/1000\nSTART={current_time_ms}"
                 )
@@ -141,7 +147,7 @@ class AudiobookBlacksmith(AutoRepr):
             print(f"\n💥 Process failure : {e}")
         finally:
             if self._output_path:
-                reader = AudioReader(self._output_path)
+                reader = self._get_reader(self._output_path)
                 if reader.properties.bit_rate:
                     print("✨ Successfully completed!")
                 else:

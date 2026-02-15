@@ -1,9 +1,13 @@
 """Update M4B files"""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from pathlib import Path
 from audiobook.audio import AudioWriter
-from audiobook.models import M4bAudiobook
 import audiobook.utils as utils
+
+if TYPE_CHECKING:
+    from audiobook.models.m4b import M4bAudiobook
 
 
 class M4bTagger:

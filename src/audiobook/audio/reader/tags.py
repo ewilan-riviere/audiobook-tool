@@ -69,6 +69,9 @@ class AudioTags(AutoRepr):
         self.has_cover: bool = reader.has_cover
         self.raw: Dict[str, str] = reader.get_all()
 
+        if self.subtitle is None and self.comment is not None:
+            self.subtitle = self.comment
+
     @property
     def track_int(self) -> int | None:
         """Get track as `int`"""

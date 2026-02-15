@@ -22,9 +22,12 @@ class AudiobookForge(AutoRepr):
         self._clear = clear
 
     @property
-    def output_path(self) -> str:
+    def output_path(self) -> Path | None:
         """Get M4B file path"""
-        return str(self._output_path)
+        if self._output_path:
+            return self._output_path.resolve()
+
+        return None
 
     @property
     def size_human(self) -> str:

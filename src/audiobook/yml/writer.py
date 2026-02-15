@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from typing import Any
 import yaml
-from audiobook.common import AutoRepr
 from yaml import SafeDumper, ScalarNode
+from audiobook.common import AutoRepr
 from audiobook.models import AudibleAudiobook
 
 

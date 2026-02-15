@@ -1,11 +1,11 @@
-"""Represents an metadata audiobook (fro metadata.yml)"""
+"""Represents an metadata audiobook (from metadata.yml)"""
 
 from typing import Any
 from audiobook.common import AutoRepr
 
 
 class MetadataAudiobook(AutoRepr):
-    """Represents an metadata audiobook (fro metadata.yml)"""
+    """Represents an metadata audiobook (from metadata.yml)"""
 
     def __init__(self, data: dict[str, Any], default_title: str = "Unknown"):
         self.title: str = data.get("title") or default_title

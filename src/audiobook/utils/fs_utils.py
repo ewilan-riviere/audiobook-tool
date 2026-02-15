@@ -129,7 +129,7 @@ def rename_file(
 def copy_file(from_path: str | Path, to_path: str | Path) -> Path:
     """Copy file"""
     copy_path = shutil.copy(from_path, to_path)
-    return Path(copy_path)
+    return Path(copy_path).resolve()
 
 
 def copy_directory(from_path: str | Path, to_path: str | Path) -> Path:

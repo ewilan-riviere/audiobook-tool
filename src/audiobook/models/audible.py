@@ -1,14 +1,19 @@
 """Represents an Audible audiobook"""
 
+from __future__ import annotations
 import re
 import os
 from pathlib import Path
 from datetime import datetime, date, time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 import urllib3
 from urllib3.exceptions import HTTPError, MaxRetryError
 from audiobook.common import AutoRepr
-from .m4b import M4bAudiobook
+
+
+if TYPE_CHECKING:
+    from .m4b import M4bAudiobook
 
 
 @dataclass
@@ -17,7 +22,7 @@ class AudibleAudiobook(AutoRepr):
 
     asin: str | None = None
     url: str | None = None
-    fetched_at: datetime | None = None
+    fetched_at: datetime = field(default_factory=datetime.now, init=False)
 
     title: str | None = None
     subtitle: str | None = None
@@ -50,10 +55,6 @@ class AudibleAudiobook(AutoRepr):
 
     genres: list[str] | None = None
     categories: list[str] | None = None
-
-    def __init__(self, asin: str | None):
-        self.asin = asin
-        self.fetched_at = datetime.now()
 
     @property
     def genres_all(self) -> list[str] | None:
@@ -119,6 +120,9 @@ class AudibleAudiobook(AutoRepr):
 
     def to_m4b(self) -> M4bAudiobook:
         """Convert AudibleAudiobook to M4bAudiobook"""
+        # pylint: disable=import-outside-toplevel
+        from .m4b import M4bAudiobook
+
         m4b = M4bAudiobook()
 
         m4b.title = self.title if self.title else "Unknown"

@@ -16,10 +16,19 @@ TAGS_MAPPING: Dict[str, Dict[str, Union[str, List[str]]]] = {
     "synopsis": {"mp3": "TDES", "m4b": "ldes"},
     "language": {"mp3": "TLAN", "m4b": "----:com.apple.iTunes:LANGUAGE"},
     "copyright": {"mp3": "TCOP", "m4b": "cprt"},
-    "series": {"mp3": "TXXX:SERIES", "m4b": "----:com.apple.iTunes:SERIES"},
+    "series": {
+        "mp3": "TXXX:SERIES",
+        "m4b": [
+            "----:com.apple.iTunes:SERIES",
+            "----:com.apple.iTunes:series",
+        ],
+    },
     "series-part": {
         "mp3": "TXXX:SERIES-PART",
-        "m4b": "----:com.apple.iTunes:SERIES-PART",
+        "m4b": [
+            "----:com.apple.iTunes:SERIES-PART",
+            "----:com.apple.iTunes:series-part",
+        ],
     },
     "lyrics": {"mp3": "TXXX:LYRICS", "m4b": "©lyr"},
     "publisher": {
