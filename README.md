@@ -23,12 +23,20 @@
 > [!TIP]
 > Built to be used with [audiobookshelf](https://www.audiobookshelf.org/).
 
+## Why?
+
+I used [Audiobook Builder](https://www.splasm.com/audiobookbuilder/) a lot. It was very handy for creating audiobooks from MP3 files and inserting metadata for [audiobookshelf](https://www.audiobookshelf.org/).
+
+However, Audiobook Builder is not free, and it creates separate audiobooks in several parts if necessary (which I appreciate for streaming), but with chapters that can be split up.
+
+So I needed a tool that creates an audiobook in several parts of an adjustable size, that doesn't split the chapters, and that adapts to a YAML file for metadata. As a bonus, this tool could also parse Audible to retrieve metadata from the website...
+
 ## Features
 
-- Build from MP3
-- Extract from M4B
-- Fusion MP3 to M4B
-- Fetch metadata
+- Fetch metadata from Audible from ASIN code
+- Build M4B multi-part/one audiobook from MP3 files
+- Extract chapters from audiobook and convert to M4A/MP3
+- Parse audiobook to convert tags to YAML file
 
 ## Docker
 
