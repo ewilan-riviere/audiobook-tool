@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from audiobook.common import AutoRepr
 import audiobook.utils as utils
+from audiobook.common import AudioChapter
 
 if TYPE_CHECKING:
     from audiobook.audio import AudioReader
@@ -18,10 +19,12 @@ class ContainerAudiobook(AutoRepr):
 
     audiobook_path: Path
     m4b_parts: int
+    chapters_count: int
     audio_tags: AudioTags
     audiobook_duration_ms: int
     m4b_files: list[Path]
     m4b_readers: list[AudioReader]
+    chapters: list[AudioChapter]
 
     def __init__(self, audiobook_path: str | Path):
         self.audiobook_path = Path(audiobook_path).resolve()
@@ -38,8 +41,15 @@ class ContainerAudiobook(AutoRepr):
         # pylint: disable=import-outside-toplevel
         from audiobook.audio import AudioReader
 
+        self.chapters_count = 0
+        self.chapters = []
         for m4b_file in self.m4b_files:
-            self.m4b_readers.append(AudioReader(m4b_file))
+            reader = AudioReader(m4b_file)
+            self.m4b_readers.append(reader)
+            if reader.tags.chapters:
+                for chapter in reader.tags.chapters:
+                    self.chapters.append(chapter)
+                self.chapters_count = self.chapters_count + len(reader.tags.chapters)
 
         first_m4b = self.m4b_readers[0]
         self.audio_tags = first_m4b.tags
@@ -51,6 +61,14 @@ class ContainerAudiobook(AutoRepr):
             duration=self.audiobook_duration_ms,
         )
         self.audio_tags.save_cover(self.audiobook_path)
+
+    @property
+    def m4b_file(self) -> Path | None:
+        """Get first part of M4B files"""
+        if not self.m4b_files:
+            return None
+
+        return self.m4b_files[0]
 
     def _calculate_duration(self) -> int:
         audiobook_duration_ms: int = 0

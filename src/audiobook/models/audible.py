@@ -148,18 +148,19 @@ class AudibleAudiobook(AutoRepr):
 
         return m4b
 
-    def save_cover(self, save_path: str) -> Path | None:
+    def save_cover(self, save_path: Path | str) -> Path | None:
         """
         Download cover and save it locally.
         """
         if not self.cover:
             return
 
-        if not os.path.exists(save_path):
+        save_path = Path(save_path).resolve()
+
+        if not save_path.exists():
             os.makedirs(save_path)
 
-        save_path = os.path.join(save_path, "cover.jpg")
-        real_path = Path(save_path).resolve()
+        save_path = save_path / "cover.jpg"
         # upscayl cover
         # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
         # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
@@ -170,12 +171,12 @@ class AudibleAudiobook(AutoRepr):
             response = http.request("GET", self.cover, preload_content=False)
 
             if response.status == 200:
-                with open(real_path, "wb") as f:
+                with open(save_path, "wb") as f:
                     for chunk in response.stream(1024):
                         f.write(chunk)
                 response.release_conn()
 
-                return real_path
+                return save_path
 
         except TimeoutError:
             print(

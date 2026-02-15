@@ -2,11 +2,10 @@ from typing import Any
 import sys
 from audiobook import app
 import audiobook.utils as utils
-from audiobook.audio import AudioReader
 from audiobook.models import ContainerAudiobook
 
 
-def test_build(monkeypatch: Any, capsys: Any):
+def test_forge(monkeypatch: Any, capsys: Any):
     source_path = "./tests/media/the-wall"
     source_path_test = "./tests/media/the-wall-test"
     utils.remove_directory(source_path_test)
@@ -20,11 +19,8 @@ def test_build(monkeypatch: Any, capsys: Any):
         "argv",
         [
             "audiobook-tool",
-            "build",
+            "forge",
             source_path_test,
-            "--clear",
-            "--part-size",
-            "1",
             "--output-path",
             output_path,
         ],
@@ -36,9 +32,10 @@ def test_build(monkeypatch: Any, capsys: Any):
         assert e.code == 0
 
     container = ContainerAudiobook(output_path)
-    reader = AudioReader(str(container.m4b_file))
-    assert reader.tags.album == "Assassin’s Apprentice"
+
+    assert container.m4b_file
+    assert utils.file_exists(container.m4b_file)
 
     captured = capsys.readouterr()
     assert "audiobook-tool" in captured.out
-    assert "Execute command build..." in captured.out
+    assert "Execute command forge..." in captured.out

@@ -25,6 +25,12 @@ class AudiobookArgs(AutoRepr):
             "--locale",
             help="Audiobook locale for Audible (can be `com`, `co.uk`, `fr`, `de`)",
         )
+        m_audible.add_argument(
+            "-c",
+            "--cover",
+            action="store_true",
+            help="Save cover locally",
+        )
 
         # Build
         m_build = subparsers.add_parser(
@@ -71,10 +77,20 @@ class AudiobookArgs(AutoRepr):
         # Extract
         m_extract = subparsers.add_parser("extract", help="Extract MP3 files from M4B")
         m_extract.add_argument("m4b_directory", help="Source directory")
+        m_extract.add_argument(
+            "-t",
+            "--type",
+            help="Specify an audio type: `mp3` or `m4a` (default is `m4a`)",
+        )
 
         # Forge
         m_forge = subparsers.add_parser("forge", help="Forge MP3 file to M4B")
         m_forge.add_argument("mp3_directory", help="Source directory")
+        m_forge.add_argument(
+            "-o",
+            "--output-path",
+            help="Specify a path to save the M4B file (default is same as MP3 source)",
+        )
 
         # Fusion
         m_fusion = subparsers.add_parser("fusion", help="Add MP3 files to existing M4B")
@@ -104,11 +120,13 @@ class AudiobookArgs(AutoRepr):
         # bool
         self.clear: bool = getattr(args, "clear", False)
         self.single: bool = getattr(args, "single", False)
+        self.cover: bool = getattr(args, "cover", False)
 
         # misc
         self.asin: Optional[str] = getattr(args, "asin", None)
         self.locale: Optional[str] = getattr(args, "locale", None)
         self.part_size: Optional[int] = getattr(args, "part_size", None)
+        self.audio_type: Optional[str] = getattr(args, "type", None)
 
         if self.mp3_directory:
             self.mp3_directory = self._path_absolute(self.mp3_directory)

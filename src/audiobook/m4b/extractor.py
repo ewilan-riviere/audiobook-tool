@@ -1,95 +1,201 @@
+"""Extract chapters from M4B files and convert to M4A/MP3"""
+
 import subprocess
-import json
 from pathlib import Path
-from typing import List, Dict, Optional
-import audiobook.utils as utils
+from audiobook import utils
+from audiobook.audio.writer.main import AudioWriter
+from audiobook.common.chapter import AudioChapter
+from audiobook.models import ContainerAudiobook
 
 
 class M4bExtractor:
-    def __init__(self, input_folder: str, output_folder: str | None = None):
-        test_path = "/Users/ewilan/Downloads/Studio.404.2012"
-        self.input_folder = Path(input_folder)
-        if output_folder:
-            self.output_folder = Path(output_folder)
-        else:
-            self.output_folder = Path(utils.path_join(str(self.input_folder), "output"))
-        self.m4b_files: List[Path] = sorted(list(self.input_folder.glob("*.m4b")))
+    """Extract chapters from M4B files and convert to M4A/MP3"""
 
-        if not self.m4b_files:
-            raise FileNotFoundError(f"Aucun fichier M4B trouvé dans {input_folder}")
+    def __init__(self, container: ContainerAudiobook):
+        self.container = container
+        self.output_dir = container.audiobook_path / "extracted_chapters"
+        self.total_chapters: int = 0
 
-        if not self.output_folder.exists():
-            self.output_folder.mkdir(parents=True)
+        utils.remove_directory(self.output_dir)
+        utils.make_directory(self.output_dir)
 
-    # def get_chapters(self, file_path: Path) -> List[Dict]:  # type: ignore
-    #     """Extrait les chapitres d'un fichier via ffprobe."""
-    #     cmd = [
-    #         "ffprobe",
-    #         "-v",
-    #         "quiet",
-    #         "-print_format",
-    #         "json",
-    #         "-show_chapters",
-    #         str(file_path),
-    #     ]
-    #     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    #     data = json.loads(result.stdout)
+        self.total_chapters: int = len(self.container.chapters)
 
-    #     return data.get("chapters", [])
+    def to_m4a(self) -> Path:
+        """
+        Extract chapters directly to M4A (Very fast).
+        """
+        self._start(
+            mode="M4A extraction (Stream Copy)",
+        )
 
-    # def sanitize_filename(self, filename: str) -> str:
-    #     """Nettoie le nom de fichier pour éviter les caractères interdits."""
-    #     return "".join(
-    #         [c for c in filename if c.isalnum() or c in (" ", ".", "_", "-")]
-    #     ).strip()
+        current_m4b_index = 0
 
-    # def convert_and_split(self) -> None:
-    #     """Parcourt les fichiers, extrait les chapitres et découpe en MP3."""
-    #     print(f"Traitement de {len(self.m4b_files)} fichier(s)...")
+        for i, chapter in enumerate(self.container.chapters):
+            if i > 0 and chapter.id == 0:
+                current_m4b_index += 1
 
-    #     for file_index, m4b_file in enumerate(self.m4b_files):
-    #         chapters = self.get_chapters(m4b_file)  # type: ignore
-    #         print(f"Chapters: {len(chapters)}")  # type: ignore
+            input_file = self.container.m4b_files[current_m4b_index]
+            output_path = self._handle_chapter(chapter, i, "m4a")
+            self._progress(i, output_path)
 
-    #         if not chapters:
-    #             print(
-    #                 f"⚠️ Aucun chapitre trouvé dans {m4b_file.name}. Conversion globale."
-    #             )
-    #             self._export_segment(m4b_file, "Full_Book", None, None)
-    #             continue
+            self._ffmpeg_m4a(
+                input_file,
+                chapter.start_time,
+                chapter.end_time,
+                output_path,
+            )
 
-    #         for chap in chapters:  # type: ignore
-    #             # Récupération des données du chapitre
-    #             title = chap.get("tags", {}).get("title", f"Chapter_{chap['id']}")  # type: ignore
-    #             start_time = chap["start_time"]  # type: ignore
-    #             end_time = chap["end_time"]  # type: ignore
+            self._handle_chapter_tag(chapter, i, output_path)
 
-    #             # Formatage du nom : "01 - Titre du Chapitre.mp3"
-    #             clean_title = self.sanitize_filename(title)  # type: ignore
-    #             output_name = (
-    #                 f"{file_index + 1:02d}_{chap['id'] + 1:02d}_{clean_title}.mp3"
-    #             )
+        return self._end()
 
-    #             print(f"Extraction : {output_name} ({start_time}s -> {end_time}s)")
-    #             self._export_segment(m4b_file, output_name, start_time, end_time)  # type: ignore
+    def to_mp3(self, high_fidelity: bool = True) -> Path:
+        """
+        Extract chapters directly to MP3 (Quite slow).
+            :param high_fidelity: `True`: V0 mode (Top Quality) /
+                `False`: aligns with the source bitrate
+        """
+        self._start(
+            mode="MP3 re-encoding",
+            subtitle=f"📈 STRATEGY : {'HIFI (V0)' if high_fidelity else 'Match Source Bitrate'}",
+        )
 
-    # def _export_segment(
-    #     self,
-    #     input_file: Path,
-    #     output_name: str,
-    #     start: Optional[str],
-    #     end: Optional[str],
-    # ) -> None:
-    #     """Exécute la commande FFmpeg pour l'extraction."""
-    #     output_path = self.output_folder / output_name
+        current_m4b_index = 0
 
-    #     # Commande FFmpeg : -ss (début), -to (fin), -i (entrée)
-    #     # On encode en MP3 (libmp3lame) avec un bitrate variable (V2 est souvent suffisant)
-    #     cmd = ["ffmpeg", "-y", "-v", "error", "-i", str(input_file)]
+        for i, chapter in enumerate(self.container.chapters):
+            if i > 0 and chapter.id == 0:
+                current_m4b_index += 1
 
-    #     if start is not None and end is not None:
-    #         cmd.extend(["-ss", start, "-to", end])
+            input_file = self.container.m4b_files[current_m4b_index]
+            output_path = self._handle_chapter(chapter, i, "mp3")
+            self._progress(i, output_path)
 
-    #     cmd.extend(["-codec:a", "libmp3lame", "-q:a", "2", str(output_path)])
+            if high_fidelity:
+                audio_params = ["-q:a", "0"]
+            else:
+                audio_params = self._find_m4b_bitrate(input_file)
 
-    #     subprocess.run(cmd, check=True)
+            self._ffmpeg_mp3(
+                input_file,
+                chapter.start_time,
+                chapter.end_time,
+                output_path,
+                audio_params,
+            )
+
+            self._handle_chapter_tag(chapter, i, output_path)
+
+        return self._end()
+
+    def _handle_chapter(self, chapter: AudioChapter, i: int, extension: str):
+        raw_title = chapter.tags.get("title", f"Chapter_{i}")
+        clean_title = "".join(
+            [c for c in raw_title if c.isalnum() or c in (" ", "-", "_")]
+        ).strip()
+
+        return self.output_dir / f"{i + 1:02d} - {clean_title}.{extension}"
+
+    def _handle_chapter_tag(self, chapter: AudioChapter, i: int, output_path: Path):
+        title = chapter.tags.get("title", f"Chapter_{i}")
+        writer = AudioWriter(output_path)
+        writer.set_tag("title", title)
+
+    def _start(self, mode: str, subtitle: str | None = None):
+        divider = "=" * 60
+
+        print(f"\n{divider}")
+        print(f"🚀 MODE: {mode}")
+        if subtitle:
+            print(subtitle)
+        print(f"🔢 Chapters to be covered: {self.total_chapters}")
+        print(f"{divider}\n")
+
+    def _progress(self, i: int, output_path: Path):
+        progress = ((i + 1) / self.total_chapters) * 100
+        print(f"[{progress:6.2f}%] 🛠  Convert: {output_path.name}")
+
+    def _end(self) -> Path:
+        print(f"\n✅ Done! Files in: {self.output_dir}")
+
+        return self.output_dir
+
+    def _find_m4b_bitrate(self, m4b_path: Path) -> list[str]:
+        """Recovers the source bitrate of M4B file to adapt it to MP3 (+20% margin)"""
+        try:
+            cmd = [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=bit_rate",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                str(m4b_path),
+            ]
+            res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            source_br = int(res.stdout.strip())
+
+            # We boost the bitrate a little because MP3 is less efficient than AAC
+            target_kbps = min(int(source_br * 1.2) // 1000, 320)
+            return ["-b:a", f"{target_kbps}k"]
+        except Exception:
+            # Fallback
+            return ["-q:a", "4"]
+
+    def _ffmpeg_m4a(self, input_path: Path, start: str, end: str, output_path: Path):
+        """Cuts and stream copy each M4B file to M4A"""
+        command = [
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-ss",
+            str(start),
+            "-to",
+            str(end),
+            "-i",
+            str(input_path),
+            "-map",
+            "0:a:0",  # Only audio
+            "-c",
+            "copy",
+            "-map_metadata",
+            "-1",  # Avoid ghost chapter
+            "-vn",
+            "-sn",
+            "-dn",  # No video/subtitles/data
+            str(output_path),
+        ]
+        subprocess.run(command, check=True)
+
+    def _ffmpeg_mp3(
+        self,
+        input_path: Path,
+        start: str,
+        end: str,
+        output_path: Path,
+        audio_params: list[str],
+    ):
+        """Cuts and converts each M4B file to MP3"""
+        command = [
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-ss",
+            str(start),
+            "-to",
+            str(end),
+            "-i",
+            str(input_path),
+            "-map",
+            "0:a:0",  # Pure audio extraction only
+            "-codec:a",
+            "libmp3lame",  # Direct conversion to MP3
+            *audio_params,  # Implementation of the quality strategy
+            "-map_metadata",
+            "-1",  # Cleaning corrupted metadata
+            str(output_path),
+        ]
+        subprocess.run(command, check=True)

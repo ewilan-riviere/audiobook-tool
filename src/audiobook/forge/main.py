@@ -38,7 +38,7 @@ class AudiobookForge(AutoRepr):
         if self._output_path and Path(self._output_path).is_file():
             self._bytes = utils.get_file_size(self._output_path)
 
-    def run(self):
+    def run(self, output_path: Path | str | None = None):
         """Execute build command"""
 
         blacksmith = AudiobookBlacksmith(
@@ -46,6 +46,11 @@ class AudiobookForge(AutoRepr):
             self._working_directory,
         ).run()
         self._output_path = blacksmith.output_path
+        if output_path and self._output_path:
+            self._output_path = Path(output_path).resolve() / self._output_path.name
+            utils.make_directory(self._output_path.parent)
+            utils.copy_file(str(blacksmith.output_path), self._output_path)
+
         self._calculate_size()
 
         return self

@@ -1,15 +1,30 @@
 """forge command of audiobook-tool"""
 
+from pathlib import Path
+import tempfile
 from audiobook.args import AudiobookArgs
-import audiobook.utils as utils
 from audiobook.forge import AudiobookForge
-from .config import ConfigForge
 
 
 class CommandForge:
     """forge command of audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):
-        config = ConfigForge(args)
-        forge = AudiobookForge(config.mp3_directory, True).build()
-        print(f"\nM4B: `{forge.m4b_file}` ({forge.size_human})\n")
+        if not args.mp3_directory:
+            raise FileNotFoundError("Path of MP3 directory is needed!")
+
+        # /path/to/audiobook_mp3
+        source_path = Path(args.mp3_directory).resolve()
+        # /path/to/output (optional)
+        output_path = None
+        if args.output_path:
+            output_path = Path(args.output_path).resolve()
+        temporary_directory = tempfile.TemporaryDirectory()
+
+        forge = AudiobookForge(
+            source_path=source_path,
+            working_directory=Path(temporary_directory.name),
+            clear=True,
+        ).run(output_path)
+
+        print(f"\nM4B: `{str(forge.output_path)}` ({forge.size_human})\n")

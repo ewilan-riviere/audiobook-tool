@@ -18,7 +18,7 @@ def test_forge():
         clear=True,
     ).run()
 
-    m4b_file = Path(forge.output_path)
+    m4b_file = Path(str(forge.output_path))
 
     reader = AudioReader(m4b_file)
     assert m4b_file.exists() is True

@@ -1,7 +1,7 @@
 """Tags of audio file"""
 
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 import re
 from datetime import timedelta, date, datetime
 from audiobook.common import AutoRepr, AudioChapter
@@ -170,6 +170,37 @@ class AudioTags(AutoRepr):
         reader = MutagenReader(self._file_path)
 
         return reader.save_cover(save_path)
+
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert attributes to `dict` for `AudioWriter`
+        """
+        return {
+            "title": self.title if self.title else "",
+            "subtitle": self.subtitle if self.subtitle else "",
+            "artist": self.artist if self.artist else "",
+            "album": self.album if self.album else "",
+            "album_artist": self.album_artist if self.album_artist else "",
+            "date": self.date if self.date else "",
+            "year": self.year if self.year else "",
+            "track": self.track if self.track else "",
+            "disc": self.disc if self.disc else "",
+            "genre": self.genre if self.genre else "",
+            "series": self.series if self.series else "",
+            "series_part": self.series_part if self.series_part else "",
+            "publisher": self.publisher if self.publisher else "",
+            "composer": self.composer if self.composer else "",
+            "description": self.description if self.description else "",
+            "synopsis": self.synopsis if self.synopsis else "",
+            "comment": self.comment if self.comment else "",
+            "isbn": self.isbn if self.isbn else "",
+            "asin": self.asin if self.asin else "",
+            "language": self.language if self.language else "",
+            "copyright": self.copyright if self.copyright else "",
+            "compilation": self.is_compilation if self.is_compilation else "",
+            "encoded_by": self.encoded_by if self.encoded_by else "",
+            "encoder": self.encoder if self.encoder else "",
+        }
 
     def _extract_year(self, date_str: str) -> Optional[str]:
         if not date_str:
