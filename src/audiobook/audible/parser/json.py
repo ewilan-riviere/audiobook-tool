@@ -38,19 +38,19 @@ class ParserJson(AutoRepr):
         if not authors or not language:
             return item
 
-        item["authors"] = self._to_list(authors.authors, "name")
-        item["narrators"] = self._to_list(authors.narrators, "name")
-        item["release_date"] = language.releaseDate
-        item["series"] = self._to_list(language.series, "name")
-        parts = self._to_list(language.series, "part")
+        item["authors"] = self._to_list(authors.deep("authors"), "name")
+        item["narrators"] = self._to_list(authors.deep("narrators"), "name")
+        item["release_date"] = language.deep("releaseDate")
+        item["series"] = self._to_list(language.deep("series"), "name")
+        parts = self._to_list(language.deep("series"), "part")
         if parts:
             item["part"] = parts[0]
-        item["duration"] = language.duration
+        item["duration"] = language.deep("duration")
         item["rating"] = self._to_float(authors.deep("rating.value"))
-        item["format"] = language.format
-        item["publisher"] = language.publisher.name
-        item["language"] = language.language
-        item["categories"] = self._to_list(language.categories, "name")
+        item["format"] = language.deep("format")
+        item["publisher"] = language.deep("publisher.name")
+        item["language"] = language.deep("language")
+        item["categories"] = self._to_list(language.deep("categories"), "name")
 
         return item
 
