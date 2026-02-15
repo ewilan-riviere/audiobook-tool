@@ -66,7 +66,6 @@ class YmlWriter(AutoRepr):
                 width=1000,  # Prevents the dumper from cutting lines in the middle
             )
 
-        print(f"Success: metadata.yml saved as `{self.save_path}`")
         self.success = True
 
         return self

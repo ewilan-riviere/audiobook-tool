@@ -48,7 +48,7 @@ class M4bTagger(AutoRepr):
                 and self._audiobook.series
                 and self._audiobook.series_part
             ):
-                series_part = int(self._audiobook.series_part)
+                series_part = int(float(self._audiobook.series_part))
                 series_part = f"{series_part:02d}"
                 album = f"{self._audiobook.series} {series_part}"
                 if (
