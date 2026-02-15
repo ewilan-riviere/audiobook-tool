@@ -28,6 +28,7 @@ class CommandBuild:
         if args.clear:
             print("🖼️ Remove MP3 files source covers...")
             config.remove_covers()
+            utils.remove_directory(config.output_path)
 
         print("🔨 Forge M4B...")
         forge = AudiobookForge(

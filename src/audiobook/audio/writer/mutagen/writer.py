@@ -45,6 +45,9 @@ class MutagenWriter:
         if not target_dict:
             return
 
+        if human_key == "compilation" and value == "":
+            return
+
         if isinstance(self.audio, MP3):
             self._write_mp3_tag(target_dict["mp3"], value)
         elif isinstance(self.audio, MP4):  # type: ignore
