@@ -43,10 +43,11 @@ class BlacksmithRunner:
 
     @staticmethod
     def merge_to_m4b(input_list: Path, meta_file: Path, output_path: Path) -> Path:
-        """Merge M4A to one M4B"""
+        """Merge M4A to one M4B without metadata warnings"""
         temp_combined = output_path.with_suffix(".temp.m4a")
         working_dir = input_list.parent
 
+        # 1. Concaténation : On ignore TOUT sauf l'audio dès l'entrée
         concat_cmd = [
             "ffmpeg",
             "-y",
@@ -58,12 +59,20 @@ class BlacksmithRunner:
             input_list.name,
             "-c",
             "copy",
+            "-map",
+            "0:a",  # Force UNIQUEMENT l'audio (ignore les pistes de chapitres QT)
+            "-map_metadata",
+            "-1",  # Supprime les métadonnées globales sources
+            "-map_chapters",
+            "-1",  # Supprime les chapitres sources
             "-bsf:a",
             "aac_adtstoasc",
             "-loglevel",
             "error",
             temp_combined.name,
         ]
+
+        # 2. Ajout des métadonnées propres
         metadata_cmd = [
             "ffmpeg",
             "-y",
@@ -71,15 +80,16 @@ class BlacksmithRunner:
             temp_combined.name,
             "-i",
             meta_file.name,
-            "-map_metadata",
-            "1",
-            # On force l'utilisation des tags de chapitres du fichier meta
             "-map",
             "0:a",
+            "-map_metadata",
+            "1",  # On injecte nos nouvelles métadonnées
+            "-map_chapters",
+            "1",  # On injecte nos nouveaux chapitres
             "-c",
             "copy",
             "-f",
-            "mp4",  # M4B est un conteneur MP4
+            "mp4",
             "-movflags",
             "+faststart",
             "-loglevel",
@@ -88,19 +98,12 @@ class BlacksmithRunner:
         ]
 
         try:
-            # 1. Concaténation
-            subprocess.run(
-                concat_cmd,
-                cwd=working_dir,
-                check=True,
-            )
+            # Étape 1 : Fusion "Brute" (Audio seul)
+            subprocess.run(concat_cmd, cwd=working_dir, check=True)
 
-            # 2. Ajout des métadonnées et finalisation en M4B
-            subprocess.run(
-                metadata_cmd,
-                cwd=working_dir,
-                check=True,
-            )
+            # Étape 2 : Reconstruction du conteneur M4B final
+            subprocess.run(metadata_cmd, cwd=working_dir, check=True)
+
         finally:
             if temp_combined.exists():
                 temp_combined.unlink()

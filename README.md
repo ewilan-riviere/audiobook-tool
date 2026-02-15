@@ -34,7 +34,7 @@ So I needed a tool that creates an audiobook in several parts of an adjustable s
 ## Features
 
 - Fetch metadata from Audible from ASIN code
-- Build M4B multi-part/one audiobook from MP3 files
+- Build M4B multi-part/one audiobook from MP3/M4A files
 - Extract chapters from audiobook and convert to M4A/MP3
 - Parse audiobook to convert tags to YAML file
 

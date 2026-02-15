@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from concurrent.futures import as_completed, Future
+from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
 from audiobook.common import AutoRepr
 import audiobook.utils as utils
@@ -22,6 +22,7 @@ class AudiobookBlacksmith(AutoRepr):
         self._target_bitrate: str = "128k"
         self._output_path: Path | None = None
         self._source_files: list[Path] = []
+        self._needs_encoding: bool = True
 
     @property
     def output_path(self):
@@ -39,15 +40,19 @@ class AudiobookBlacksmith(AutoRepr):
         """Initializes the chapter list, calculates the bitrate, and extracts titles from tags."""
         self._source_files = utils.get_files(self._source_path, "mp3")
         if not self._source_files:
-            raise FileNotFoundError(f"No MP3 files found into {self._source_path}")
+            self._source_files = utils.get_files(self._source_path, "m4a")
+            self._needs_encoding = False
+
+        if not self._source_files:
+            raise FileNotFoundError(f"No MP3 or M4A files found in {self._source_path}")
 
         total_bitrate: int = 0
         file_count = len(self._source_files)
 
-        for mp3 in self._source_files:
-            reader = self._get_reader(mp3)
-            mp3_bitrate = reader.properties.bit_rate or 128000
-            total_bitrate += mp3_bitrate
+        for source_file in self._source_files:
+            reader = self._get_reader(source_file)
+            source_file_bitrate = reader.properties.bit_rate or 128000
+            total_bitrate += source_file_bitrate
 
             title_tag = (reader.tags.title or "Unknown").strip()
             chapter_title = title_tag
@@ -56,11 +61,16 @@ class AudiobookBlacksmith(AutoRepr):
             if not chapter_title:
                 chapter_title = reader.container.basename
 
-            m4a_path = self._working_directory / f"{mp3.stem}.m4a"
+            m4a_path = (
+                self._working_directory / f"{source_file.stem}.m4a"
+                if self._needs_encoding
+                else source_file
+            )
+
             chapter = BlacksmithChapter(
-                source_path=mp3,
+                source_path=source_file,
                 temp_aac_path=m4a_path,
-                file_name=mp3.stem,
+                file_name=source_file.stem,
                 title=chapter_title,
                 track=reader.tags.track_int,
                 duration_ms=reader.properties.duration_ms,
@@ -78,8 +88,9 @@ class AudiobookBlacksmith(AutoRepr):
         avg_bitrate = min(int(total_bitrate / file_count), 192000)
         self._target_bitrate = f"{int(avg_bitrate / 1000)}k"
 
+        mode = "Encoding (MP3 -> AAC)" if self._needs_encoding else "Direct Link (M4A)"
         print(
-            f"🔍 Analyze: {file_count} files. Average bitrate: {self._target_bitrate}"
+            f"🔍 Analyze: {file_count} files found. Mode: {mode}. Bitrate: {self._target_bitrate}"
         )
 
     def _write_assets(self) -> None:
@@ -102,57 +113,60 @@ class AudiobookBlacksmith(AutoRepr):
 
         self._metadata_txt_path.write_text("\n".join(metadata_lines), encoding="utf-8")
 
-    def run(self):
-        """Start parallel encoding and final merging."""
-        self._prepare_data()
-
+    def _encoding(self):
+        total = len(self._chapters)
+        print(f"🚀 Encoding of {total} files on {os.cpu_count()} cores...")
         try:
-            total = len(self._chapters)
-            print(f"🚀 Encoding of {total} files on {os.cpu_count()} cores...")
-
-            future_to_file: dict[Future[str], str] = {}
-
             with ProcessPoolExecutor() as executor:
-                for c in self._chapters:
-                    future = executor.submit(
+                futures = {
+                    executor.submit(
                         BlacksmithRunner.encode_to_aac,
                         c.source_path,
                         c.temp_aac_path,
                         self._target_bitrate,
-                    )
-                    future_to_file[future] = c.source_path.name
+                    ): c.source_path.name
+                    for c in self._chapters
+                }
+                for i, future in enumerate(as_completed(futures), 1):
+                    future.result()
+                    print(f"  ✅ [{i}/{total}] Done: {futures[future]}")
+        except Exception as e:
+            print(f"\n💥 Encoding failure: {e}")
 
-                # Suivi de l'avancement en temps réel
-                completed = 0
-                for future in as_completed(future_to_file):
-                    filename = future_to_file[future]
-                    try:
-                        future.result()
-                        completed += 1
-                        print(f"  ✅ [{completed}/{total}] Done: {filename}")
-                    except Exception as e:
-                        print(f"  ❌ Error on {filename}: {e}")
-                        raise
-
+    def _merging(self):
+        try:
             print("📦 Final merger and creation of chapters...")
-
             self._write_assets()
+
             m4b_path = BlacksmithRunner.merge_to_m4b(
                 self._inputs_txt_path,
                 self._metadata_txt_path,
                 self._working_directory / "final_m4b.m4b",
             )
             self._output_path = m4b_path
+
         except Exception as e:
-            print(f"\n💥 Process failure : {e}")
-        finally:
-            if self._output_path:
-                reader = self._get_reader(self._output_path)
-                if reader.properties.bit_rate:
-                    print("✨ Successfully completed!")
-                else:
-                    print("Failed on AudioReader!")
-            else:
-                print("Failed on AudioReader!")
+            print(f"\n💥 Merging failure: {e}")
+
+    def run(self):
+        """Start process."""
+        self._prepare_data()
+
+        if self._needs_encoding:
+            self._encoding()
+        else:
+            print("⏭️  Skipping encoding: Files are already in M4A format.")
+
+        self._merging()
+        self._final_check()
 
         return self
+
+    def _final_check(self):
+        """Check M4B output file"""
+        if self._output_path and self._output_path.exists():
+            reader = self._get_reader(self._output_path)
+            if reader.properties.bit_rate:
+                print("✨ Successfully completed!")
+                return
+        print("❌ Failed to validate final M4B file.")
