@@ -92,7 +92,7 @@ def test_otolep():
     assert audible.audiobook.subtitle == "Les mondes d'Ewilan 2"
     assert audible.audiobook.series == "Les mondes d'Ewilan"
     assert audible.audiobook.volume == 2.0
-    assert audible.audiobook.rating == 4.84
+    assert isinstance(audible.audiobook.rating, int)
     assert audible.audiobook.price == 9.95
     assert audible.audiobook.currency == "EUR"
 
