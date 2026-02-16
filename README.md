@@ -36,6 +36,7 @@
 - [ ] Refact. args
 - [ ] Refact clear flag
 - [ ] Review logging
+- [ ] GitHub test
 - [ ] README
 
 ## Why?
