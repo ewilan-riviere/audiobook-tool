@@ -19,7 +19,7 @@ def test_reader():
     assert isinstance(metadata.description, str)
     assert isinstance(metadata.lyrics, str)
     assert metadata.copyright_ == (
-        "©1954 The Tolkien Estate Limited (P)2025" "HarperCollins Publishers Limited"
+        "©1954 The Tolkien Estate Limited (P)2025 " "HarperCollins Publishers Limited"
     )
     assert metadata.genres == "Fantasy/Fiction"
     assert metadata.series == "The Lord of the Rings"
@@ -42,7 +42,7 @@ def test_reader():
     assert audiobook.genre == "Fantasy/Fiction"
     assert audiobook.date == "2005"
     assert audiobook.copyright_ == (
-        "©1954 The Tolkien Estate Limited (P)2025" "HarperCollins Publishers Limited"
+        "©1954 The Tolkien Estate Limited (P)2025 " "HarperCollins Publishers Limited"
     )
     assert audiobook.comment is None
     assert isinstance(audiobook.description, str)
