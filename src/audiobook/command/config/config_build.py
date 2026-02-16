@@ -41,6 +41,8 @@ class ConfigBuild(AutoRepr):
         self.cover_path = utils.get_file(self.source_path, "jpg")
         if not self.cover_path:
             self.cover_path = utils.get_file(self.source_path, "jpeg")
+        if not self.cover_path:
+            self.cover_path = utils.get_file(self.source_path, "png")
 
         # Set M4B output path, based on metadata
         # /path/to/the-wall/Assassin’s Apprentice

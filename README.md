@@ -77,14 +77,30 @@ audiobook-tool build /path/to/source_files
 
 #### Metadata & cover
 
-You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./metadata.template.yml) as example.
+You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./metadata.template.yml) as example. These metadata are based on [audiobookshelf's Audio Metadata](https://www.audiobookshelf.org/docs#book-audio-metadata).
+
+- `title`: used as `title` and `album`
+- `authors`: used as `artist` and `album_artist`
+- `narrators`: used as `composer`
+- `description`: used as `description` and `synopsis`
+- `lyrics`: used as `lyrics`
+- `copyright`: used as `copyright`
+- `genres`: used as `genre`
+- `series`: used as `series`
+- `volume`: used as `series-part`
+- `language`: used as `language`
+- `year`: used as `date`
+- `publisher`: used as `publisher`
+- `subtitle`: used as `subtitle` and `comment`
+- `isbn`: used as `isbn`
+- `asin`: used as `asin`
 
 ```yml
 title: "The Fellowship of the Ring"
 authors: "J.R.R. Tolkien & Christopher Tolkien"
 narrators: "Rob Inglis & Andy Serkis"
-description: "Book synopsis"
-lyrics: "Book lyrics"
+description: "Sauron, the Dark Lord, has gathered to him all the Rings of Power..."
+lyrics: "With a masterful performance by Andy Serkis, who plays Gollum in Peter Jackson's films."
 copyright: "©1954 The Tolkien Estate Limited (P)2025 HarperCollins Publishers Limited"
 genres: "Fantasy/Fiction"
 series: "The Lord of the Rings"
