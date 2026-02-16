@@ -17,7 +17,7 @@ class M4bAudiobook:
     composer: str | None = None
     genre: str | None = None
     date: str | None = None
-    copyright: str | None = None
+    copyright_: str | None = None
     comment: str | None = None
     description: str | None = None
     synopsis: str | None = None

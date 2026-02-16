@@ -17,7 +17,8 @@ ASIN_LIST_UK = [
 ]
 
 
-def test_audible():
+# Assassin’s Apprentice (The Farseer Trilogy, Book 1)
+def test_farseer():
     audible = Audible("B0G5QKNT1J")
 
     assert audible.success is True
@@ -25,13 +26,12 @@ def test_audible():
     assert audiobook.asin == "B0G5QKNT1J"
     assert isinstance(audiobook.fetched_at, datetime)
     assert isinstance(audiobook.url, str)
-    assert (
-        audiobook.original_title
-        == "Assassin’s Apprentice (The Farseer Trilogy, Book 1)"
+    assert audiobook.original_title == (
+        "Assassin’s Apprentice " "(The Farseer Trilogy, Book 1)"
     )
     assert audiobook.subtitle is None
     assert isinstance(audiobook.description, str)
-    assert audiobook.copyright == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
+    assert audiobook.copyright_ == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
     assert audiobook.publisher == "HarperVoyager"
     assert audiobook.authors == ["Robin Hobb"]
     assert audiobook.narrators == ["Joe Eyre"]
@@ -43,17 +43,20 @@ def test_audible():
     assert audiobook.original_series == ["Farseer Trilogy"]
     assert audiobook.part is None
     assert audiobook.volume == 1.0
-    assert audiobook.format == "Version intégrale Livre audio"
+    assert audiobook.format_ == "Version intégrale Livre audio"
     assert audiobook.book_format == "AudiobookFormat"
     assert audiobook.sku == "BK_HCUK_011245FR"
-    assert audiobook.rating is None
+    assert audiobook.product_id == "B0G5QKNT1J"
+    assert audiobook.rating == 0
     assert audiobook.price == 9.95
+    assert audiobook.currency == "EUR"
     assert audiobook.genres == [
         "Action et aventure",
         "Animaux",
         "Dragons et créatures mythiques",
         "Fantasy",
         "Fiction",
+        "Épique",
     ]
     assert audiobook.categories == ["Littérature, romans et fiction"]
 
@@ -68,13 +71,38 @@ def test_audible():
         "Fantasy",
         "Fiction",
         "Littérature, romans et fiction",
+        "Épique",
     ]
     assert audiobook.duration_human == "16:35:00"
 
-    assert (
-        audiobook.genres_list
-        == "Action et aventure/Animaux/Dragons et créatures mythiques/Fantasy/Fiction/Littérature, romans et fiction"
+    assert audiobook.genres_list == (
+        "Action et aventure/Animaux/Dragons et créatures mythiques/"
+        "Fantasy/Fiction/Littérature, romans et fiction/Épique"
     )
     assert audiobook.authors_list == "Robin Hobb"
     assert audiobook.narrators_list == "Joe Eyre"
     assert audiobook.year == 2026
+
+
+# L'œil d'Otolep
+def test_otolep():
+    audible = Audible("2367627002")
+
+    assert audible.audiobook.title == "L'œil d'Otolep"
+    assert audible.audiobook.subtitle == "Les mondes d'Ewilan 2"
+    assert audible.audiobook.series == "Les mondes d'Ewilan"
+    assert audible.audiobook.volume == 2.0
+    assert audible.audiobook.rating == 4.84
+    assert audible.audiobook.price == 9.95
+    assert audible.audiobook.currency == "EUR"
+
+
+# La bataille des Jedi
+def test_jedi():
+    audible = Audible("B0D7D39LP5")
+
+    assert audible.audiobook.title == "La bataille des Jedi"
+    assert audible.audiobook.series == "La croisade noire du jedi fou"
+    assert audible.audiobook.volume == 2.0
+    assert audible.audiobook.volume_int == 2
+    assert audible.audiobook.authors == ["Timothy Zahn"]

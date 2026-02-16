@@ -4,10 +4,18 @@ import time
 from typing import Any
 import random
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, Browser, Error as PlaywrightError
 from playwright_stealth.stealth import Stealth  # type: ignore
+from audiobook.audible.types import (
+    AudibleHtml,
+    LDAudiobook,
+    LDProduct,
+    JsonDuration,
+    JsonRating,
+    AudibleExtra,
+)
 from audiobook.common import AutoRepr
+from .parser import ParserHtml, ParserJson
 
 
 class AudibleFetch(AutoRepr):
@@ -19,9 +27,15 @@ class AudibleFetch(AutoRepr):
         self.asin = asin
         self.locale = locale
         self.url: str | None = None
-        self.soup: BeautifulSoup | None = None
         self.success: bool = False
         self.error: str | None = None
+
+        self.html: AudibleHtml = AudibleHtml()
+        self.ld_audiobook = LDAudiobook()
+        self.ld_product = LDProduct()
+        self.json_duration = JsonDuration()
+        self.json_rating = JsonRating()
+        self.extra = AudibleExtra()
 
         self._run_fetch_loop()
 
@@ -97,7 +111,21 @@ class AudibleFetch(AutoRepr):
                     html_content = page.content()
                     print(f"[+] Success! Page size: {len(html_content)} bytes")
 
-                    self.soup = BeautifulSoup(html_content, "html.parser")
+                    self.html = ParserHtml(page).content
+                    json_ = ParserJson(page)
+                    self.ld_audiobook = json_.ld_audiobook
+                    self.ld_product = json_.ld_product
+                    self.json_duration = json_.json_duration
+                    self.json_rating = json_.json_rating
+                    self.extra = AudibleExtra(
+                        scraped_series=self.json_duration.series_typed,
+                        scraped_part=self.json_duration.part_typed,
+                        scraped_title=self.ld_audiobook.name,
+                        scraped_subtitle=self.html.subtitle,
+                        scraped_genres=self.html.genres,
+                        scraped_categories=self.json_duration.categories,
+                    )
+
                     self.url = final_url
                     self.success = True
 

@@ -13,7 +13,7 @@ def audible_audiobook() -> AudibleAudiobook:
     audiobook.description = (
         "À Gwendalavir, Ewilan se prépare à partir pour Valingaï afin..."
     )
-    audiobook.copyright = "©2004 / 2015 / 2017 Rageot Éditeur, Paris (P)2018 Audiolib"
+    audiobook.copyright_ = "©2004 / 2015 / 2017 Rageot Éditeur, Paris (P)2018 Audiolib"
     audiobook.publisher = "Audiolib"
     audiobook.authors = ["Pierre Bottero"]
     audiobook.narrators = ["Kelly Marot"]
@@ -27,7 +27,7 @@ def audible_audiobook() -> AudibleAudiobook:
     audiobook.title = "L'œil d'Otolep"
     audiobook.series = "Les mondes d'Ewilan"
     audiobook.original_series = ["Les mondes d'Ewilan"]
-    audiobook.format = "Version intégrale Livre audio"
+    audiobook.format_ = "Version intégrale Livre audio"
     audiobook.book_format = "AudiobookFormat"
     audiobook.sku = "BK_ODLB_002050FR"
     audiobook.rating = 4.84

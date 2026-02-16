@@ -37,7 +37,7 @@ class YmlWriter(AutoRepr):
             "narrators": audiobook.narrators_list,
             "description": audiobook.description,
             "lyrics": None,
-            "copyright": audiobook.copyright,
+            "copyright": audiobook.copyright_,
             "genres": audiobook.genres_list,
             "series": audiobook.series,
             "volume": audiobook.volume,

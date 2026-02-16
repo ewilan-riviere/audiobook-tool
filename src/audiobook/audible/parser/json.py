@@ -1,191 +1,165 @@
 """Parse Audible `application/json`"""
 
-from typing import cast
+import html
 import json
-import re
-from datetime import time, datetime
-from bs4 import BeautifulSoup, Tag
-from audiobook.common import AutoRepr
-from audiobook.audible.types import (
-    JsonAudiobook,
-    JsonLdAudiobook,
-    JsonLdProduct,
-)
-from .data_object import DataObject
+from typing import Any
+from playwright.sync_api import Page
+from ..types import LDAudiobook, LDProduct, JsonDuration, JsonRating
 
 
-class ParserJson(AutoRepr):
+class ParserJson:
     """Parse Audible `application/json`"""
 
-    def __init__(self, soup: BeautifulSoup):
-        self._soup = soup
+    def __init__(self, page: Page):
+        ld_json_data = self._parse(page, 'script[type="application/ld+json"]')
+        json_data = self._parse(page, 'script[type="application/json"]')
 
-        jsonld_scripts = self._soup.find_all("script", type="application/ld+json")
-        json_scripts = self._soup.find_all("script", type="application/json")
+        ld_audiobook = self._find_json_ld(ld_json_data, "Audiobook")
+        ld_product = self._find_json_ld(ld_json_data, "Product")
 
-        jsonld_data = self._convert_json(jsonld_scripts)
-        self.ld_audiobook = self._convert_ld_audiobook(jsonld_data)
-        self.ld_product = self._convert_ld_product(jsonld_data)
+        json_duration = self._find_json(json_data, "duration")
+        json_rating = self._find_json(json_data, "rating")
 
-        json_data = self._convert_json(json_scripts)
-        self.audiobook = self._convert_audiobook(json_data)
+        self.ld_audiobook = self._handle_ld_audiobook(ld_audiobook)
+        self.ld_product = self._handle_ld_product(ld_product)
 
-    def _convert_audiobook(self, data: list[DataObject]) -> JsonAudiobook:
-        authors = self._find_data_by_attr(data, "authors")
-        language = self._find_data_by_attr(data, "language")
-        item = cast(JsonAudiobook, {})
+        self.json_duration = self._handle_json_duration(json_duration)
+        self.json_rating = self._handle_json_rating(json_rating)
 
-        if not authors or not language:
-            return item
+    def _handle_json_rating(self, script: dict[str, Any] | None) -> JsonRating:
+        if not script:
+            return JsonRating()
 
-        item["authors"] = self._to_list(authors.deep("authors"), "name")
-        item["narrators"] = self._to_list(authors.deep("narrators"), "name")
-        item["release_date"] = language.deep("releaseDate")
-        item["series"] = self._to_list(language.deep("series"), "name")
-        parts = self._to_list(language.deep("series"), "part")
+        rating: dict[str, Any] = script.get("rating", {})
+        return JsonRating(
+            rating_count=rating.get("count"),
+            rating_value=rating.get("value"),
+            authors=self._extract_list(script.get("authors"), "name"),
+            narrators=self._extract_list(script.get("narrators"), "name"),
+        )
+
+    def _handle_json_duration(self, script: dict[str, Any] | None) -> JsonDuration:
+        if not script:
+            return JsonDuration()
+
+        part = None
+        parts = self._extract_list(script.get("series"), "part")
         if parts:
-            item["part"] = parts[0]
-        item["duration"] = language.deep("duration")
-        item["rating"] = self._to_float(authors.deep("rating.value"))
-        item["format"] = language.deep("format")
-        item["publisher"] = language.deep("publisher.name")
-        item["language"] = language.deep("language")
-        item["categories"] = self._to_list(language.deep("categories"), "name")
+            part = parts[0]
+        publisher: dict[str, Any] = script.get("publisher", {})
 
-        return item
+        return JsonDuration(
+            duration=script.get("duration"),
+            release_date=script.get("releaseDate"),
+            series=self._extract_list(script.get("series"), "name"),
+            part=part,
+            format_=script.get("format"),
+            publisher=publisher.get("name"),
+            language=script.get("language"),
+            categories=self._extract_list(script.get("categories"), "name"),
+        )
 
-    def _convert_ld_product(self, listing: list[DataObject]) -> JsonLdProduct:
-        data = self._find_data_ld(listing, "type", "Product")
-        item = cast(JsonLdProduct, {})
+    def _handle_ld_product(self, product: dict[str, Any] | None) -> LDProduct:
+        if not product:
+            return LDProduct()
 
-        if not data:
-            return item
+        rating: dict[str, Any] = product.get("aggregateRating", {})
+        offers: dict[str, Any] = product.get("offers", {})
+        return LDProduct(
+            context=product.get("@context"),
+            type_=product.get("@type"),
+            additional_type=product.get("additionalType"),
+            product_id=product.get("productID"),
+            name=product.get("name"),
+            image=product.get("image"),
+            sku=product.get("sku"),
+            brand=product.get("brand"),
+            rating_value=rating.get("ratingValue"),
+            rating_count=rating.get("ratingCount"),
+            price=offers.get("price"),
+            currency=offers.get("priceCurrency"),
+        )
 
-        item["context"] = data.context
-        item["type"] = data.type
-        item["additional_type"] = data.additionalType
-        item["product_id"] = data.productID
-        item["name"] = data.name
-        item["image"] = data.image
-        item["sku"] = data.sku
-        item["brand"] = data.brand
-        item["rating"] = self._to_float(data.deep("aggregateRating.ratingValue"))
-        item["price"] = self._to_float(data.deep("offers.price"))
+    def _handle_ld_audiobook(self, audiobook: dict[str, Any] | None) -> LDAudiobook:
+        if not audiobook:
+            return LDAudiobook()
 
-        return item
+        rating: dict[str, Any] = audiobook.get("aggregateRating", {})
+        offers: dict[str, Any] = audiobook.get("offers", {})
+        return LDAudiobook(
+            context=audiobook.get("@context"),
+            type_=audiobook.get("@type"),
+            book_format=audiobook.get("bookFormat"),
+            name=audiobook.get("name"),
+            description=audiobook.get("description"),
+            image=audiobook.get("image"),
+            abridged=audiobook.get("abridged"),
+            author=self._extract_list(audiobook.get("author"), "name"),
+            read_by=self._extract_list(audiobook.get("readBy"), "name"),
+            publisher=audiobook.get("publisher"),
+            date_published=audiobook.get("datePublished"),
+            in_language=audiobook.get("inLanguage"),
+            duration=audiobook.get("duration"),
+            regions_allowed=audiobook.get("regionsAllowed"),
+            rating_value=rating.get("ratingValue"),
+            rating_count=rating.get("ratingCount"),
+            price=offers.get("price"),
+            currency=offers.get("priceCurrency"),
+        )
 
-    def _convert_ld_audiobook(self, listing: list[DataObject]) -> JsonLdAudiobook:
-        data = self._find_data_ld(listing, "type", "Audiobook")
-        item = cast(JsonLdAudiobook, {})
+    def _extract_list(self, list_: list[dict[str, str]] | None, key: str) -> list[str]:
+        items: list[str] = []
+        if not list_:
+            return items
 
-        if not data:
-            return item
+        for item in list_:
+            value = item.get(key)
+            if value:
+                items.append(value)
 
-        item["context"] = data.context
-        item["type"] = data.type
-        item["book_format"] = data.bookFormat
-        item["name"] = data.name
-        item["description"] = data.description
-        item["image"] = data.image
-        item["abridged"] = self._to_bool(data.deep("abridged"))
-        item["author"] = self._to_list(data.author, "name")
-        item["read_by"] = self._to_list(data.readBy, "name")
-        item["publisher"] = data.publisher
-        date_published = data.datePublished
-        if date_published:
-            item["date_published"] = datetime.strptime(
-                date_published, "%Y-%m-%d"
-            ).date()
-        item["in_language"] = data.inLanguage
-        item["duration"] = self._to_duration(data.duration)
-        item["regions_allowed"] = data.regionsAllowed
-        item["rating"] = self._to_float(data.deep("aggregateRating.ratingValue"))
-        item["price"] = self._to_float(data.deep("offers.price"))
+        return items
 
-        return item
+    def _parse(self, page: Page, selector: str) -> list[dict[str, Any]]:
+        """Get scripts from HTML"""
+        results: list[dict[str, Any]] = []
+        scripts = page.locator(selector).all_inner_texts()
 
-    def _convert_json(self, scripts: list[Tag]) -> list[DataObject]:
-        """Convert <script type=`application/json`> into JSON"""
-        data: list[DataObject] = []
-        for script in scripts:
-            if not script.string:
+        for s in scripts:
+            try:
+                decoded_s = html.unescape(s)
+                data = json.loads(decoded_s)
+
+                if isinstance(data, list):
+                    results.extend(data)  # type: ignore
+                else:
+                    results.append(data)
+            except json.JSONDecodeError:
                 continue
 
-            raw_json = json.loads(script.string)
+        return results
 
-            if isinstance(raw_json, list):
-                data.extend([DataObject(item) for item in raw_json])  # type: ignore
-            else:
-                data.append(DataObject(raw_json))  # type: ignore
-
-        return data
-
-    def _find_data_ld(
+    def _find_json_ld(
         self,
-        data: list[DataObject],
-        key: str,
-        name: str,
-    ) -> DataObject | None:
-        """Find specific `DataObject` into a `list`"""
-        items: list[DataObject] = [
-            item for item in data if getattr(item, key, None) == name
-        ]
-
+        script: list[dict[str, Any]],
+        schema_type: str,
+    ) -> dict[str, Any] | None:
+        """
+        Find LD JSON by `@type`
+        can be `Organization`, `Audiobook`, `BreadcrumbList` or `Product`
+        """
+        items = [item for item in script if item.get("@type") == schema_type]
         if items:
             return items[0]
 
         return None
 
-    def _find_data_by_attr(
+    def _find_json(
         self,
-        items: list[DataObject],
-        attr_name: str,
-    ) -> DataObject | None:
-        """Find `DataObject` with attribute name"""
-        return next(
-            (item for item in items if getattr(item, attr_name, None) is not None),
-            None,
-        )
-
-    def _to_float(self, value: str | None) -> float | None:
-        """Convert `str` to `float`"""
-        if not value:
-            return None
-
-        val = float(value)
-        return round(val, 2)
-
-    def _to_bool(self, value: str | None) -> bool:
-        """Convert `str` to `bool`"""
-        if not value:
-            return False
-
-        return value.lower() in ("true", "1", "yes", "t")
-
-    def _to_list(self, items: list[DataObject] | None, key: str) -> list[str] | None:
-        """Parse a `list` of `DataObject` to create a `list` of `str`"""
-        if not items:
-            return None
-
-        listing: list[str] = []
-        for item in items:
-            value = getattr(item, key, None)
-            if value:
-                listing.append(value)
-
-        return listing
-
-    def _to_duration(self, iso: str | None) -> time | None:
-        """Parse ISO 8601 to time"""
-        if not iso:
-            return None
-
-        match = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?", iso)
-
-        if not match:
-            return None
-
-        h = int(match.group(1) or 0)
-        m = int(match.group(2) or 0)
-
-        return time(hour=h, minute=m)
+        script: list[dict[str, Any]],
+        key: str,
+    ) -> dict[str, Any] | None:
+        """
+        Find JSON by key
+        can be `duration`, `rating`
+        """
+        return next((item for item in script if key in item), None)

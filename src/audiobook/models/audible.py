@@ -1,7 +1,6 @@
 """Represents an Audible audiobook"""
 
 from __future__ import annotations
-import re
 import os
 from pathlib import Path
 from datetime import datetime, date, time
@@ -27,7 +26,7 @@ class AudibleAudiobook(AutoRepr):
     title: str | None = None
     subtitle: str | None = None
     description: str | None = None
-    copyright: str | None = None
+    copyright_: str | None = None
     publisher: str | None = None
 
     original_title: str | None = None
@@ -46,12 +45,14 @@ class AudibleAudiobook(AutoRepr):
     abridged: bool | None = None
     cover: str | None = None
 
-    format: str | None = None
+    format_: str | None = None
     book_format: str | None = None
     sku: str | None = None
+    product_id: str | None = None
 
     rating: float | None = None
     price: float | None = None
+    currency: str | None = None
 
     genres: list[str] | None = None
     categories: list[str] | None = None
@@ -67,6 +68,7 @@ class AudibleAudiobook(AutoRepr):
             categories = []
 
         items = genres + categories
+        items.sort()
 
         return items
 
@@ -132,7 +134,7 @@ class AudibleAudiobook(AutoRepr):
         m4b.composer = self.narrators_list
         m4b.genre = self.genres_list
         m4b.date = str(self.year) if self.year else None
-        m4b.copyright = self.copyright
+        m4b.copyright_ = self.copyright_
         m4b.comment = None
         m4b.description = self.description
         m4b.synopsis = self.description
@@ -195,107 +197,3 @@ class AudibleAudiobook(AutoRepr):
 
     def _list_to_str(self, items: list[str], separator: str = " & ") -> str:
         return separator.join(items)
-
-    def clean(self) -> dict[str, str | float | None]:
-        """Clean title, series and volume to get more interesting data"""
-        series = None
-        if self.original_series:
-            series = self.original_series[0]
-
-        parsed_volume = self._clean_volume(series)
-        parsed_title = self._clean_title(series)
-        parsed_series = self._clean_series(series)
-
-        if parsed_volume:
-            self.volume = parsed_volume
-        if parsed_title:
-            self.title = parsed_title
-        if parsed_series:
-            self.series = parsed_series
-
-        return {
-            "title": parsed_title,
-            "series": parsed_series,
-            "volume": parsed_volume,
-        }
-
-    def _clean_series(self, series: str | None):
-        series_raw = str(series)
-        series = series if series else self.subtitle
-
-        if not series:
-            return None
-
-        # On retire les numéros de tome qui traînent à la fin
-        s = re.sub(
-            r"(?i)\s*[,:\-]?\s*(?:book|tome|vol|volume|livre|part)?\s*\d+.*$",
-            "",
-            series_raw,
-        )
-
-        # Gestion des préfixes d'univers (ex: Star Wars - La croisade...)
-        # On split et on prend la partie la plus longue pour éviter les préfixes courts
-        if " - " in s or " : " in s:
-            parts = re.split(r"[:\-\u2013\u2014]", s)
-            s = max(parts, key=len).strip()
-
-        # Nettoyage des suffixes de type de collection
-        return re.sub(
-            r"(?i)\b(Novels|Trilogy|Series|Collection|Novela|Saga)\b", "", s
-        ).strip()
-
-    def _clean_title(self, series: str | None):
-        if not self.original_title:
-            return None
-
-        # On enlève d'abord les parenthèses (souvent des infos techniques)
-        t = re.sub(r"\(.*?\)", "", self.original_title)
-
-        # Au lieu de split sur le tiret (qui casse Passe-Miroir),
-        # on ne coupe que si le tiret est suivi d'un mot-clé de volume ou de série
-        t = re.sub(
-            r"(?i)\s*[:\-\u2013\u2014]\s*(?:book|tome|vol|volume|livre|part).*$",
-            "",
-            t,
-        )
-
-        # Si le titre contient encore un ":" ou "-" (souvent "Série - Titre"),
-        # on essaie d'isoler le titre s'il y a un doublon avec series_main
-        if series and (" - " in t or " : " in t):
-            parts = re.split(r"\s*[:\-\u2013\u2014]\s*", t)
-            # On garde la partie qui n'est pas le nom de la série
-            t = next(
-                (p for p in parts if p.lower() not in series.lower()),
-                parts[0],
-            )
-
-        return str(t).strip()
-
-    def _clean_volume(self, series: str | None):
-        parsed_volume = None
-        # 1. Extraction du Volume (Logique renforcée)
-        # On cherche d'abord les mots-clés, puis un chiffre isolé à la fin si rien n'est trouvé
-        full_text = f"{self.original_title or ''} {self.subtitle or ''} {series or ''}"
-
-        # Tentative A : Mot-clé + Chiffre (Tome 2, Book 1.5)
-        volume_match = re.search(
-            r"(?i)(?:book|tome|vol|volume|n°|livre|part|partie)\s?(\d+(?:\.\d+)?)",
-            full_text,
-        )
-
-        if volume_match:
-            parsed_volume = float(volume_match.group(1))
-        else:
-            # Tentative B : Chiffre isolé à la fin du titre ou du sous-titre
-            # (ex: "La croisade noire 2")
-            digit_match = re.search(
-                r"(\d+(?:\.\d+)?)$", (self.subtitle or self.title or "").strip()
-            )
-            if digit_match:
-                parsed_volume = float(digit_match.group(1))
-
-        # Fallback sur le volume d'origine si l'extraction a échoué
-        if parsed_volume is None and hasattr(self, "volume") and self.volume:
-            parsed_volume = float(self.volume)
-
-        return parsed_volume

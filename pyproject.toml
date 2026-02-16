@@ -21,12 +21,11 @@ classifiers = [
 # uv sync
 # uv export --format requirements-txt > requirements.txt
 dependencies = [
-  "pyyaml",         # import yaml (to handle .yml files)
-  "mutagen",        # import mutagen (to handle .mp3 and .m4b files)
-  "python-dotenv",  # import dotenv (to handle .env variables)
-  "beautifulsoup4", # import bs4 (to parse HTML)
-  "urllib3",        # import urllib3 (to download audiobook cover)
-  "rich",           # import rich (help for debugging)
+  "pyyaml",        # import yaml (to handle .yml files)
+  "mutagen",       # import mutagen (to handle .mp3 and .m4b files)
+  "python-dotenv", # import dotenv (to handle .env variables)
+  "urllib3",       # import urllib3 (to download audiobook cover)
+  "rich",          # import rich (help for debugging)
   # uv run playwright install chromium
   "playwright",         # import playwright (for Audible web scraping)
   "playwright-stealth", # import playwright_stealth

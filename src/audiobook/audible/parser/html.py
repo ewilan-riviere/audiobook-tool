@@ -1,73 +1,119 @@
 """Parse Audible HTML web output"""
 
-from typing import List, cast
 import re
-from bs4 import BeautifulSoup
-from audiobook.common import AutoRepr
+import unicodedata
+from playwright.sync_api import Page, Locator
 from audiobook.audible.types import AudibleHtml
 
 
-class ParserHtml(AutoRepr):
+class ParserHtml:
     """Parse Audible HTML web output"""
 
-    def __init__(self, soup: BeautifulSoup):
-        self._soup = soup
-        self.html = cast(AudibleHtml, {})
+    def __init__(self, page: Page):
+        data = self._parse(page)
+        genres = self._parse_genres(page)
+        self.content: AudibleHtml = AudibleHtml(
+            title=data["title"],
+            subtitle=data["subtitle"],
+            description=data["description"],
+            synopsis=data["synopsis"],
+            copyright_=data["copyright_"],
+            genres=genres,
+            rating_value=data["rating_value"],
+            rating_count=data["rating_count"],
+            image_url=data["image_url"],
+        )
 
-        self.html["title"] = self._parse_soup("h1", "title")
-        self.html["subtitle"] = self._parse_soup("h2", "subtitle")
-        description = self._parse_description()
-        self.html["description"] = description["description"]
-        self.html["copyright"] = description["copyright"]
-        self.html["genres"] = self._parse_genres()
+    def _parse(self, page: Page):
+        rating_locator = page.locator('[data-testid="star-rating"]')
 
-    def _parse_genres(self) -> List[str]:
-        """Extract genres"""
-        genres_labels: List[str] = []
+        image_url = self._extract_attribute(
+            page.locator("adbl-product-image img"), "src"
+        )
+        rating_value = self._extract_attribute(rating_locator, "value")
+        rating_count = self._extract_attribute(rating_locator, "count")
+        title = self._extract_text(page.locator('h1[slot="title"]'))
+        subtitle = self._extract_text(page.locator('h2[slot="subtitle"]'))
+        description = self._extract_text(
+            page.locator('adbl-text-block[slot="summary"]')
+        )
 
-        if self._soup:
-            tags = self._soup.find_all("adbl-chip")
+        synopsis_ = None
+        copyright_ = None
+        if description:
+            desc = self._split_description(description)
+            synopsis_ = desc["synopsis"]
+            copyright_ = desc["copyright"]
 
-            for tag in tags:
-                text = tag.get_text().strip()
-                if text:
-                    genres_labels.append(text)
-
-        if len(genres_labels) > 0:
-            genres_labels.pop()
-
-        return genres_labels
-
-    def _parse_description(self) -> dict[str, str]:
-        data = {"description": "", "copyright": ""}
-        if not self._soup:
-            return data
-
-        description_html = self._soup.find("adbl-text-block", attrs={"slot": "summary"})
-
-        if description_html:
-            # 1. Clean up paragraphs for the description
-            paragraphs = [p.get_text().strip() for p in description_html.find_all("p")]
-            # Filter out paragraphs that look like copyright strings
-            description_parts = [p for p in paragraphs if not re.match(r"^©|\(P\)", p)]
-
-            description = "\n\n".join(description_parts)
-            data["description"] = description.replace(" . . .", "...")
-
-            # 2. Specifically look for the copyright string
-            # We look through all paragraphs for the one containing the copyright symbols
-            full_text_content = description_html.get_text("\n").split("\n")
-            for line in reversed(full_text_content):
-                line = line.strip()
-                if re.search(r"©\d{4}|\(P\)\d{4}", line):
-                    data["copyright"] = line
-                    break
+        data: dict[str, str | None] = {
+            "title": self._clean_text(title),
+            "subtitle": self._clean_text(subtitle),
+            "description": description,
+            "synopsis": synopsis_,
+            "copyright_": copyright_,
+            "rating_value": rating_value,
+            "rating_count": rating_count,
+            "image_url": image_url,
+        }
 
         return data
 
-    def _parse_soup(self, name: str, attrs_value: str, attrs_name: str = "slot"):
-        if self._soup:
-            tag = self._soup.find(name, attrs={attrs_name: attrs_value})
-            if tag:
-                return tag.get_text().strip()
-        return None
+    def _parse_genres(self, page: Page) -> list[str] | None:
+        genres_locator = page.locator("adbl-chip").filter(
+            has_not_text=re.compile(r"Tout|All", re.I)
+        )
+
+        genres = None
+        if genres_locator.count() > 0:
+            genres = genres_locator.all_text_contents()
+
+        items: list[str] = []
+        if not genres:
+            return None
+
+        for genre in genres:
+            value = self._clean_text(genre)
+            if value:
+                items.append(value)
+
+        items.sort()
+
+        return items
+
+    def _extract_text(self, locator: Locator) -> str | None:
+        value = None
+        if locator.count() > 0:
+            value = locator.inner_text()
+            value = self._clean_text(value)
+
+        return value
+
+    def _extract_attribute(self, locator: Locator, attr: str) -> str | None:
+        value = None
+        if locator.count() > 0:
+            value = locator.get_attribute(attr)
+
+        return value
+
+    def _split_description(self, text: str) -> dict[str, str | None]:
+        match = re.search(r"(.*)(©.*)", text, re.DOTALL)
+        synopsis_ = None
+        copyright_ = None
+        if match:
+            synopsis_ = match.group(1).strip()
+            copyright_ = match.group(2).strip()
+
+        return {"synopsis": synopsis_, "copyright": copyright_}
+
+    def _clean_text(self, text: str | None) -> str | None:
+        if not text:
+            return None
+
+        text = text.encode().decode("unicode_escape")
+        text = text.encode("latin1").decode("utf-8")
+        text = text.strip('"')
+        text = text.replace(" . . .", "...")
+        text = unicodedata.normalize("NFKC", text)
+        text = "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
+
+        return text

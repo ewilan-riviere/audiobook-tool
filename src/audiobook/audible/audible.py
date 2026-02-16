@@ -1,12 +1,9 @@
 """Fetch metadata from Audible from audiobook ASIN"""
 
-import re
 from pathlib import Path
 from audiobook.common import AutoRepr
 from audiobook.models import AudibleAudiobook
 from audiobook.yml import YmlWriter
-from .parser import ParserJson, ParserHtml
-from .types import JsonAudiobook
 from .fetch import AudibleFetch
 
 
@@ -22,14 +19,12 @@ class Audible(AutoRepr):
         if not self.fetch.success:
             return
 
-        if not self.fetch.soup or not self.fetch.url:
+        if not self.fetch.url:
             return
 
         self.audiobook.url = self.fetch.url
-        web = ParserHtml(self.fetch.soup)
-        json = ParserJson(self.fetch.soup)
-        self._handle_audiobook(web, json)
-        self.success = True
+        self.success = self.fetch.success
+        self._handle_audiobook()
 
     def save_metadata(self, save_path: str | Path) -> str:
         """Save audiobook as metadata.yml"""
@@ -39,65 +34,48 @@ class Audible(AutoRepr):
 
         return str(writer.save_path)
 
-    def _handle_audiobook(self, web: ParserHtml, json: ParserJson):
-        self.audiobook.original_title = web.html.get("title")
-        self.audiobook.subtitle = web.html.get("subtitle")
-        self.audiobook.description = web.html.get("description")
-        self.audiobook.copyright = web.html.get("copyright")
-        self.audiobook.publisher = json.ld_audiobook.get("publisher")
+    def _handle_audiobook(self):
+        ld_audiobook = self.fetch.ld_audiobook
+        ld_product = self.fetch.ld_product
+        html = self.fetch.html
+        json_duration = self.fetch.json_duration
+        json_rating = self.fetch.json_rating
+        extra = self.fetch.extra
 
-        self.audiobook.authors = self._handle_authors(json.audiobook)
-        self.audiobook.narrators = json.audiobook.get("narrators")
+        self.audiobook.original_title = ld_audiobook.name
+        self.audiobook.original_series = json_duration.series
 
-        self.audiobook.published_at = json.ld_audiobook.get("date_published")
-        self.audiobook.duration = json.ld_audiobook.get("duration")
-        language = json.ld_audiobook.get("in_language")
+        self.audiobook.subtitle = html.subtitle
+        self.audiobook.description = html.synopsis
+        self.audiobook.copyright_ = html.copyright_
+        self.audiobook.publisher = ld_audiobook.publisher
+
+        self.audiobook.authors = json_rating.authors_typed
+        self.audiobook.narrators = json_rating.narrators
+
+        self.audiobook.published_at = ld_audiobook.date_published_typed
+        self.audiobook.duration = ld_audiobook.duration_typed
+        language = ld_audiobook.in_language
         if language:
             self.audiobook.language = language.capitalize()
-        self.audiobook.abridged = json.ld_audiobook.get("abridged")
-        self.audiobook.cover = json.ld_audiobook.get("image")
+        self.audiobook.abridged = ld_audiobook.abridged_typed
+        self.audiobook.cover = ld_audiobook.image
 
-        self.audiobook.volume = None
-        self.audiobook.part = None
-        self.audiobook.title = None
-        self.audiobook.series = None
-        self._handle_series(json.audiobook)
+        self.audiobook.volume = extra.volume_typed
+        self.audiobook.part = json_duration.part
+        self.audiobook.title = extra.title_typed
+        self.audiobook.series = extra.series_typed
 
-        self.audiobook.format = json.audiobook.get("format")
-        self.audiobook.book_format = json.ld_audiobook.get("book_format")
-        self.audiobook.sku = json.ld_product["sku"]
+        self.audiobook.format_ = json_duration.format_
+        self.audiobook.book_format = ld_audiobook.book_format
+        self.audiobook.sku = ld_product.sku
+        self.audiobook.product_id = ld_product.product_id
 
-        self.audiobook.rating = json.audiobook.get("rating")
-        self.audiobook.price = json.ld_audiobook.get("price")
+        self.audiobook.rating = json_rating.rating_value
+        self.audiobook.price = ld_product.price_typed
+        self.audiobook.currency = ld_product.currency
 
-        self.audiobook.genres = web.html.get("genres")
-        self.audiobook.categories = json.audiobook.get("categories")
+        self.audiobook.genres = html.genres
+        self.audiobook.categories = json_duration.categories
 
-        self.audiobook.clean()
-
-    def _handle_authors(self, audio: JsonAudiobook) -> list[str] | None:
-        items: list[str] = []
-        authors = audio.get("authors")
-        if not authors:
-            return None
-
-        for author in authors:
-            if any(word in author for word in ["traducteur", "translator"]):
-                continue
-            else:
-                items.append(author)
-
-        return items
-
-    def _handle_series(self, audio: JsonAudiobook):
-        self.audiobook.original_series = audio.get("series")
-        if self.audiobook.series:
-            self.audiobook.series = self.audiobook.series[0]
-            self.audiobook.part = audio.get("part")
-
-            if self.audiobook.part:
-                match = re.search(r"\d+", self.audiobook.part)
-                if match:
-                    number = int(match.group())
-                    if not self.audiobook.volume:
-                        self.audiobook.volume = number
+        return self.audiobook
