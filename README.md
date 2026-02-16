@@ -27,6 +27,17 @@
 - 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
 - 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
 
+## Roadmap
+
+- [ ] Fix M4A handle
+- [ ] Test for one audiobook
+- [ ] Confirm for override metadata/cover
+- [ ] Confirm after Audible fetch
+- [ ] Refact. args
+- [ ] Refact clear flag
+- [ ] Review logging
+- [ ] README
+
 ## Why?
 
 I have been using [audiobookshelf](https://www.audiobookshelf.org/) for a long time, and to manage my audiobooks, I used [Audiobook Builder](https://www.splasm.com/audiobookbuilder/) (which is a paid program). While this software is very useful for managing audiobooks, when you need to create several in a row, it is time-consuming and tedious, lacking flexibility.
