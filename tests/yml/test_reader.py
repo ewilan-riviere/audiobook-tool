@@ -1,4 +1,3 @@
-from pathlib import Path
 from audiobook.yml import YmlReader
 
 
@@ -6,9 +5,7 @@ def test_reader():
     template_path = "./metadata.template.yml"
     reader = YmlReader(template_path).read()
 
-    assert reader.yml_path == Path(
-        "/Users/ewilan/Workspace/audiobook-tool/metadata.template.yml"
-    )
+    assert reader.yml_path.name == "metadata.template.yml"
     assert isinstance(reader.yml_data, dict)
     assert reader.yml_data.get("title") == "The Fellowship of the Ring"
     assert reader.default_title == "audiobook-tool"
