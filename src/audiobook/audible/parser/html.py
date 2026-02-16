@@ -89,11 +89,12 @@ class ParserHtml:
         return value
 
     def _extract_attribute(self, locator: Locator, attr: str) -> str | None:
-        value = None
-        if locator.count() > 0:
-            value = locator.get_attribute(attr)
+        first_match = locator.first
 
-        return value
+        if first_match.count() > 0:
+            return first_match.get_attribute(attr)
+
+        return None
 
     def _split_description(self, text: str) -> dict[str, str | None]:
         match = re.search(r"(.*)(©.*)", text, re.DOTALL)

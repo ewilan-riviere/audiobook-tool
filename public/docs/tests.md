@@ -7,6 +7,16 @@ pytest -s
 pytest -s tests/audio/test_reader.py
 ```
 
+Docker test
+
+```sh
+docker compose up -d
+```
+
+```sh
+docker exec audiobook_tool uv run pytest
+```
+
 Locally test
 
 ```sh

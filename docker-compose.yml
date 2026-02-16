@@ -1,4 +1,3 @@
-# docker compose up -d
 services:
   cli:
     build: .
@@ -6,10 +5,11 @@ services:
     container_name: audiobook_tool
     stdin_open: true
     tty: true
+    entrypoint: ["tail", "-f", "/dev/null"]
     volumes:
-      - .:/app/data
+      - .:/app
     env_file:
       - .env
+    working_dir: /app
     environment:
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-    working_dir: /app

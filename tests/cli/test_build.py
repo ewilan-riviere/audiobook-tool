@@ -37,7 +37,9 @@ def test_build(monkeypatch: Any, capsys: Any):
 
     container = ContainerAudiobook(output_path)
     reader = AudioReader(str(container.m4b_file))
-    assert reader.tags.album == "Assassin’s Apprentice"
+
+    assert reader.tags.title == "Assassin’s Apprentice"
+    assert reader.tags.album == "Farseer 01: Assassin’s Apprentice"
 
     captured = capsys.readouterr()
     assert "audiobook-tool" in captured.out
