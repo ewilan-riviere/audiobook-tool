@@ -86,7 +86,7 @@ narrators: "Rob Inglis & Andy Serkis"
 description: "Book synopsis"
 lyrics: "Book lyrics"
 copyright: "©1954 The Tolkien Estate Limited (P)2025 HarperCollins Publishers Limited"
-genres: "Fantasy/Fiction"`
+genres: "Fantasy/Fiction"
 series: "The Lord of the Rings"
 volume: 1.0
 language: "English"
