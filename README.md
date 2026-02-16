@@ -75,6 +75,33 @@ audiobook-tool build /path/to/source_files
 
 \*: ABOUT SPLIT
 
+#### Metadata & cover
+
+You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./metadata.template.yml) as example.
+
+```yml
+title: "The Fellowship of the Ring"
+authors: "J.R.R. Tolkien & Christopher Tolkien"
+narrators: "Rob Inglis & Andy Serkis"
+description: "Book synopsis"
+lyrics: "Book lyrics"
+copyright: "©1954 The Tolkien Estate Limited (P)2025 HarperCollins Publishers Limited"
+genres: "Fantasy/Fiction"`
+series: "The Lord of the Rings"
+volume: 1.0
+language: "English"
+year: 2005
+publisher: "HarperCollins Publishers Limited"
+subtitle: "One Ring To Rule Them All"
+isbn: 9780007123827
+asin: 0008487278
+```
+
+For cover, just put `cover.jpg` into `/path/to/source_files` and `build` command will attach it to M4B audiobook.
+
+> [!TIP]
+> `audible` command or `build` command with `--asin` flag will create `metadata.yml` and `cover.jpg` automtically if ASIN is valid.
+
 ## Docker
 
 ### Docker compose (recommanded)
