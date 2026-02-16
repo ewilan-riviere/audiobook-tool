@@ -20,20 +20,22 @@
 
 ---
 
-## Why?
-
-I used [Audiobook Builder](https://www.splasm.com/audiobookbuilder/) a lot. It was very handy for creating audiobooks from MP3 files and inserting metadata for [audiobookshelf](https://www.audiobookshelf.org/).
-
-However, Audiobook Builder is not free, and it creates separate audiobooks in several parts if necessary (which I appreciate for streaming), but with chapters that can be split up.
-
-So I needed a tool that creates an audiobook in several parts of an adjustable size, that doesn't split the chapters, and that adapts to a YAML file for metadata. As a bonus, this tool could also parse Audible to retrieve metadata from the website...
-
 ## Features
 
-- 🎧 Fetch metadata from Audible from ASIN code
-- 📦 Build M4B multi-part/one audiobook from MP3/M4A files
-- 📤 Extract chapters from audiobook and convert to M4A/MP3
-- 🔖 Parse audiobook to convert tags to YAML file
+- 🎧 Fetch metadata and cover from [Audible](https://www.audible.com/) with **ASIN** code
+- 📦 Build `M4B` audiobook from `MP3`/`M4A` files (can be multi-part or one)
+- 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
+- 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
+
+## Why?
+
+I have been using [audiobookshelf](https://www.audiobookshelf.org/) for a long time, and to manage my audiobooks, I used [Audiobook Builder](https://www.splasm.com/audiobookbuilder/) (which is a paid program). While this software is very useful for managing audiobooks, when you need to create several in a row, it is time-consuming and tedious, lacking flexibility.
+
+I also needed to create audiobooks in several parts (to help with streaming) but without splitting the chapters into two parts (which is unpleasant). I also needed a CLI capable of reading metadata from a YAML file in order to apply the corresponding tags to the audiobook.
+
+In addition, when I retrieve metadata from [Audible](https://www.audible.com/), it is rather tedious, and I wanted to be able to do it automatically.
+
+The whole thing needed to be flexible and resilient, offering high-quality audiobooks that could be used directly by [audiobookshelf](https://www.audiobookshelf.org/).
 
 ## Usage
 
