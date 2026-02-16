@@ -8,6 +8,9 @@
 <p align="center">
   Ultimate Python CLI to handle audiobooks.
 </p>
+<p align="center">
+  Built to be used with [audiobookshelf](https://www.audiobookshelf.org/).
+</p>
 
 <p align="center">
     <a href="https://www.python.org/"><img src="https://img.shields.io/static/v1?style=flat&label=Python&message=v3.12&color=3776AB&logo=python&logoColor=ffffff&labelColor=18181b" alt="Python version"></a>
@@ -16,12 +19,6 @@
 </p>
 
 ---
-
-> [!IMPORTANT]
-> Not ready for production.
-
-> [!TIP]
-> Built to be used with [audiobookshelf](https://www.audiobookshelf.org/).
 
 ## Why?
 
