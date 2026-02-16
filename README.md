@@ -9,7 +9,7 @@
   Ultimate Python CLI to handle audiobooks.
 </p>
 <p align="center">
-  Built to be used with [audiobookshelf](https://www.audiobookshelf.org/).
+  Built to be used with <a href="https://www.audiobookshelf.org/" target="_blank">audiobookshelf</a>.
 </p>
 
 <p align="center">
