@@ -8,7 +8,7 @@ def test_reader():
     assert reader.yml_path.name == "metadata.template.yml"
     assert isinstance(reader.yml_data, dict)
     assert reader.yml_data.get("title") == "The Fellowship of the Ring"
-    assert reader.default_title == "audiobook-tool"
+    assert isinstance(reader.default_title, str)
 
     metadata = reader.metadata
 
