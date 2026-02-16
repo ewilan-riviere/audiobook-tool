@@ -105,7 +105,7 @@ def test_reader_tags(path: str):
     assert tags.comment == "Audio Comment"
     assert tags.compilation == "1"
     assert tags.composer == "Audio Composer"
-    assert tags.copyright == "Audio Copyright"
+    assert tags.copyright_ == "Audio Copyright"
     assert tags.description == "Audio Description"
     assert tags.disc == "1/2"
     assert tags.encoded_by == "Audio Encoded by"

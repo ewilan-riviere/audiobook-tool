@@ -32,7 +32,7 @@ class AudioTags(AutoRepr):
         # Audio Composer
         self.composer = reader.get_tag("composer")
         # Audio Copyright
-        self.copyright = reader.get_tag("copyright")
+        self.copyright_ = reader.get_tag("copyright")
         # Audio Description
         self.description = reader.get_tag("description")
         # 1/2
@@ -113,7 +113,7 @@ class AudioTags(AutoRepr):
         audible.title = self.title
         audible.subtitle = self.subtitle
         audible.description = self.description
-        audible.copyright = self.copyright
+        audible.copyright_ = self.copyright_
         audible.publisher = self.publisher
 
         audible.original_title = self.title
@@ -196,7 +196,7 @@ class AudioTags(AutoRepr):
             "isbn": self.isbn if self.isbn else "",
             "asin": self.asin if self.asin else "",
             "language": self.language if self.language else "",
-            "copyright": self.copyright if self.copyright else "",
+            "copyright": self.copyright_ if self.copyright_ else "",
             "compilation": self.is_compilation if self.is_compilation else "",
             "encoded_by": self.encoded_by if self.encoded_by else "",
             "encoder": self.encoder if self.encoder else "",

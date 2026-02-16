@@ -76,7 +76,7 @@ def test_writer(writer_path: str):
     assert reader.tags.asin == new_tags["asin"]
     assert reader.tags.comment == new_tags["comment"]
     assert reader.tags.composer == new_tags["composer"]
-    assert reader.tags.copyright == new_tags["copyright"]
+    assert reader.tags.copyright_ == new_tags["copyright"]
     assert reader.tags.description == new_tags["description"]
     assert reader.tags.disc == new_tags["disc"]
     assert reader.tags.encoded_by == new_tags["encoded_by"]

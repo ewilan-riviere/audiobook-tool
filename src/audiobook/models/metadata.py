@@ -13,7 +13,7 @@ class MetadataAudiobook(AutoRepr):
         self.narrators: str | None = data.get("narrators")
         self.description: str | None = data.get("description")
         self.lyrics: str | None = data.get("lyrics")
-        self.copyright: str | None = data.get("copyright")
+        self.copyright_: str | None = data.get("copyright")
         self.genres: str | None = data.get("genres")
         self.series: str | None = data.get("series")
         self.volume: float | None = data.get("volume")

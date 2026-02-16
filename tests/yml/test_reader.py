@@ -18,7 +18,7 @@ def test_reader():
     assert metadata.narrators == "Rob Inglis & Andy Serkis"
     assert isinstance(metadata.description, str)
     assert isinstance(metadata.lyrics, str)
-    assert metadata.copyright == (
+    assert metadata.copyright_ == (
         "©1954 The Tolkien Estate Limited (P)2025" "HarperCollins Publishers Limited"
     )
     assert metadata.genres == "Fantasy/Fiction"
