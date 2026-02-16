@@ -10,6 +10,7 @@ pytest -s tests/audio/test_reader.py
 Docker test
 
 ```sh
+dockr down -v
 docker compose up -d
 ```
 
