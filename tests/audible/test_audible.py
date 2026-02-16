@@ -1,4 +1,5 @@
 from datetime import datetime, date, time
+from audiobook import utils
 from audiobook.audible import Audible
 
 
@@ -103,3 +104,9 @@ def test_jedi():
     assert audible.audiobook.volume == 2.0
     assert audible.audiobook.volume_int == 2
     assert audible.audiobook.authors == ["Timothy Zahn"]
+
+
+# Assassin’s Apprentice (The Farseer Trilogy, Book 1)
+def test_farseer_com():
+    audible = Audible("B0G5SMXT5S")
+    utils.rprint_(audible)
