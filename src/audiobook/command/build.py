@@ -53,7 +53,7 @@ class CommandBuild:
 
         print("🧹 Cleaning...")
         utils.make_directory(config.output_path)
-        utils.move_files(tagger.m4b_paths, utils.safe_path(config.output_path))
+        utils.move_files(tagger.m4b_paths, config.output_path)
         config.remove_working_path()
 
         print(f"📚 Audiobook available at {config.output_path}")
