@@ -73,6 +73,7 @@ class M4bTagger(AutoRepr):
             new_name = m4b_file.stem
             if self._title:
                 new_name = f"{self._title}_Part{i:02d}"
+                new_name = utils.safe_filename(new_name)
 
             m4b_path = utils.rename_file(m4b_file, new_name)
             m4b_paths.append(m4b_path)

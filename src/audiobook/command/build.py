@@ -26,8 +26,7 @@ class CommandBuild:
         # Setup config
         config = ConfigBuild(args)
         if args.clear:
-            print("🖼️ Remove MP3 files source covers...")
-            config.remove_covers()
+            print("🗑️ Delete output path...")
             utils.remove_directory(config.output_path)
 
         print("🔨 Forge M4B...")
@@ -54,7 +53,7 @@ class CommandBuild:
 
         print("🧹 Cleaning...")
         utils.make_directory(config.output_path)
-        utils.move_files(tagger.m4b_paths, config.output_path)
+        utils.move_files(tagger.m4b_paths, utils.safe_path(config.output_path))
         config.remove_working_path()
 
         print(f"📚 Audiobook available at {config.output_path}")

@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
+import re
 import shutil
+import unicodedata
 
 
 def path_join(base_path: str | Path, *add_paths: str | Path) -> Path:
@@ -181,3 +183,30 @@ def make_directory(directory_path: str | Path) -> Path:
     directory_path.mkdir(parents=True, exist_ok=True)
 
     return directory_path
+
+
+def safe_filename(name: str):
+    """Sanitize filename"""
+    name = unicodedata.normalize("NFKD", name).encode("ASCII", "ignore").decode("ascii")
+    # Remplacement des caractères non-autorisés (on garde les lettres, chiffres, points et tirets)
+    # Note: On exclut les slashs ici car ils sont gérés par parent_dir
+    name = re.sub(r"[^\w\s.-]", "_", name)
+    # Remplacement des espaces par des underscores et nettoyage des bords
+    name = re.sub(r"\s+", "_", name).strip("._")
+
+    return name.strip()[:255]
+
+
+def safe_path(input_path: str | Path) -> Path:
+    """Sanitize file path"""
+    p = Path(input_path)
+
+    parent_dir = p.parent
+    old_name = p.name
+
+    clean_name = safe_filename(old_name)
+
+    if not clean_name:
+        clean_name = "new_file"
+
+    return parent_dir / clean_name

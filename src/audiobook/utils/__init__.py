@@ -16,6 +16,8 @@ from .fs_utils import (
     remove_directory,
     remove_file,
     make_directory,
+    safe_filename,
+    safe_path,
 )
 from .ui_utils import (
     format_duration,
@@ -42,6 +44,8 @@ __all__ = [
     "remove_directory",
     "remove_file",
     "make_directory",
+    "safe_filename",
+    "safe_path",
     # ui_utils
     "format_duration",
     "confirm_action",
