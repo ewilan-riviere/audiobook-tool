@@ -51,7 +51,9 @@ class ConfigBuild(AutoRepr):
             self.output_path = custom_output_path
         else:
             container_name = self.audiobook.title if self.audiobook else default_title
-            self.output_path = self.source_path / str(container_name)
+            self.output_path = self.source_path / utils.safe_filename(container_name)
+
+        self.output_path = utils.safe_path(self.output_path)
 
         # Single or multiple
         self.single = args.single
