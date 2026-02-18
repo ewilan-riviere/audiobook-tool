@@ -188,11 +188,12 @@ def make_directory(directory_path: str | Path) -> Path:
 def safe_filename(name: str):
     """Sanitize filename"""
     name = unicodedata.normalize("NFKD", name).encode("ASCII", "ignore").decode("ascii")
-    # Remplacement des caractères non-autorisés (on garde les lettres, chiffres, points et tirets)
-    # Note: On exclut les slashs ici car ils sont gérés par parent_dir
-    name = re.sub(r"[^\w\s.-]", "_", name)
-    # Remplacement des espaces par des underscores et nettoyage des bords
-    name = re.sub(r"\s+", "_", name).strip("._")
+    # Replacement of unauthorized characters (letters, numbers, periods, and hyphens are retained)
+    name = re.sub(r"[^\w\s.-]", ".", name)
+    # Replacing spaces with dots and cleaning up edges
+    name = re.sub(r"\s+", ".", name).strip("._")
+    # Keep only max one dot
+    name = re.sub(r"\.{2,}", ".", name)
 
     return name.strip()[:255]
 
