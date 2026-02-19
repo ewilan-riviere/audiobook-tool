@@ -7,7 +7,7 @@ from .blacksmith import AudiobookBlacksmith
 
 
 class AudiobookForge(AutoRepr):
-    """Forge audiobook from MP3 to M4B"""
+    """Forge audiobook from MP3/M4A to M4B"""
 
     _source_path: Path
     _working_directory: Path

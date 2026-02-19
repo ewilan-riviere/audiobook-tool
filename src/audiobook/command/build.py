@@ -1,5 +1,6 @@
 """build command of audiobook-tool"""
 
+from pathlib import Path
 from audiobook.args import AudiobookArgs
 import audiobook.utils as utils
 from audiobook.audible import Audible
@@ -53,10 +54,22 @@ class CommandBuild:
 
         print("🧹 Cleaning...")
         utils.make_directory(config.output_path)
+        if args.clear:
+            utils.remove_directory(config.output_path)
         utils.move_files(tagger.m4b_paths, config.output_path)
+        self._handle_one_part(config.output_path)
         config.remove_working_path()
 
         print(f"📚 Audiobook available at {config.output_path}")
+
+    def _handle_one_part(self, audiobook_path: Path):
+        m4b_parts = utils.get_files(audiobook_path, "m4b")
+        if len(m4b_parts) > 1:
+            return
+
+        m4b_part = m4b_parts[0]
+        new_name = utils.safe_filename_dots(m4b_part.stem.replace("_Part01", ""))
+        utils.rename_file(m4b_part, new_name)
 
     def _handle_audible(self):
         if not self.args.asin or not self.args.mp3_directory:

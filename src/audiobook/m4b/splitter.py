@@ -134,11 +134,11 @@ class M4bSplitter(AutoRepr):
             # --- Step 3: Now that the file exists, we retrieve its size ---
             size = utils.get_file_size(output_file)
             size_hr = utils.size_human_readable(size)
-            duration_str = utils.format_duration(duration, short=True)
+            duration_str = utils.format_duration(duration, short=False)
 
             print(
-                f"  ✅ Generate Part {i:02} `{output_file.name}` "
-                f"({duration_str} / {len(part_chapters)} chap.) / {size_hr}"
+                f"  ✅ Generate Part {i:02}: "
+                f"{duration_str} / {len(part_chapters)} chapters ({size_hr})"
             )
 
             generated_files.append(output_file.resolve())

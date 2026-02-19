@@ -2,6 +2,7 @@
 
 import tempfile
 from pathlib import Path
+from audiobook.audio.reader.main import AudioReader
 from audiobook.models.m4b import M4bAudiobook
 import audiobook.utils as utils
 from audiobook.args import AudiobookArgs
@@ -35,6 +36,12 @@ class ConfigBuild(AutoRepr):
             self.audiobook = reader.to_audiobook()
         else:
             self.audiobook = M4bAudiobook()
+            files = utils.get_files(source_path, "mp3")
+            if not files:
+                files = utils.get_files(source_path, "m4a")
+            if files:
+                first_file = files[0]
+                self.audiobook.from_reader_tags(AudioReader(first_file).tags)
 
         # Load cover
         # /path/to/the-wall/cover.jpg

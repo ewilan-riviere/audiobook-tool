@@ -185,17 +185,27 @@ def make_directory(directory_path: str | Path) -> Path:
     return directory_path
 
 
-def safe_filename(name: str):
+def safe_filename_dots(name: str) -> str:
+    """Clear dots if more than one"""
+    # Keep only max one dot
+    name = re.sub(r"\.{2,}", ".", name)
+    name = name.lstrip(".")
+    name = name.rstrip(".")
+
+    return name
+
+
+def safe_filename(name: str) -> str:
     """Sanitize filename"""
     name = unicodedata.normalize("NFKD", name).encode("ASCII", "ignore").decode("ascii")
     # Replacement of unauthorized characters (letters, numbers, periods, and hyphens are retained)
     name = re.sub(r"[^\w\s.-]", ".", name)
     # Replacing spaces with dots and cleaning up edges
     name = re.sub(r"\s+", ".", name).strip("._")
-    # Keep only max one dot
-    name = re.sub(r"\.{2,}", ".", name)
+    name = name.strip()[:255]
+    name = safe_filename_dots(name)
 
-    return name.strip()[:255]
+    return name
 
 
 def safe_path(input_path: str | Path) -> Path:

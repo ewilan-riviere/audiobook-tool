@@ -1,5 +1,4 @@
 from datetime import datetime, date, time
-from audiobook import utils
 from audiobook.audible import Audible
 
 
@@ -18,7 +17,7 @@ ASIN_LIST_UK = [
 ]
 
 
-# Assassin’s Apprentice (The Farseer Trilogy, Book 1)
+# Assassin’s Apprentice (The Farseer Trilogy, Book 1) from Audible.fr
 def test_farseer():
     audible = Audible("B0G5QKNT1J")
 
@@ -27,9 +26,7 @@ def test_farseer():
     assert audiobook.asin == "B0G5QKNT1J"
     assert isinstance(audiobook.fetched_at, datetime)
     assert isinstance(audiobook.url, str)
-    assert audiobook.original_title == (
-        "Assassin’s Apprentice " "(The Farseer Trilogy, Book 1)"
-    )
+    assert audiobook.original_title == "Assassin’s Apprentice Book 1"
     assert audiobook.subtitle is None
     assert isinstance(audiobook.description, str)
     assert audiobook.copyright_ == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
@@ -61,7 +58,7 @@ def test_farseer():
     ]
     assert audiobook.categories == ["Littérature, romans et fiction"]
 
-    assert audiobook.title == "Assassin’s Apprentice"
+    assert audiobook.title == "Assassin’s Apprentice Book 1"
     assert audiobook.series == "Farseer"
     assert audiobook.volume == 1.0
 
@@ -85,7 +82,7 @@ def test_farseer():
     assert audiobook.year == 2026
 
 
-# L'œil d'Otolep
+# L'œil d'Otolep from Audible.fr
 def test_otolep():
     audible = Audible("2367627002")
 
@@ -95,7 +92,7 @@ def test_otolep():
     assert audible.audiobook.volume == 2.0
 
 
-# La bataille des Jedi
+# La bataille des Jedi from Audible.fr
 def test_jedi():
     audible = Audible("B0D7D39LP5")
 
@@ -106,7 +103,9 @@ def test_jedi():
     assert audible.audiobook.authors == ["Timothy Zahn"]
 
 
-# Assassin’s Apprentice (The Farseer Trilogy, Book 1)
+# Assassin’s Apprentice (The Farseer Trilogy, Book 1) from Audible.com
 def test_farseer_com():
     audible = Audible("B0G5SMXT5S")
-    utils.rprint_(audible)
+
+    assert audible.fetch.json_duration.series_typed == "Farseer Trilogy"
+    assert audible.fetch.json_duration.part_typed == 1

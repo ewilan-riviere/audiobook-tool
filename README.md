@@ -38,6 +38,10 @@
 - [ ] Review logging
 - [ ] GitHub test
 - [ ] README
+- [x] Remove part 1 from name if only one part
+- [x] Fix Error Referenced QT chapter track not found
+- [x] Fix Error submitting packet to decoder: Invalid data found when processing input / Header missing
+- [ ] Fix chapter name "Les Montagnes de la Folie : Les Montagnes hallucinées (1931)"
 
 ## Why?
 

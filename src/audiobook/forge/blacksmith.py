@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
+from audiobook.audio.fixer.main import AudioFixer
 from audiobook.common import AutoRepr
 import audiobook.utils as utils
 from .modules import BlacksmithChapter, BlacksmithRunner
@@ -30,7 +31,6 @@ class AudiobookBlacksmith(AutoRepr):
         return self._output_path
 
     def _get_reader(self, path: Path):
-        """Helper centralisé pour éviter les redéfinitions et les cycles"""
         # pylint: disable=import-outside-toplevel
         from audiobook.audio import AudioReader
 
@@ -45,6 +45,9 @@ class AudiobookBlacksmith(AutoRepr):
 
         if not self._source_files:
             raise FileNotFoundError(f"No MP3 or M4A files found in {self._source_path}")
+
+        for _source_file in self._source_files:
+            AudioFixer(_source_file).run(replace_original=True)
 
         total_bitrate: int = 0
         file_count = len(self._source_files)

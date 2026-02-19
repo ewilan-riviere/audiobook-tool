@@ -16,6 +16,7 @@ from .fs_utils import (
     remove_directory,
     remove_file,
     make_directory,
+    safe_filename_dots,
     safe_filename,
     safe_path,
 )
@@ -44,6 +45,7 @@ __all__ = [
     "remove_directory",
     "remove_file",
     "make_directory",
+    "safe_filename_dots",
     "safe_filename",
     "safe_path",
     # ui_utils
