@@ -19,8 +19,6 @@
     <a href="https://codecov.io/gh/kiwilan/audiobook-tool"><img src="https://img.shields.io/codecov/c/gh/kiwilan/audiobook-tool/main?style=flat&colorA=18181B&colorB=777BB4" alt="Build Status"></a>
 </p>
 
-https://img.shields.io/github/actions/workflow/status/kiwilan/audiobook-tool/run-tests.yml
-
 ---
 
 ## Features
