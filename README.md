@@ -14,7 +14,7 @@
 
 <p align="center">
     <a href="https://www.python.org/"><img src="https://img.shields.io/static/v1?style=flat&label=Python&message=v3.12&color=3776AB&logo=python&logoColor=ffffff&labelColor=18181b" alt="Python version"></a>
-    <a href="https://github.com/ewilan-riviere/audiobook-tool/blob/main/LICENSE"><img src="https://img.shields.io/static/v1?style=flat&label=License&message=MIT&color=3776AB&labelColor=18181b" alt="License"></a>
+    <a href="https://github.com/ewilan-riviere/audiobook-tool/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kiwilan/audiobook-tool?style=flat&colorA=18181B&colorB=3776AB" alt="License"></a>
     <a href="https://github.com/kiwilan/audiobook-tool"><img src="https://img.shields.io/github/actions/workflow/status/kiwilan/audiobook-tool/test.yml?branch=main&label=tests&style=flat&colorA=18181B" alt="Build Status"></a>
     <a href="https://codecov.io/gh/kiwilan/audiobook-tool"><img src="https://img.shields.io/codecov/c/gh/kiwilan/audiobook-tool/main?style=flat&colorA=18181B&colorB=3776AB" alt="Build Status"></a>
 </p>
