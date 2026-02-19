@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+env:
+  UV_CACHE_DIR: /tmp/.uv-cache
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
 jobs:
   codecov:
     runs-on: ubuntu-latest
