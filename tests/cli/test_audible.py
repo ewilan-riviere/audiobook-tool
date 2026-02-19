@@ -42,7 +42,7 @@ def test_audible(monkeypatch: Any, capsys: Any):
 
     reader = YmlReader(metadata_yml_path).read()
     assert reader.metadata
-    assert reader.metadata.title == "Assassin’s Apprentice"
+    assert reader.metadata.title == "Assassin’s Apprentice Book 1"
 
     utils.remove_file(metadata_yml_path)
     utils.remove_file(cover_path)
