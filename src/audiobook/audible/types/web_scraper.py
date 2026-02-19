@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date, time
+from datetime import datetime, date, timedelta
 
 
 class WebScraper:
@@ -31,31 +31,43 @@ class WebScraper:
 
         return datetime.strptime(date_, "%Y-%m-%d").date()
 
-    def _to_seconds(self, time_: time | None) -> int | None:
-        if not time_:
+    def _to_seconds(self, timedelta_: timedelta | None) -> int | None:
+        if not timedelta_:
             return None
 
-        s_h = time_.hour * 3600
-        s_min = time_.minute * 60
-        s_s = time_.second
-        s_ms = int(time_.microsecond / 1000000)
+        return round(timedelta_.total_seconds())
 
-        return s_h + s_min + s_s + s_ms
-
-    def _to_time(self, duration_: str | None) -> time | None:
+    def _to_time(self, duration_: str | None) -> timedelta | None:
         """Parse ISO 8601 to time"""
         if not duration_:
             return None
 
-        match = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?", duration_)
+        pattern = r"PT(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+)S)?"
+        match = re.match(pattern, duration_)
 
         if not match:
             return None
 
-        h = int(match.group(1) or 0)
-        m = int(match.group(2) or 0)
+        h = int(match.group("hours") or 0)
+        m = int(match.group("minutes") or 0)
+        s = int(match.group("seconds") or 0)
 
-        return time(hour=h, minute=m)
+        td = timedelta(hours=h, minutes=m, seconds=s)
+
+        return td
+
+    def _to_time_human(self, timedelta_: timedelta | None) -> str | None:
+        """timedelta to human time"""
+        if not timedelta_:
+            return None
+
+        total_seconds = int(timedelta_.total_seconds())
+
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
     def _handle_authors(self, authors: list[str] | None) -> list[str]:
         items: list[str] = []

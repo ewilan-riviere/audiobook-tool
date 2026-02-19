@@ -1,5 +1,14 @@
+import random
+
 from audiobook.audible import Audible
 import audiobook.utils as utils
+
+
+ASIN_CODES = [
+    "B07PX3SK1D",
+    "0008487294",
+    "B0BKP24LN8",
+]
 
 
 def test_cover():
@@ -7,7 +16,8 @@ def test_cover():
     cover_path = f"{save_path}/cover.jpg"
     utils.remove_file(cover_path)
 
-    audible = Audible("B0G5QKNT1J")
+    asin = random.choice(ASIN_CODES)
+    audible = Audible(asin)
     audible.audiobook.save_cover(save_path)
 
     assert utils.file_exists(cover_path) is True

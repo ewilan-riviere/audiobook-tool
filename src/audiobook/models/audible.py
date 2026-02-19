@@ -3,7 +3,7 @@
 from __future__ import annotations
 import os
 from pathlib import Path
-from datetime import datetime, date, time
+from datetime import datetime, date, timedelta
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 import urllib3
@@ -40,7 +40,7 @@ class AudibleAudiobook(AutoRepr):
     narrators: list[str] | None = None
 
     published_at: date | None = None
-    duration: time | None = None
+    duration: timedelta | None = None
     language: str | None = None
     abridged: bool | None = None
     cover: str | None = None
@@ -78,7 +78,13 @@ class AudibleAudiobook(AutoRepr):
         if not self.duration:
             return None
 
-        return self.duration.strftime("%H:%M:%S")
+        total_seconds = int(self.duration.total_seconds())
+
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
     @property
     def authors_list(self):
@@ -170,13 +176,13 @@ class AudibleAudiobook(AutoRepr):
         http = urllib3.PoolManager()
 
         try:
-            response = http.request("GET", self.cover, preload_content=False)
+            response = http.request("GET", self.cover, preload_content=False)  # type: ignore
 
-            if response.status == 200:
+            if response.status == 200:  # type: ignore
                 with open(save_path, "wb") as f:
-                    for chunk in response.stream(1024):
-                        f.write(chunk)
-                response.release_conn()
+                    for chunk in response.stream(1024):  # type: ignore
+                        f.write(chunk)  # type: ignore
+                response.release_conn()  # type: ignore
 
                 return save_path
 

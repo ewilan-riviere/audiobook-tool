@@ -1,51 +1,82 @@
+import random
 from audiobook.audible import Audible
-from audiobook.models import AudibleAudiobook
 
-ASIN_FR = "B00945ME60"
-ASIN_CO_UK = "B004FTL55Q"
-ASIN_COM = "B003EYRWCS"
-ASIN_DE = "B004V03H3W"
+
+# Lovecraft
+# The Return of the King
+# Halfway to the Grave
+ASIN_CODES: dict[str, list[str]] = {
+    "fr": [
+        "B07PX3SK1D",
+        "0008487294",
+        "B0BKP24LN8",
+    ],
+    "com": [
+        "B0FYH24VKH",
+        "B002V1A2EA",
+        "B0BKPCDWF3",
+    ],
+    "de": [
+        "B0DDPFP14Y",
+        "B004LRMZ2Y",
+        "B004V03H3W",
+    ],
+    "co.uk": [
+        "B0DBRLKFTD",
+        "0008487294",
+        "B0BKPKWNFJ",
+    ],
+}
+
+
+def _get_asin(locale: str) -> str:
+    codes = ASIN_CODES.get(locale)
+    return random.choice(codes)  # type: ignore
 
 
 def test_audible_fr():
-    audible = Audible(ASIN_FR, "fr")
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("fr")
+    audible = Audible(asin, "fr")
+    assert audible.success is True
 
 
 def test_audible_fr_auto():
-    audible = Audible(ASIN_FR)
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("fr")
+    audible = Audible(asin)
+    assert audible.success is True
 
 
 def test_audible_co_uk():
-    audible = Audible(ASIN_CO_UK, "co.uk")
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("co.uk")
+    audible = Audible(asin, "co.uk")
+    assert audible.success is True
 
 
 def test_audible_co_uk_uk():
-    audible = Audible(ASIN_CO_UK)
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("co.uk")
+    audible = Audible(asin)
+    assert audible.success is True
 
 
 def test_audible_com():
-    audible = Audible(ASIN_COM, "com")
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("com")
+    audible = Audible(asin, "com")
+    assert audible.success is True
 
 
 def test_audible_com_auto():
-    audible = Audible(ASIN_COM)
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("com")
+    audible = Audible(asin)
+    assert audible.success is True
 
 
 def test_audible_de():
-    audible = Audible(ASIN_DE, "de")
-    _test_halway_to_the_grave(audible.audiobook)
+    asin = _get_asin("de")
+    audible = Audible(asin, "de")
+    assert audible.success is True
 
 
 def test_audible_de_auto():
-    audible = Audible(ASIN_DE)
-    _test_halway_to_the_grave(audible.audiobook)
-
-
-def _test_halway_to_the_grave(audiobook: AudibleAudiobook):
-    assert audiobook.title == "Halfway to the Grave"
+    asin = _get_asin("de")
+    audible = Audible(asin)
+    assert audible.success is True

@@ -1,7 +1,7 @@
 """Represents Audible JSON-LD Audiobook"""
 
 from dataclasses import dataclass
-from datetime import date, time
+from datetime import date, timedelta
 from .web_scraper import WebScraper
 
 
@@ -48,12 +48,16 @@ class LDAudiobook(WebScraper):
         return self._to_int(self.price)
 
     @property
-    def duration_typed(self) -> time | None:
+    def duration_typed(self) -> timedelta | None:
         return self._to_time(self.duration)
 
     @property
     def duration_seconds(self) -> int | None:
         return self._to_seconds(self.duration_typed)
+
+    @property
+    def duration_human(self) -> str | None:
+        return self._to_time_human(self.duration_typed)
 
     @property
     def date_published_typed(self) -> date | None:
