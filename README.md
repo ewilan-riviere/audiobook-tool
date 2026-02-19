@@ -23,8 +23,8 @@
 
 ## Features
 
-- 🎧 Fetch metadata and cover from [Audible](https://www.audible.com/) with **ASIN** code
 - 📦 Build `M4B` audiobook from `MP3`/`M4A` files (can be multi-part or one)
+- 🎧 Fetch metadata and cover from [Audible](https://www.audible.com/) with **ASIN** code
 - 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
 - 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
 
@@ -94,6 +94,11 @@ audiobook-tool build /path/to/source_files
 
 #### Metadata & cover
 
+> [!TIP]
+> `audible` command or `build` command with `--asin` flag will create `metadata.yml` and `cover.jpg` automtically if ASIN is valid.
+
+##### Metadata
+
 You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./metadata.template.yml) as example. These metadata are based on [audiobookshelf's Audio Metadata](https://www.audiobookshelf.org/docs#book-audio-metadata).
 
 - `title`: used as `title` and `album`
@@ -130,10 +135,9 @@ isbn: 9780007123827
 asin: 0008487278
 ```
 
-For cover, just put `cover.jpg` into `/path/to/source_files` and `build` command will attach it to M4B audiobook.
+##### Cover
 
-> [!TIP]
-> `audible` command or `build` command with `--asin` flag will create `metadata.yml` and `cover.jpg` automtically if ASIN is valid.
+For cover, just put `cover.jpg` into `/path/to/source_files` and `build` command will attach it to M4B audiobook.
 
 ## Docker
 
