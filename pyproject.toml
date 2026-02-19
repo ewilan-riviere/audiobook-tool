@@ -24,7 +24,7 @@ dependencies = [
   "pyyaml",        # import yaml (to handle .yml files)
   "mutagen",       # import mutagen (to handle .mp3 and .m4b files)
   "python-dotenv", # import dotenv (to handle .env variables)
-  "urllib3",       # import urllib3 (to download audiobook cover)
+  "httpx",         # import httpx (to download audiobook cover)
   "rich",          # import rich (help for debugging)
   # uv run playwright install chromium
   "playwright",         # import playwright (for Audible web scraping)

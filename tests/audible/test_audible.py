@@ -1,4 +1,4 @@
-from datetime import datetime, date, time
+from datetime import datetime, date, timedelta
 from audiobook.audible import Audible
 
 
@@ -34,7 +34,7 @@ def test_farseer():
     assert audiobook.authors == ["Robin Hobb"]
     assert audiobook.narrators == ["Joe Eyre"]
     assert audiobook.published_at == date(2026, 1, 29)
-    assert audiobook.duration == time(16, 35)
+    assert audiobook.duration == timedelta(seconds=59700)
     assert audiobook.language == "English"
     assert audiobook.abridged is False
     assert isinstance(audiobook.cover, str)

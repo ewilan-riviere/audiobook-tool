@@ -1,13 +1,11 @@
 """Represents an Audible audiobook"""
 
 from __future__ import annotations
-import os
 from pathlib import Path
 from datetime import datetime, date, timedelta
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-import urllib3
-from urllib3.exceptions import HTTPError, MaxRetryError
+import httpx
 from audiobook.common import AutoRepr
 
 
@@ -158,46 +156,30 @@ class AudibleAudiobook(AutoRepr):
 
     def save_cover(self, save_path: Path | str) -> Path | None:
         """
-        Download cover and save it locally.
+        Download the cover and save it locally
         """
         if not self.cover:
-            return
+            return None
 
-        save_path = Path(save_path).resolve()
-
-        if not save_path.exists():
-            os.makedirs(save_path)
-
-        save_path = save_path / "cover.jpg"
-        # upscayl cover
-        # sudo Upscayl.app/Contents/Resources/bin/upscayl-bin -f jpg \
-        # -i ~/Downloads/51Wmz5ZhdGL._SL500_.jpg -o ~/Downloads/test.jpg -n upscayl-standard-4
-
-        http = urllib3.PoolManager()
+        output_path = Path(save_path).resolve() / "cover.jpg"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            response = http.request("GET", self.cover, preload_content=False)  # type: ignore
+            with httpx.stream("GET", self.cover, follow_redirects=True) as response:
+                response.raise_for_status()
 
-            if response.status == 200:  # type: ignore
-                with open(save_path, "wb") as f:
-                    for chunk in response.stream(1024):  # type: ignore
-                        f.write(chunk)  # type: ignore
-                response.release_conn()  # type: ignore
+                with open(output_path, "wb") as f:
+                    for chunk in response.iter_bytes(chunk_size=8192):
+                        f.write(chunk)
 
-                return save_path
+                return output_path
 
-        except TimeoutError:
-            print(
-                "[bold orange3]⌛ Le serveur a mis trop de temps à répondre.[/bold orange3]"
-            )
-        except MaxRetryError:
-            print(
-                "[bold red]❌ Impossible de joindre le serveur (problème DNS ou URL invalide).[/bold red]"
-            )
-        except HTTPError as e:
-            print(f"[bold red]❌ Erreur réseau urllib3 :[/bold red] {e}")
-        except IOError as e:
-            print(f"[bold red]❌ Erreur d'écriture sur le disque :[/bold red] {e}")
+        except httpx.TimeoutException:
+            print("[bold orange3]⌛ The server took too long to respond[/bold orange3]")
+        except httpx.HTTPStatusError as e:
+            print(f"[bold red]❌ HTTP Error {e.response.status_code}[/bold red]")
+        except (httpx.RequestError, IOError) as e:
+            print(f"[bold red]❌ Network/Disk Error :[/bold red] {e}")
 
         return None
 
