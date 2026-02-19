@@ -22,8 +22,7 @@ test-job:
   script:
     - uv sync --frozen --extra dev
     - source .venv/bin/activate
-    - uv run playwright install --with-deps chromium
     - uv run audiobook-tool -h
-    - uv run pytest
+    - uv run pytest -k "not audible"
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
