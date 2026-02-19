@@ -36,7 +36,7 @@ dependencies = [
 audiobook-tool = "audiobook.app:main"
 
 [project.optional-dependencies]
-dev = ["pytest~=8.0.0", "uv>=0.5.0"]
+dev = ["pytest~=8.0.0", "pytest-cov", "uv>=0.5.0"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -49,3 +49,6 @@ DEP002 = ["pytest", "pytest-cov", "uv"]
 
 [tool.deptry.package_module_name_map]
 uv = "uv"
+
+[dependency-groups]
+dev = ["pytest-cov>=7.0.0"]

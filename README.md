@@ -186,6 +186,20 @@ pytest
 
 To know more about tests, check [docs/tests.md](./public/docs/tests.md)
 
+## FAQ
+
+### How to convert AAX into M4B?
+
+AAX files are proprietary Audible files protected by DRM. `audiobook-tool` is not designed to remove this DRM.
+
+To do so, we recommend using tools such as [audible-tools.github.io](https://github.com/audible-tools/audible-tools.github.io) (the quickest and easiest) or [Libation](https://github.com/rmcrackan/Libation) (the most comprehensive).
+
+### How to download my audiobooks from Audible?
+
+`audiobook-tool` is not designed to downlod audiobooks from Audible, this tool will simply parse the metadata from Audible if necessary.
+
+To do so, we recommend using tools such as [audible-cli](https://github.com/mkb79/audible-cli).
+
 ## License
 
 [MIT License](https://github.com/ewilan-riviere/audiobook-tool/blob/main/LICENSE)
