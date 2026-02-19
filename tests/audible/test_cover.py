@@ -18,6 +18,7 @@ def test_cover():
 
     asin = random.choice(ASIN_CODES)
     audible = Audible(asin)
-    audible.audiobook.save_cover(save_path)
+    output_path = audible.audiobook.save_cover(save_path)
 
+    assert output_path
     assert utils.file_exists(cover_path) is True

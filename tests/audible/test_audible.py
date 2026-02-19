@@ -86,6 +86,7 @@ def test_farseer():
 def test_otolep():
     audible = Audible("2367627002")
 
+    assert audible.success is True
     assert audible.audiobook.title == "L'œil d'Otolep"
     assert audible.audiobook.subtitle == "Les mondes d'Ewilan 2"
     assert audible.audiobook.series == "Les mondes d'Ewilan"
@@ -96,6 +97,7 @@ def test_otolep():
 def test_jedi():
     audible = Audible("B0D7D39LP5")
 
+    assert audible.success is True
     assert audible.audiobook.title == "La bataille des Jedi"
     assert audible.audiobook.series == "La croisade noire du jedi fou"
     assert audible.audiobook.volume == 2.0
@@ -107,5 +109,6 @@ def test_jedi():
 def test_farseer_com():
     audible = Audible("B0G5SMXT5S")
 
+    assert audible.success is True
     assert audible.fetch.json_duration.series_typed == "Farseer Trilogy"
     assert audible.fetch.json_duration.part_typed == 1
