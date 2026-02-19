@@ -52,14 +52,15 @@ jobs:
       - name: Run Tool Check
         run: uv run audiobook-tool -h
 
-      - name: Execute tests with coverage
+      - name: Execute tests
+        if: !startsWith(github.ref , 'refs/tags/')
         run: uv run pytest -k "not audible"
 
-      - name: New release
+      - name: Execute tests with coverage (only new tags)
         if: startsWith(github.ref, 'refs/tags/')
         run: uv run pytest -k "not audible" --cov --cov-branch --cov-report=xml
 
-      - name: Send code coverage
+      - name: Send code coverage (only new tags)
         if: startsWith(github.ref, 'refs/tags/')
         uses: codecov/codecov-action@v5
         with:
