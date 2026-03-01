@@ -46,12 +46,14 @@ class AudiobookBlacksmith(AutoRepr):
         if not self._source_files:
             raise FileNotFoundError(f"No MP3 or M4A files found in {self._source_path}")
 
+        print("📏 Try to fix source files if needed...")
         for _source_file in self._source_files:
             AudioFixer(_source_file).run(replace_original=True)
 
         total_bitrate: int = 0
         file_count = len(self._source_files)
 
+        print("🔧 Parse source files to create chapters...")
         for source_file in self._source_files:
             reader = self._get_reader(source_file)
             source_file_bitrate = reader.properties.bit_rate or 128000
