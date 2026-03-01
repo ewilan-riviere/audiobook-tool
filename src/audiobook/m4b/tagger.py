@@ -35,10 +35,18 @@ class M4bTagger(AutoRepr):
     def _tagging(self):
         """Update tags on M4B"""
         i = 1
+        has_many_parts: bool = False
+        if len(self._m4b_files) > 1:
+            has_many_parts = True
         for m4b_file in self._m4b_files:
             writer = AudioWriter(m4b_file)
             writer.set_tags(self._tags)
             writer.set_tag("track", str(i))
+
+            if has_many_parts:
+                title = self._tags.get("title")
+                title = f"{title} - Part {i:02d}"
+                writer.set_tag("title", title)
 
             if self._cover:
                 writer.set_cover(self._cover)
