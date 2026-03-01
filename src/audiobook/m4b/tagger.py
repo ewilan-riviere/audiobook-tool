@@ -60,6 +60,11 @@ class M4bTagger(AutoRepr):
                     album = f"{album}: {self._audiobook.title}"
                 writer.set_tag("album", album)
 
+                volume: int | float = float(self._audiobook.series_part)
+                if volume.is_integer():
+                    volume = int(volume)
+                writer.set_tag("series-part", str(volume))
+
             i = i + 1
 
         return self

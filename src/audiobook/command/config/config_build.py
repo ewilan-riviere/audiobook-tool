@@ -1,5 +1,6 @@
 """Handle config for build audiobook-tool"""
 
+import re
 import tempfile
 from pathlib import Path
 from audiobook.audio.reader.main import AudioReader
@@ -29,7 +30,7 @@ class ConfigBuild(AutoRepr):
         # Load metadata.yml and get tags
         # /path/to/the-wall/metadata.yml
         self.yml_path = utils.get_file(self.source_path, "yml")
-        default_title = "Unknown"
+        reader: YmlReader | None = None
         if self.yml_path:
             reader = YmlReader(self.yml_path).read()
             # M4bAudiobook for tags from metadata.yml to write inside future M4B
@@ -51,16 +52,8 @@ class ConfigBuild(AutoRepr):
         if not self.cover_path:
             self.cover_path = utils.get_file(self.source_path, "png")
 
-        # Set M4B output path, based on metadata
         # /path/to/the-wall/Assassin’s Apprentice
-        custom_output_path = self._to_path(args.output_path)
-        if custom_output_path:
-            self.output_path = custom_output_path
-        else:
-            container_name = self.audiobook.title if self.audiobook else default_title
-            self.output_path = self.source_path / utils.safe_filename(container_name)
-
-        self.output_path = utils.safe_path(self.output_path)
+        self.output_path = self._handle_output_path(args, reader)
 
         # Single or multiple
         self.single = args.single
@@ -74,6 +67,50 @@ class ConfigBuild(AutoRepr):
     def working_path(self) -> Path:
         """Get `temporary_directory` as `Path`"""
         return Path(self.temporary_directory.name)
+
+    def _handle_output_path(
+        self,
+        args: AudiobookArgs,
+        reader: YmlReader | None,
+    ) -> Path:
+        """Set M4B output path, based on metadata"""
+        default_title = "Unknown"
+        custom_output_path = self._to_path(args.output_path)
+        output_path: Path | None = custom_output_path
+
+        if custom_output_path:
+            output_path = custom_output_path
+        else:
+            container_name = self.audiobook.title if self.audiobook else default_title
+            output_path = self.source_path / utils.safe_filename(container_name)
+
+        output_path = utils.safe_path(output_path)
+
+        if reader and reader.metadata:
+            authors = reader.metadata.authors
+            if not authors:
+                return output_path
+            splitted_authors = [a.strip() for a in authors.split("&")]
+            if not splitted_authors or len(splitted_authors) == 0:
+                return output_path
+            first_author = self._to_slug(splitted_authors[0])
+
+            title = self._to_slug(reader.metadata.title or default_title)
+            series = reader.metadata.series
+            volume = reader.metadata.volume
+            if series and volume:
+                series = self._to_slug(series)
+                volume = str(volume)
+                output_path = (
+                    output_path / first_author / series / f"{series}.{volume}.{title}"
+                )
+            else:
+                output_path = output_path / first_author / title
+
+        return output_path
+
+    def _to_slug(self, text: str) -> str:
+        return re.sub(r"\s*&\s*|\s+", ".", text)
 
     def remove_working_path(self):
         """Delete `temporary_directory`"""
