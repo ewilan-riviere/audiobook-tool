@@ -113,17 +113,18 @@ class ConfigBuild(AutoRepr):
         title = reader.metadata.title or default_title
         series = reader.metadata.series
         volume = reader.metadata.volume
+        suffix_path_str: str = ""
         if series and volume:
             if volume.is_integer():
                 volume = int(volume)
             volume = str(volume)
-            output_path = (
-                output_path / first_author / series / f"{series}.{volume}.{title}"
-            )
+            suffix_path_str = f"{first_author}/{series}/{series}.{volume}.{title}"
         else:
-            output_path = output_path / first_author / title
+            suffix_path_str = f"{first_author}/{title}"
 
-        return self._normalized(output_path)
+        suffix_path = self._normalized(suffix_path_str)
+
+        return output_path / suffix_path
 
     def _normalized(self, text: str | Path) -> Path:
         # Clean conversion to string and normalization of separators

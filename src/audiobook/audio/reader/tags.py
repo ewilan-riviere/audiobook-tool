@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 import re
-from datetime import timedelta, date, datetime
+from datetime import timedelta, date
 from audiobook.common import AutoRepr, AudioChapter
 from audiobook.yml import YmlWriter
 from audiobook.models import AudibleAudiobook
@@ -79,6 +79,8 @@ class AudioTags(AutoRepr):
             return None
 
         clean_track = self.track.split("/")[0].lstrip("0")
+        if clean_track == "":
+            return None
 
         return int(clean_track) or None
 
@@ -135,8 +137,8 @@ class AudioTags(AutoRepr):
         audible.duration = None
         dt = timedelta(milliseconds=duration) if duration else None
         if dt:
-            time_dt = (datetime.min + dt).time() if dt else None
-            audible.duration = time_dt
+            # time_dt = (datetime.min + dt).time() if dt else None
+            audible.duration = dt if dt else None
 
         audible.language = self.language
         audible.abridged = False
