@@ -100,6 +100,8 @@ class ConfigBuild(AutoRepr):
             volume = reader.metadata.volume
             if series and volume:
                 series = self._to_slug(series)
+                if volume.is_integer():
+                    volume = int(volume)
                 volume = str(volume)
                 output_path = (
                     output_path / first_author / series / f"{series}.{volume}.{title}"
