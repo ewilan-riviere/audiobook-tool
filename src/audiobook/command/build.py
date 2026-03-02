@@ -37,7 +37,7 @@ class CommandBuild:
             clear=args.clear,
         ).run()
 
-        print("📤 Split M4B file into multiple M4B...")
+        print("✂️ Split M4B file into multiple M4B...")
         splitter = M4bSplitter(
             m4b_file=str(forge.output_path),
             working_directory=config.working_path,

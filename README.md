@@ -23,8 +23,12 @@
 
 ## Features
 
-- 📦 Build `M4B` audiobook from `MP3`/`M4A` files (can be multi-part or one)
+- 📦 Build `M4B` audiobook from `MP3`/`M4A` files
 - 🎧 Fetch metadata and cover from [Audible](https://www.audible.com/) with **ASIN** code
+- 🔧 Auto-fix for source files (like missing headers)
+- 📏 Write chapters into `M4B` based on source files `title` tag
+- ✂️ Split `M4B` file into multiple parts OR keep only one file
+- 💾 Handle metadata from [`metadata.yml`](./metadata.template.yml) and `cover.jpg` inside audiobook directory
 - 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
 - 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
 
@@ -32,12 +36,12 @@
 
 - [ ] Fix M4A handle
 - [ ] Test for one audiobook
-- [ ] Confirm for override metadata/cover
-- [ ] Confirm after Audible fetch
+- [x] Confirm for override metadata/cover
+- [x] Confirm after Audible fetch
 - [ ] Refact. args
 - [ ] Refact clear flag
 - [ ] Review logging
-- [x] GitHub tests
+- [ ] GitHub tests
 - [ ] README
 - [x] Remove part 1 from name if only one part
 - [x] Fix Error Referenced QT chapter track not found
@@ -67,9 +71,10 @@ The whole thing needed to be flexible and resilient, offering high-quality audio
 audiobook-tool audible <ASIN_CODE>
 ```
 
-| Flag       | Alias | Description           | Type  | Default |
-| :--------- | :---: | :-------------------- | :---: | :------ |
-| `--locale` | `-l`  | Audible domain to use | `str` | `None`  |
+| Flag       | Alias | Description                      |  Type  | Default |
+| :--------- | :---: | :------------------------------- | :----: | :------ |
+| `--locale` | `-l`  | Audible domain to use            | `str`  | `None`  |
+| `--cover`  | `-c`  | Get cover as `cover.jpg` (500px) | `bool` | `False` |
 
 If you not set `--locale` flag, CLI will parse all Audible domains to find ASIN audiobook. You can set the `--locale` flag (can be `com`, `co.uk`, `fr`, `de`) to speed up the process.
 
@@ -95,7 +100,7 @@ audiobook-tool build /path/to/source_files
 #### Metadata & cover
 
 > [!TIP]
-> `audible` command or `build` command with `--asin` flag will create `metadata.yml` and `cover.jpg` automtically if ASIN is valid.
+> `audible` command or `build` command with `--asin` flag will create `metadata.yml` and `cover.jpg` automatically if ASIN is valid.
 
 ##### Metadata
 
