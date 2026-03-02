@@ -123,9 +123,9 @@ class ConfigBuild(AutoRepr):
         else:
             output_path = output_path / first_author / title
 
-        return self._to_slug(output_path)
+        return self._normalized(output_path)
 
-    def _to_slug(self, text: str | Path) -> Path:
+    def _normalized(self, text: str | Path) -> Path:
         # Clean conversion to string and normalization of separators
         original_str = str(text).replace("\\", "/")
 
