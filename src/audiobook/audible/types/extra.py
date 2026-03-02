@@ -21,7 +21,8 @@ class AudibleExtra(WebScraper):
     title_typed: str | None = field(init=False)
     genres_typed: list[str] | None = field(init=False, default_factory=list[str])
 
-    def __post_init__(self):
+    def run(self):
+        """Parse raw data to extract metadata"""
         self.volume_typed = self._clean_volume()
         self.title_typed = self._clean_title()
         self.series_typed = self._clean_series()
@@ -30,15 +31,17 @@ class AudibleExtra(WebScraper):
         categories = self.scraped_categories or []
         self.genres_typed = genres + categories
 
+        return self
+
     @property
     def volume_int_typed(self) -> int | None:
+        """Get `volume_typed` as `int`"""
         if not self.volume_typed:
             return None
 
         return int(self.volume_typed)
 
     def _clean_series(self):
-        series_raw = str(self.scraped_series)
         series = self.scraped_series if self.scraped_series else self.scraped_subtitle
 
         if not series:
@@ -48,7 +51,7 @@ class AudibleExtra(WebScraper):
         s = re.sub(
             r"(?i)\s*[,:\-]?\s*(?:book|tome|vol|volume|livre|part)?\s*\d+.*$",
             "",
-            series_raw,
+            series,
         )
 
         # Gestion des préfixes d'univers (ex: Star Wars - La croisade...)

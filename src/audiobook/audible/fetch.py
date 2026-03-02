@@ -124,7 +124,7 @@ class AudibleFetch(AutoRepr):
                         scraped_subtitle=self.html.subtitle,
                         scraped_genres=self.html.genres,
                         scraped_categories=self.json_duration.categories,
-                    )
+                    ).run()
 
                     self.url = final_url
                     self.success = True

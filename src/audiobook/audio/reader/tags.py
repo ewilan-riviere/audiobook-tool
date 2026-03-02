@@ -78,11 +78,16 @@ class AudioTags(AutoRepr):
         if not self.track:
             return None
 
-        clean_track = self.track.split("/")[0].lstrip("0")
-        if clean_track == "":
-            return None
+        clean_track = self.track.split("/")[0]
+        clean_track = clean_track.lstrip("0")
 
-        return int(clean_track) or None
+        if clean_track == "":
+            return 0
+
+        try:
+            return int(clean_track)
+        except ValueError:
+            return None
 
     @property
     def is_compilation(self) -> bool:
