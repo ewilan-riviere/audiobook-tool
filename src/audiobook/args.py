@@ -60,7 +60,13 @@ class AudiobookArgs(AutoRepr):
         )
         m_build.add_argument(
             "-s",
-            "--single",
+            "--structured",
+            action="store_true",
+            help="Store audiobook with template: `author/series/series.volume.title/audiobook.m4b`",
+        )
+        m_build.add_argument(
+            "-u",
+            "--unified",
             action="store_true",
             help="Skip splitting M4B into mutliple parts",
         )
@@ -119,7 +125,8 @@ class AudiobookArgs(AutoRepr):
 
         # bool
         self.clear: bool = getattr(args, "clear", False)
-        self.single: bool = getattr(args, "single", False)
+        self.structured: bool = getattr(args, "structured", False)
+        self.unified: bool = getattr(args, "unified", False)
         self.cover: bool = getattr(args, "cover", False)
 
         # misc

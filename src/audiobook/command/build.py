@@ -37,16 +37,26 @@ class CommandBuild:
             clear=args.clear,
         ).run()
 
+        if not forge.output_path:
+            msg = "FAILED! Output path is empty!"
+            print(msg)
+            raise FileNotFoundError(msg)
+
         print("✂️ Split M4B file into multiple M4B...")
-        splitter = M4bSplitter(
-            m4b_file=str(forge.output_path),
-            working_directory=config.working_path,
-            part_size=config.part_size,
-        ).run()
+        m4b_files: list[Path] = []
+        if config.unified:
+            m4b_files.append(forge.output_path)
+        else:
+            splitter = M4bSplitter(
+                m4b_file=forge.output_path,
+                working_directory=config.working_path,
+                part_size=config.part_size,
+            ).run()
+            m4b_files = splitter.m4b_files
 
         print("🔖 Update tags with metadata.yml...")
         tagger = M4bTagger(
-            m4b_files=splitter.m4b_files,
+            m4b_files=m4b_files,
             audiobook=config.audiobook,
             cover=config.cover_path,
             title=config.audiobook.title,

@@ -3,6 +3,7 @@
 import re
 import tempfile
 from pathlib import Path
+import unicodedata
 from audiobook.audio.reader.main import AudioReader
 from audiobook.models.m4b import M4bAudiobook
 import audiobook.utils as utils
@@ -22,6 +23,8 @@ class ConfigBuild(AutoRepr):
         if not source_path:
             raise FileNotFoundError(f"Path {source_path} is not valid!")
         self.source_path = source_path
+        # Structured
+        self.structured = args.structured
 
         # Setup temporary directory (for clean work)
         # /var/folders/m0/xhm5c_mx7yn2b8mqtqhdpc840000gn/T/tmppa8g2g_n
@@ -55,8 +58,8 @@ class ConfigBuild(AutoRepr):
         # /path/to/the-wall/Assassin’s Apprentice
         self.output_path = self._handle_output_path(args, reader)
 
-        # Single or multiple
-        self.single = args.single
+        # Single or unified
+        self.unified = args.unified
         # Part of each size (if not single)
         if args.part_size:
             self.part_size = int(args.part_size)
@@ -86,33 +89,73 @@ class ConfigBuild(AutoRepr):
 
         output_path = utils.safe_path(output_path)
 
-        if reader and reader.metadata:
-            authors = reader.metadata.authors
-            if not authors:
-                return output_path
-            splitted_authors = [a.strip() for a in authors.split("&")]
-            if not splitted_authors or len(splitted_authors) == 0:
-                return output_path
-            first_author = self._to_slug(splitted_authors[0])
+        if self.structured:
+            output_path = self._handle_structured(output_path, default_title, reader)
 
-            title = self._to_slug(reader.metadata.title or default_title)
-            series = reader.metadata.series
-            volume = reader.metadata.volume
-            if series and volume:
-                series = self._to_slug(series)
-                if volume.is_integer():
-                    volume = int(volume)
-                volume = str(volume)
-                output_path = (
-                    output_path / first_author / series / f"{series}.{volume}.{title}"
-                )
-            else:
-                output_path = output_path / first_author / title
+        output_path_str = re.sub(r"\.{2,}", ".", str(output_path))
 
-        return output_path
+        return Path(output_path_str).resolve()
 
-    def _to_slug(self, text: str) -> str:
-        return re.sub(r"\s*&\s*|\s+", ".", text)
+    def _handle_structured(
+        self, output_path: Path, default_title: str, reader: YmlReader | None
+    ) -> Path:
+        if not reader or not reader.metadata:
+            return output_path
+
+        authors = reader.metadata.authors
+        if not authors:
+            return output_path
+        splitted_authors = [a.strip() for a in authors.split("&")]
+        if not splitted_authors or len(splitted_authors) == 0:
+            return output_path
+        first_author = splitted_authors[0]
+
+        title = reader.metadata.title or default_title
+        series = reader.metadata.series
+        volume = reader.metadata.volume
+        if series and volume:
+            if volume.is_integer():
+                volume = int(volume)
+            volume = str(volume)
+            output_path = (
+                output_path / first_author / series / f"{series}.{volume}.{title}"
+            )
+        else:
+            output_path = output_path / first_author / title
+
+        return self._to_slug(output_path)
+
+    def _to_slug(self, text: str | Path) -> Path:
+        # Clean conversion to string and normalization of separators
+        original_str = str(text).replace("\\", "/")
+
+        # Detect whether the original path was absolute (begins with /)
+        is_absolute = original_str.startswith("/")
+
+        parts = original_str.split("/")
+        slugified_parts: list[str] = []
+
+        for part in parts:
+            if not part:  # Empty segments are ignored (e.g., double //).
+                continue
+
+            # Removal of accents
+            nfkd_form = unicodedata.normalize("NFKD", part)
+            part = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+            # Replacing special characters
+            part = re.sub(r"[^a-zA-Z0-9]+", ".", part)
+            part = part.strip(".")
+
+            if part:
+                slugified_parts.append(part)
+
+        new_path_str = "/".join(slugified_parts)
+
+        if is_absolute:
+            new_path_str = "/" + new_path_str
+
+        return Path(new_path_str)
 
     def remove_working_path(self):
         """Delete `temporary_directory`"""

@@ -28,6 +28,7 @@
 - 🔧 Auto-fix for source files (like missing headers)
 - 📏 Write chapters into `M4B` based on source files `title` tag
 - ✂️ Split `M4B` file into multiple parts OR keep only one file
+- 🔒 Preserve chapters when splitting, does not break chapters between parts
 - 💾 Handle metadata from [`metadata.yml`](./metadata.template.yml) and `cover.jpg` inside audiobook directory
 - 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
 - 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
@@ -86,14 +87,15 @@ If you not set `--locale` flag, CLI will parse all Audible domains to find ASIN 
 audiobook-tool build /path/to/source_files
 ```
 
-| Flag            | Alias | Description                                                  |  Type  | Default |
-| :-------------- | :---: | :----------------------------------------------------------- | :----: | :------ |
-| `--clear`       | `-c`  | Clear covers from source files                               | `bool` | `False` |
-| `--asin`        | `-a`  | ASIN code to fetch Audible metadata before build             | `str`  | `None`  |
-| `--locale`      | `-l`  | Audible domain to use                                        | `str`  | `None`  |
-| `--output-path` | `-o`  | Path where put audiobook files (default is source directory) | `str`  | `None`  |
-| `--single`      | `-s`  | Create only one audiobook (not splitted)                     | `bool` | `False` |
-| `--part-size`   | `-p`  | Size of each part\* in MB (default use `.env`)               | `int`  | `None`  |
+| Flag            | Alias | Description                                                                                                 |  Type  | Default |
+| :-------------- | :---: | :---------------------------------------------------------------------------------------------------------- | :----: | :------ |
+| `--clear`       | `-c`  | Clear covers from source files                                                                              | `bool` | `False` |
+| `--asin`        | `-a`  | ASIN code to fetch Audible metadata before build                                                            | `str`  | `None`  |
+| `--locale`      | `-l`  | Audible domain to use                                                                                       | `str`  | `None`  |
+| `--output-path` | `-o`  | Path where put audiobook files (default is source directory)                                                | `str`  | `None`  |
+| `--structured`  | `-s`  | Store audiobook with template: `author/series/series.volume.title/audiobook.m4b` (works with `output_path`) | `bool` | `False` |
+| `--unified`     | `-u`  | Does not apply splitting on audiobook                                                                       | `bool` | `False` |
+| `--part-size`   | `-p`  | Size of each part\* in MB (default use `.env`)                                                              | `int`  | `None`  |
 
 \*: ABOUT SPLIT
 
