@@ -184,7 +184,7 @@ pip install -e .
 Use `audiobook-tool` CLI
 
 ```sh
-audiobook-tool build ./path/to/mp3_directory
+audiobook-tool build ./path/to/source_directory
 ```
 
 ## Test

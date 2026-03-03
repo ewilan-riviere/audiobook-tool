@@ -4,8 +4,7 @@ from .build import CommandBuild
 # from .clean import CommandClean
 from .extract import CommandExtract
 from .forge import CommandForge
-
-# from .fusion import CommandFusion
+from .fusion import CommandFusion
 from .parse import CommandParse
 
 __all__ = [
@@ -14,6 +13,6 @@ __all__ = [
     # "CommandClean",
     "CommandExtract",
     "CommandForge",
-    # "CommandFusion",
+    "CommandFusion",
     "CommandParse",
 ]

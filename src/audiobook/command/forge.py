@@ -10,11 +10,11 @@ class CommandForge:
     """forge command of audiobook-tool"""
 
     def __init__(self, args: AudiobookArgs):
-        if not args.mp3_directory:
+        if not args.source_directory:
             raise FileNotFoundError("Path of MP3 directory is needed!")
 
         # /path/to/audiobook_mp3
-        source_path = Path(args.mp3_directory).resolve()
+        source_path = Path(args.source_directory).resolve()
         # /path/to/output (optional)
         output_path = None
         if args.output_path:

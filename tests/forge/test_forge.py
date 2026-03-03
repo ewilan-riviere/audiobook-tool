@@ -6,14 +6,14 @@ from audiobook.audio import AudioReader
 
 
 def test_forge():
-    mp3_directory = "./tests/media/the-wall"
-    mp3_directory_test = "./tests/media/the-wall-test"
-    utils.remove_directory(mp3_directory_test)
-    utils.copy_directory(mp3_directory, mp3_directory_test)
+    source_directory = "./tests/media/the-wall"
+    source_directory_test = "./tests/media/the-wall-test"
+    utils.remove_directory(source_directory_test)
+    utils.copy_directory(source_directory, source_directory_test)
 
     temporary_directory = tempfile.TemporaryDirectory()
     forge = AudiobookForge(
-        source_path=Path(mp3_directory),
+        source_path=Path(source_directory),
         working_directory=Path(temporary_directory.name),
         clear=True,
     ).run()

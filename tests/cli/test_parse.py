@@ -26,14 +26,14 @@ def test_parse(monkeypatch: Any, capsys: Any):
 
 
 def forge_m4b():
-    mp3_directory = Path("./tests/media/the-wall").resolve()
-    mp3_directory_test = Path("./tests/media/the-wall-test").resolve()
-    utils.remove_directory(mp3_directory_test)
-    utils.copy_directory(mp3_directory, mp3_directory_test)
+    source_directory = Path("./tests/media/the-wall").resolve()
+    source_directory_test = Path("./tests/media/the-wall-test").resolve()
+    utils.remove_directory(source_directory_test)
+    utils.copy_directory(source_directory, source_directory_test)
 
     temporary_directory = tempfile.TemporaryDirectory()
     forge = AudiobookForge(
-        source_path=Path(mp3_directory_test),
+        source_path=Path(source_directory_test),
         working_directory=Path(temporary_directory.name),
         clear=True,
     ).run()
@@ -41,4 +41,4 @@ def forge_m4b():
     if not forge.output_path:
         raise FileNotFoundError(f"File not found at path {str(forge.output_path)}")
 
-    return utils.copy_file(forge.output_path, mp3_directory_test)
+    return utils.copy_file(forge.output_path, source_directory_test)

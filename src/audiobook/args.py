@@ -36,7 +36,7 @@ class AudiobookArgs(AutoRepr):
         m_build = subparsers.add_parser(
             "build", help="Build MP3 files to M4B (include forge command)"
         )
-        m_build.add_argument("mp3_directory", help="Source directory")
+        m_build.add_argument("source_directory", help="Source directory")
         m_build.add_argument(
             "-c",
             "--clear",
@@ -78,7 +78,7 @@ class AudiobookArgs(AutoRepr):
 
         # Clean
         m_clean = subparsers.add_parser("clean", help="Clean MP3 files from silences")
-        m_clean.add_argument("mp3_directory", help="Source directory")
+        m_clean.add_argument("source_directory", help="Source directory")
 
         # Extract
         m_extract = subparsers.add_parser("extract", help="Extract MP3 files from M4B")
@@ -90,8 +90,11 @@ class AudiobookArgs(AutoRepr):
         )
 
         # Forge
-        m_forge = subparsers.add_parser("forge", help="Forge MP3 file to M4B")
-        m_forge.add_argument("mp3_directory", help="Source directory")
+        m_forge = subparsers.add_parser(
+            "forge",
+            help="Forge MP3 file to unified M4B (use `build` command for full features)",
+        )
+        m_forge.add_argument("source_directory", help="Source directory")
         m_forge.add_argument(
             "-o",
             "--output-path",
@@ -101,9 +104,12 @@ class AudiobookArgs(AutoRepr):
         # Fusion
         m_fusion = subparsers.add_parser("fusion", help="Add MP3 files to existing M4B")
         m_fusion.add_argument(
-            "m4b_directory", help="Directory with current audiobook (multiparts)"
+            "audiobook_directory",
+            help="Directory with current audiobook, if audiobook as only one part use parent directory",
         )
-        m_fusion.add_argument("mp3_directory", help="Directory with new chapters")
+        m_fusion.add_argument(
+            "source_directory", help="Directory with new chapters as MP3/M4A"
+        )
 
         # Parse
         m_parse = subparsers.add_parser(
@@ -118,7 +124,7 @@ class AudiobookArgs(AutoRepr):
         self.command: str = args.command
 
         # path
-        self.mp3_directory: Optional[str] = getattr(args, "mp3_directory", None)
+        self.source_directory: Optional[str] = getattr(args, "source_directory", None)
         self.output_path: Optional[str] = getattr(args, "output_path", None)
         self.m4b_directory: Optional[str] = getattr(args, "m4b_directory", None)
         self.audio_to_parse: Optional[str] = getattr(args, "audio_to_parse", None)
@@ -135,8 +141,8 @@ class AudiobookArgs(AutoRepr):
         self.part_size: Optional[int] = getattr(args, "part_size", None)
         self.audio_type: Optional[str] = getattr(args, "type", None)
 
-        if self.mp3_directory:
-            self.mp3_directory = self._path_absolute(self.mp3_directory)
+        if self.source_directory:
+            self.source_directory = self._path_absolute(self.source_directory)
         if self.output_path:
             self.output_path = self._path_absolute(self.output_path)
         if self.m4b_directory:
@@ -151,10 +157,10 @@ class AudiobookArgs(AutoRepr):
 
         if (
             self.command in ["build", "clean", "forge", "fusion"]
-            and self.mp3_directory is None
+            and self.source_directory is None
         ):
             parser.error(
-                f"L'argument 'mp3_directory' est requis pour la commande {self.command}"
+                f"L'argument 'source_directory' est requis pour la commande {self.command}"
             )
 
         if self.command in ["extract"] and self.m4b_directory is None:
@@ -162,9 +168,9 @@ class AudiobookArgs(AutoRepr):
                 f"L'argument 'm4b_directory' est requis pour la commande {self.command}"
             )
 
-        if self.command in ["fusion"] and self.mp3_directory is None:
+        if self.command in ["fusion"] and self.source_directory is None:
             parser.error(
-                f"L'argument 'mp3_directory' est requis pour la commande {self.command}"
+                f"L'argument 'source_directory' est requis pour la commande {self.command}"
             )
 
     def _path_absolute(self, path: str) -> str:

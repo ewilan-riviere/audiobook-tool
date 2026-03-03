@@ -15,10 +15,10 @@ class CommandBuild:
     def __init__(self, args: AudiobookArgs):
         self.args = args
 
-        print(f"Handle {args.mp3_directory}...")
-        if not utils.path_exists(args.mp3_directory):
+        print(f"Handle {args.source_directory}...")
+        if not utils.path_exists(args.source_directory):
             raise FileNotFoundError(
-                f"Failed! Path {args.mp3_directory} doesn't exists!"
+                f"Failed! Path {args.source_directory} doesn't exists!"
             )
 
         # ASIN fetch metadata
@@ -82,11 +82,11 @@ class CommandBuild:
         utils.rename_file(m4b_part, new_name)
 
     def _handle_audible(self):
-        if not self.args.asin or not self.args.mp3_directory:
+        if not self.args.asin or not self.args.source_directory:
             return
 
-        yml = utils.get_file(self.args.mp3_directory, "yml")
-        cover = utils.get_file(self.args.mp3_directory, "jpg")
+        yml = utils.get_file(self.args.source_directory, "yml")
+        cover = utils.get_file(self.args.source_directory, "jpg")
 
         if (yml and cover) and not self.args.clear:
             print(
@@ -105,8 +105,8 @@ class CommandBuild:
             if not audible.success:
                 return
 
-            audible.save_metadata(self.args.mp3_directory)
-            audible.audiobook.save_cover(self.args.mp3_directory)
+            audible.save_metadata(self.args.source_directory)
+            audible.audiobook.save_cover(self.args.source_directory)
             print()
             print(
                 "You can check `metadata.yml` to validate by yourself "

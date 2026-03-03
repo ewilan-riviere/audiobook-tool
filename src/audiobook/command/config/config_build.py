@@ -19,7 +19,7 @@ class ConfigBuild(AutoRepr):
 
     def __init__(self, args: AudiobookArgs):
         # /path/to/the-wall (with .mp3, metadata.yml, cover.jpg)
-        source_path = self._to_path(args.mp3_directory)
+        source_path = self._to_path(args.source_directory)
         if not source_path:
             raise FileNotFoundError(f"Path {source_path} is not valid!")
         self.source_path = source_path
