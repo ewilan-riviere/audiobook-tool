@@ -1,3 +1,4 @@
+# python
 __pycache__
 .mypy_cache
 .pytest_cache
@@ -5,17 +6,10 @@ audiobook_cli.egg-info
 
 .DS_Store
 .env
-# tests/media/covers
-# *.txt
-# !requirements.txt
-# .venv
-# tests/media/the-wall/the-wall.m4b
-# tests/media/the-wall-test
-# tests/media/the-wall-forge
-# tests/media/output
-# metadata.yml
-# cover.jpg
+.venv
 
+# tests
 coverage.xml
 .coverage
+
 release.md
