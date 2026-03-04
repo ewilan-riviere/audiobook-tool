@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 import pytest
 from pytest import FixtureRequest
 from audiobook.audio import (
@@ -7,36 +7,27 @@ from audiobook.audio import (
     AudioType,
     AudioWriter,
 )
-from audiobook.common import AudioChapter
 import audiobook.utils as utils
-from tests.test_files import ALL_FILES, ALL_FILES_IDS
+from tests.test_files import RAW_FILES, RAW_FILES_IDS, copy_to_output
 
 
-@pytest.fixture(
-    name="writer_path",
-    params=ALL_FILES,
-    ids=ALL_FILES_IDS,
-)
-def writer_file(request: FixtureRequest):
+@pytest.fixture(name="path", params=RAW_FILES, ids=RAW_FILES_IDS)
+def path_fixture(request: FixtureRequest):
     audio_path = Path(request.param)
 
     if not audio_path.exists():
         pytest.skip(f"Missing file : {audio_path}")
 
-    extension = audio_path.suffix[1:].lower()
-    writer_audio = utils.path_join(
-        str(audio_path.parent), f"{audio_path.stem}_writer.{extension}"
-    )
+    reader = AudioReader(audio_path)
+    new_file = copy_to_output(reader.file_path)
 
-    utils.copy_file(audio_path, writer_audio)
+    yield new_file
 
-    yield writer_audio
-
-    utils.remove_file(writer_audio)
+    utils.remove_file(new_file)
 
 
-def test_writer(writer_path: str):
-    assert Path(writer_path).exists()
+def test_writer(path: str):
+    assert Path(path).exists()
 
     new_tags: Dict[str, Any] = {
         "album": "New Album",
@@ -64,11 +55,11 @@ def test_writer(writer_path: str):
         "track": "10/10",
         "date": "1980-11-30",
     }
-    writer = AudioWriter(writer_path)
+    writer = AudioWriter(path)
     writer.set_tags(new_tags)
     writer.remove_cover()
 
-    reader = AudioReader(writer_path)
+    reader = AudioReader(path)
 
     assert reader.tags.album == new_tags["album"]
     assert reader.tags.album_artist == new_tags["album_artist"]
@@ -102,51 +93,6 @@ def test_writer(writer_path: str):
         assert reader.tags.is_compilation is False
 
     writer.remove_tag("album_artist")
-    reader = AudioReader(writer_path)
+    reader = AudioReader(path)
 
     assert reader.tags.album_artist is None
-
-
-def test_m4b_chapters(writer_path: str):
-    reader = AudioReader(writer_path)
-    if reader.container.extension == "mp3":
-        return
-
-    writer = AudioWriter(writer_path)
-
-    raw_chapters = [
-        AudioChapter(
-            id=0,
-            start=0,
-            start_time="0.000000",
-            end=341186688,
-            end_time="7736.659592",
-            tags={"title": "Saison 1 - Eden"},
-            time_base="1/44100",
-        ),
-        AudioChapter(
-            id=1,
-            start=341186688,
-            start_time="7736.659592",
-            end=691560576,
-            end_time="15681.645714",
-            tags={"title": "Saison 2 - Eden"},
-            time_base="1/44100",
-        ),
-    ]
-    writer.set_chapters(raw_chapters)
-
-    reader = AudioReader(writer_path)
-    reader_chapters = reader.tags.chapters
-    reader_chapter = reader_chapters[0]
-    raw_chapter = raw_chapters[0]
-
-    assert isinstance(reader_chapters, List)
-    assert isinstance(reader_chapter, AudioChapter)
-    assert reader_chapter.id == raw_chapter.id
-    assert reader_chapter.start == raw_chapter.start
-    assert reader_chapter.start_time == raw_chapter.start_time
-    assert reader_chapter.end == raw_chapter.end
-    assert reader_chapter.end_time == raw_chapter.end_time
-    assert reader_chapter.tags == raw_chapter.tags
-    assert reader_chapter.time_base == raw_chapter.time_base

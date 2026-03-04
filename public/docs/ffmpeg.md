@@ -1,5 +1,21 @@
 # FFMPEG
 
+## MP3 to M4A/M4B
+
+AAC
+
+```sh
+ffmpeg -i mp3-file.mp3 -c:a aac -b:a 160k -vn -movflags +faststart out.m4a
+ffmpeg -i mp3-file.mp3 -c:a aac -b:a 160k -c:v copy -disposition:v:0 attached_pic -f mp4 -movflags +faststart out.m4b
+```
+
+ALAC
+
+```sh
+ffmpeg -i mp3-file.mp3 -c:a alac -vn -map_metadata -1 out.m4a
+ffmpeg -i mp3-file.mp3 -c:a alac -vn -map_metadata -1 out.m4b
+```
+
 ## Remuxing
 
 ```sh

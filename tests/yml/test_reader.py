@@ -1,9 +1,9 @@
 from audiobook.yml import YmlReader
+from tests.test_files import YML_TEMPLATE
 
 
 def test_reader():
-    template_path = "./metadata.template.yml"
-    reader = YmlReader(template_path).read()
+    reader = YmlReader(YML_TEMPLATE).read()
 
     assert reader.yml_path.name == "metadata.template.yml"
     assert isinstance(reader.yml_data, dict)

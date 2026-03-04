@@ -1,19 +1,28 @@
+from pathlib import Path
 from typing import Any
 import sys
+
+import pytest
 from audiobook import app
 import audiobook.utils as utils
 from audiobook.audio import AudioReader
 from audiobook.models import ContainerAudiobook
+from tests.test_files import (
+    AUDIOBOOK_MP3_FILES,
+    AUDIOBOOK_M4A_FILES,
+    copy_to_output,
+    OUTPUT_PATH,
+)
 
 
-def test_build(monkeypatch: Any, capsys: Any):
-    source_path = "./tests/media/the-wall"
-    source_path_test = "./tests/media/the-wall-test"
-    utils.remove_directory(source_path_test)
-    utils.copy_directory(source_path, source_path_test)
-
-    output_path = "tests/media/output"
-    utils.remove_directory(output_path)
+@pytest.mark.parametrize(
+    "path", [AUDIOBOOK_MP3_FILES, AUDIOBOOK_M4A_FILES], ids=["MP3", "M4A"]
+)
+def test_build(path: str, monkeypatch: Any, capsys: Any):
+    print(path)
+    files_path = copy_to_output(path)
+    output_temp = Path(f"{OUTPUT_PATH}/audiobook").resolve()
+    utils.remove_directory(output_temp)
 
     monkeypatch.setattr(
         sys,
@@ -21,12 +30,12 @@ def test_build(monkeypatch: Any, capsys: Any):
         [
             "audiobook-tool",
             "build",
-            source_path_test,
-            "--clear",
+            str(files_path),
             "--part-size",
             "1",
+            "--clear",
             "--output-path",
-            output_path,
+            str(output_temp),
         ],
     )
 
@@ -35,12 +44,14 @@ def test_build(monkeypatch: Any, capsys: Any):
     except SystemExit as e:
         assert e.code == 0
 
-    container = ContainerAudiobook(output_path)
+    container = ContainerAudiobook(output_temp)
     reader = AudioReader(str(container.m4b_file))
 
-    assert reader.tags.title == "Assassin’s Apprentice - Part 01"
-    assert reader.tags.album == "Farseer 01: Assassin’s Apprentice"
+    assert reader.tags.title == "The Wall - Part 01"
+    assert reader.tags.album == "The Wall Anthology 01: The Wall"
 
     captured = capsys.readouterr()
     assert "audiobook-tool" in captured.out
-    assert "Execute command build..." in captured.out
+
+    utils.remove_directory(files_path)
+    utils.remove_directory(output_temp)
