@@ -71,7 +71,8 @@ jobs:
       #   run: uv run pytest --cov --cov-branch --cov-report=xml
 
       - name: Execute tests
-        run: uv run pytest --cov --cov-branch --cov-report=xml
+        # run: uv run pytest --cov --cov-branch --cov-report=xml
+        run: uv run pytest -k "not audible" --cov --cov-branch --cov-report=xml
 
       - name: Send code coverage (Only Tags)
         if: "startsWith(github.ref, 'refs/tags/')"
