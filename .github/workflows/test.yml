@@ -20,6 +20,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Force install Node
+        run: |
+          apt-get update
+          apt-get install -y nodejs
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
