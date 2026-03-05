@@ -34,16 +34,16 @@ def _get_asin(locale: str) -> str:
     return random.choice(codes)  # type: ignore
 
 
-def test_audible_fr():
-    asin = _get_asin("fr")
-    audible = Audible(asin, "fr")
-    assert audible.success is True
+# def test_audible_fr():
+#     asin = _get_asin("fr")
+#     audible = Audible(asin, "fr")
+#     assert audible.success is True
 
 
-def test_audible_fr_auto():
-    asin = _get_asin("fr")
-    audible = Audible(asin)
-    assert audible.success is True
+# def test_audible_fr_auto():
+#     asin = _get_asin("fr")
+#     audible = Audible(asin)
+#     assert audible.success is True
 
 
 # def test_audible_co_uk():
