@@ -3,6 +3,7 @@
 from pathlib import Path
 from audiobook import utils
 from audiobook.args import AudiobookArgs
+from audiobook.audio.fixer.main import AudioFixer
 from audiobook.audio.reader.main import AudioReader
 from audiobook.audio.writer.main import AudioWriter
 from audiobook.models import ContainerAudiobook
@@ -43,6 +44,10 @@ class CommandExtract:
         for chapter in chapters:
             i = i + 1
             reader = AudioReader(chapter)
+
+            fixer = AudioFixer(chapter, strict=True)
+            fixer.run(replace_original=True)
+
             writer = AudioWriter(chapter)
 
             writer.set_tags(container.audio_tags.to_dict())

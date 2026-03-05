@@ -3,6 +3,7 @@
 import argparse
 import sys
 import logging
+import importlib_metadata
 from audiobook.args import AudiobookArgs
 from audiobook.env import python_check, LOGGER_LEVEL
 from .command import (
@@ -11,7 +12,7 @@ from .command import (
     # CommandClean,
     CommandExtract,
     CommandForge,
-    # CommandFusion,
+    CommandFusion,
     CommandParse,
 )
 
@@ -25,17 +26,14 @@ logging.basicConfig(
 
 def main() -> None:
     """audiobook-tool main"""
+    version = importlib_metadata.version("audiobook-cli")
     parser = argparse.ArgumentParser(
         prog="audiobook-tool",
-        description="CLI to handle audiobooks",
+        description=f"Ultimate Python CLI to handle audiobooks, v{version}",
     )
 
     args = AudiobookArgs(parser)
     python_check()
-
-    print(parser.prog)
-    print(parser.description)
-    print(f"Execute command {args.command}...\n")
 
     try:
         if args.command == "parse":
@@ -44,14 +42,15 @@ def main() -> None:
             CommandAudible(args)
         elif args.command == "build":
             CommandBuild(args)
-        # elif args.command == "clean":
-        #     CommandClean(args)
+        elif args.command == "clean":
+            raise Exception("clean is not implemented yet")
+            # CommandClean(args)
         elif args.command == "extract":
             CommandExtract(args)
         elif args.command == "forge":
             CommandForge(args)
-        # elif args.command == "fusion":
-        #     CommandFusion(args)
+        elif args.command == "fusion":
+            CommandFusion(args)
         elif args.command == "parse":
             CommandParse(args)
     except Exception as e:  # pylint: disable=broad-exception-caught

@@ -26,13 +26,13 @@ class Audible(AutoRepr):
         self.success = self.fetch.success
         self._handle_audiobook()
 
-    def save_metadata(self, save_path: str | Path) -> str:
+    def save_metadata(self, save_path: str | Path) -> Path:
         """Save audiobook as metadata.yml"""
         save_path = Path(save_path).resolve()
         writer = YmlWriter(self.audiobook, save_path)
         writer.write()
 
-        return str(writer.save_path)
+        return writer.save_path
 
     def _handle_audiobook(self):
         ld_audiobook = self.fetch.ld_audiobook

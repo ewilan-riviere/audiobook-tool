@@ -10,13 +10,13 @@ import audiobook.utils as utils
 class CleanSilences:
     """Cut silences and clean MP3 files"""
 
-    def __init__(self, mp3_directory: str):
+    def __init__(self, source_directory: str):
         """
         :param file_paths: Liste des chemins vers les fichiers .mp3
         """
 
         print("Cut silences...")
-        self.mp3_list = utils.get_files(mp3_directory, "mp3")
+        self.mp3_list = utils.get_files(source_directory, "mp3")
         self.file_paths: List[Path] = [Path(p) for p in self.mp3_list]
         # On garde trace des paires (original, temporaire) pour le remplacement final
         self._processed_files: List[Tuple[Path, Path]] = []

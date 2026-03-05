@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiobook-cli"
-version = "0.1.0"
+version = "0.3.1"
 description = "Ultimate Python CLI to handle audiobooks."
 readme = "README.md"
 authors = [{ name = "Ewilan Rivière" }]
@@ -21,11 +21,12 @@ classifiers = [
 # uv sync
 # uv export --format requirements-txt > requirements.txt
 dependencies = [
-  "pyyaml",        # import yaml (to handle .yml files)
-  "mutagen",       # import mutagen (to handle .mp3 and .m4b files)
-  "python-dotenv", # import dotenv (to handle .env variables)
-  "httpx",         # import httpx (to download audiobook cover)
-  "rich",          # import rich (help for debugging)
+  "importlib-metadata", # import importlib_metadata (for version)
+  "pyyaml",             # import yaml (to handle .yml files)
+  "mutagen",            # import mutagen (to handle .mp3 and .m4b files)
+  "python-dotenv",      # import dotenv (to handle .env variables)
+  "httpx",              # import httpx (to download audiobook cover)
+  "rich",               # import rich (help for debugging)
   # uv run playwright install chromium
   "playwright",         # import playwright (for Audible web scraping)
   "playwright-stealth", # import playwright_stealth

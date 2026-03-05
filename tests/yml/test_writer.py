@@ -1,7 +1,9 @@
 from pathlib import Path
 import datetime
+from audiobook import utils
 from audiobook.yml import YmlReader, YmlWriter
 from audiobook.models import AudibleAudiobook
+from tests.test_files import OUTPUT_PATH
 
 
 def audible_audiobook() -> AudibleAudiobook:
@@ -18,7 +20,7 @@ def audible_audiobook() -> AudibleAudiobook:
     audiobook.authors = ["Pierre Bottero"]
     audiobook.narrators = ["Kelly Marot"]
     audiobook.published_at = datetime.date(2018, 9, 12)
-    audiobook.duration = datetime.time(7, 7)
+    audiobook.duration = datetime.timedelta(7, 7)
     audiobook.language = "French"
     audiobook.abridged = False
     audiobook.cover = "https://m.media-amazon.com/images/I/51OqxjVPjNL._SL500_.jpg"
@@ -39,14 +41,12 @@ def audible_audiobook() -> AudibleAudiobook:
 
 
 def test_writer():
-    save_path = "./tests/media/output"
     audible = audible_audiobook()
-
-    writer = YmlWriter(audible, save_path).write()
+    writer = YmlWriter(audible, OUTPUT_PATH).write()
 
     assert writer.success is True
     assert isinstance(writer.data, dict)
-    assert writer.save_path == Path(save_path).resolve() / "metadata.yml"
+    assert writer.save_path == Path(OUTPUT_PATH).resolve() / "metadata.yml"
 
     reader = YmlReader(writer.save_path).read()
 
@@ -55,3 +55,5 @@ def test_writer():
     assert metadata.title == "L'œil d'Otolep"
     assert metadata.series == "Les mondes d'Ewilan"
     assert metadata.volume == 2.0
+
+    utils.remove_file(writer.save_path)

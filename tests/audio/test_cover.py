@@ -1,60 +1,78 @@
-import os
 from pathlib import Path
 import pytest
 from pytest import FixtureRequest
 from audiobook.audio import AudioReader, AudioWriter
 import audiobook.utils as utils
-from tests.test_files import ALL_FILES, ALL_FILES_IDS, PATH_COVER
-
-
-@pytest.fixture(
-    name="writer_path",
-    params=ALL_FILES,
-    ids=ALL_FILES_IDS,
+from tests.test_files import (
+    COVER_NEW,
+    AUDIOBOOKS,
+    AUDIOBOOKS_IDS,
+    COVER_ORIGINAL_PNG,
+    RAW_FILES,
+    RAW_FILES_IDS,
+    OUTPUT_PATH,
+    copy_to_output,
 )
-def writer_file(request: FixtureRequest):
+
+
+@pytest.mark.parametrize("path", RAW_FILES, ids=RAW_FILES_IDS)
+def test_cover_raw(path: str):
+    reader = AudioReader(path)
+    assert reader.tags.has_cover is True
+
+
+@pytest.mark.parametrize("path", AUDIOBOOKS, ids=AUDIOBOOKS_IDS)
+def test_cover_audiobook(path: str):
+    reader = AudioReader(path)
+    assert reader.tags.has_cover is True
+
+
+@pytest.fixture(name="path", params=RAW_FILES, ids=RAW_FILES_IDS)
+def path_fixture(request: FixtureRequest):
     audio_path = Path(request.param)
 
     if not audio_path.exists():
         pytest.skip(f"Missing file : {audio_path}")
 
-    extension = audio_path.suffix[1:].lower()
-    writer_audio = utils.path_join(
-        str(audio_path.parent), f"{audio_path.stem}_writer.{extension}"
-    )
+    reader = AudioReader(audio_path)
+    new_file = copy_to_output(reader.file_path)
 
-    utils.copy_file(audio_path, writer_audio)
+    yield new_file
 
-    yield writer_audio
-
-    utils.remove_file(writer_audio)
+    utils.remove_file(new_file)
 
 
-def test_cover(writer_path: str):
-    writer = AudioWriter(writer_path)
+def test_cover(path: str):
+    writer = AudioWriter(path)
     writer.remove_cover()
-    writer.set_cover(PATH_COVER)
+    reader = AudioReader(path)
+    assert reader.tags.has_cover is False
 
-    reader = AudioReader(writer_path)
+    writer.set_cover(COVER_NEW)
+    reader = AudioReader(path)
     assert reader.tags.has_cover is True
 
 
-def test_save_cover(writer_path: str):
-    cwd = os.getcwd()
-    output_path = utils.path_join(cwd, "tests", "media", "covers")
-    utils.remove_directory(output_path)
-    reader = AudioReader(writer_path)
-
-    utils.make_directory(output_path)
-    cover_path = reader.tags.save_cover(str(output_path))
+def test_save_cover(path: str):
+    reader = AudioReader(path)
+    cover_path = reader.tags.save_cover(OUTPUT_PATH)
 
     assert isinstance(cover_path, Path)
     assert utils.file_exists(cover_path) is True
+    utils.remove_file(cover_path)
 
 
-def test_cover_override(writer_path: str):
-    writer = AudioWriter(writer_path)
-    writer.set_cover(PATH_COVER)
+def test_cover_override(path: str):
+    writer = AudioWriter(path)
+    writer.set_cover(COVER_NEW)
 
-    reader = AudioReader(writer_path)
+    reader = AudioReader(path)
+    assert reader.tags.has_cover is True
+
+
+def test_cover_override_png(path: str):
+    writer = AudioWriter(path)
+    writer.set_cover(COVER_ORIGINAL_PNG)
+
+    reader = AudioReader(path)
     assert reader.tags.has_cover is True
