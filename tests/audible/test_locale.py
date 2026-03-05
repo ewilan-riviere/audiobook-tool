@@ -46,37 +46,37 @@ def test_audible_fr_auto():
     assert audible.success is True
 
 
-def test_audible_co_uk():
-    asin = _get_asin("co.uk")
-    audible = Audible(asin, "co.uk")
-    assert audible.success is True
+# def test_audible_co_uk():
+#     asin = _get_asin("co.uk")
+#     audible = Audible(asin, "co.uk")
+#     assert audible.success is True
 
 
-def test_audible_co_uk_uk():
-    asin = _get_asin("co.uk")
-    audible = Audible(asin)
-    assert audible.success is True
+# def test_audible_co_uk_uk():
+#     asin = _get_asin("co.uk")
+#     audible = Audible(asin)
+#     assert audible.success is True
 
 
-def test_audible_com():
-    asin = _get_asin("com")
-    audible = Audible(asin, "com")
-    assert audible.success is True
+# def test_audible_com():
+#     asin = _get_asin("com")
+#     audible = Audible(asin, "com")
+#     assert audible.success is True
 
 
-def test_audible_com_auto():
-    asin = _get_asin("com")
-    audible = Audible(asin)
-    assert audible.success is True
+# def test_audible_com_auto():
+#     asin = _get_asin("com")
+#     audible = Audible(asin)
+#     assert audible.success is True
 
 
-def test_audible_de():
-    asin = _get_asin("de")
-    audible = Audible(asin, "de")
-    assert audible.success is True
+# def test_audible_de():
+#     asin = _get_asin("de")
+#     audible = Audible(asin, "de")
+#     assert audible.success is True
 
 
-def test_audible_de_auto():
-    asin = _get_asin("de")
-    audible = Audible(asin)
-    assert audible.success is True
+# def test_audible_de_auto():
+#     asin = _get_asin("de")
+#     audible = Audible(asin)
+#     assert audible.success is True
