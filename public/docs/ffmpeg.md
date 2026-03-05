@@ -75,11 +75,11 @@ ffmpeg -i in.mp3 -c:a aac -q:a 2 -vn -map_metadata -1 out.m4b
 ### Find errors
 
 ```sh
-ffmpeg -v error -i entree.m4b -f null -
+ffmpeg -v error -i in.m4b -f null -
 ```
 
 ```sh
-ffmpeg -v info -i entree.m4b -f null - 2>&1 | grep -i "error"
+ffmpeg -v info -i in.m4b -f null - 2>&1 | grep -i "error"
 ```
 
 ### Referenced QT chapter track not found

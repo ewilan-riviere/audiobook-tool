@@ -7,6 +7,7 @@ from tests.test_files import (
     COVER_NEW,
     AUDIOBOOKS,
     AUDIOBOOKS_IDS,
+    COVER_ORIGINAL_PNG,
     RAW_FILES,
     RAW_FILES_IDS,
     OUTPUT_PATH,
@@ -64,6 +65,14 @@ def test_save_cover(path: str):
 def test_cover_override(path: str):
     writer = AudioWriter(path)
     writer.set_cover(COVER_NEW)
+
+    reader = AudioReader(path)
+    assert reader.tags.has_cover is True
+
+
+def test_cover_override_png(path: str):
+    writer = AudioWriter(path)
+    writer.set_cover(COVER_ORIGINAL_PNG)
 
     reader = AudioReader(path)
     assert reader.tags.has_cover is True

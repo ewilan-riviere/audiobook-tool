@@ -6,14 +6,16 @@ import audiobook.utils as utils
 from audiobook.forge import AudiobookForge
 from audiobook.audio import AudioReader
 from tests.test_files import (
-    AUDIOBOOK_MP3_FILES,
-    AUDIOBOOK_M4A_FILES,
+    AUDIOBOOK_FILES,
+    AUDIOBOOK_FILES_IDS,
     copy_to_output,
 )
 
 
 @pytest.mark.parametrize(
-    "path", [AUDIOBOOK_MP3_FILES, AUDIOBOOK_M4A_FILES], ids=["MP3", "M4A"]
+    "path",
+    AUDIOBOOK_FILES,
+    ids=AUDIOBOOK_FILES_IDS,
 )
 def test_forge(path: str):
     files_path = copy_to_output(path)

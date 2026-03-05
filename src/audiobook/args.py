@@ -140,6 +140,8 @@ class AudiobookArgs(AutoRepr):
         self.locale: Optional[str] = getattr(args, "locale", None)
         self.part_size: Optional[int] = getattr(args, "part_size", None)
         self.audio_type: Optional[str] = getattr(args, "type", None)
+        if self.audio_type:
+            self.audio_type = self.audio_type.lower()
 
         if self.source_directory:
             self.source_directory = self._path_absolute(self.source_directory)

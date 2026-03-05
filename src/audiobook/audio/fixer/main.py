@@ -1,168 +1,205 @@
 """Fix audio files by detecting specific FFmpeg errors and applying strategies"""
 
-import json
 import subprocess
+import logging
 from pathlib import Path
-from dataclasses import dataclass
 from typing import Any
-
 from audiobook.audio.reader.main import AudioReader
 from audiobook.audio.writer.main import AudioWriter
+from audiobook.common.auto_repr import AutoRepr
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("AudioFixer")
 
 
-@dataclass
-class RepairResult:
-    """Detailed result of the operation"""
-
-    repaired: bool
-    path: Path
-    strategy: str | None = None
-    bitrate: str | None = None
-    error: str | None = None
-
-
-class AudioFixer:
+class AudioFixer(AutoRepr):
     """Fix audio files by detecting specific FFmpeg errors and applying strategies"""
 
-    def __init__(self, file_path: str | Path):
-        self.file_path: Path = Path(file_path).resolve()
-        self._remux_errors = ["Referenced QT chapter track not found"]
-        self._reencode_errors = [
-            "Error submitting packet to decoder",
-            "Invalid data found when processing input",
-        ]
+    # List of fatal errors that actually impact audio
+    CRITICAL_PATTERNS = [
+        "corrupt",
+        "invalid data",
+        "frame sync",
+        "decoding error",
+        "overread",
+        "bitstream",
+        "header missing",
+        "checksum mismatch",
+        "error submitting packet",
+        "invalid data found",
+        "misdetection possible",
+        "conversion failed",
+        "invalid audio stream",
+    ]
+
+    def __init__(self, file_path: Path | str, strict: bool = False):
+        self.file_path = Path(file_path).resolve()
+        if not self.file_path.exists():
+            raise FileNotFoundError(f"{self.file_path} not found.")
+
+        self.output_path = self.file_path.parent / f"fixed_{self.file_path.name}"
+        self.errors = ""
+        self.has_errors = False
+        self.strict = strict
         self.tags: dict[str, Any] = AudioReader(self.file_path).tags.to_dict()
 
-    def run(self, replace_original: bool = False) -> RepairResult:
-        """Analyze and repair if necessary"""
-        if self.file_path.name.startswith("fixed_"):
-            return RepairResult(False, self.file_path)
+        self._check_errors()
 
-        strategy = self._get_strategy()
-        if not strategy:
-            return RepairResult(False, self.file_path)
+    def _check_errors(self):
+        """Decode to null and analyze the stderr output"""
 
-        print("🔧 Repair audio files...")
-        bitrate = self._get_bitrate() if strategy == "reencode" else None
-        return self._repair(strategy, bitrate, replace_original)
+        # -v info to filter error
+        cmd = ["ffmpeg", "-v", "error", "-i", str(self.file_path), "-f", "null", "-"]
 
-    def _get_bitrate(self) -> str | None:
-        """Extract the bitrate using ffprobe"""
         try:
-            cmd = [
-                "ffprobe",
-                "-v",
-                "error",
-                "-show_entries",
-                "format=bit_rate",
-                "-of",
-                "json",
-                str(self.file_path),
-            ]
-            res = subprocess.run(cmd, capture_output=True, text=True, check=False)
-            data = json.loads(res.stdout)
-            raw_bitrate = data.get("format", {}).get("bit_rate")
-
-            if raw_bitrate and str(raw_bitrate).isdigit():
-                return f"{int(raw_bitrate) // 1000}k"
-            return None
-        except (json.JSONDecodeError, FileNotFoundError):
-            return None
-
-    def _get_strategy(self) -> str | None:
-        """Analyze FFmpeg's `stderr` to choose the strategy"""
-        try:
-            res = subprocess.run(
-                ["ffmpeg", "-i", str(self.file_path), "-f", "null", "-"],
-                capture_output=True,
+            # NOT set `check=True` here to analyze stderr even fails
+            # pylint: disable=subprocess-run-check
+            result = subprocess.run(
+                cmd,
+                stderr=subprocess.PIPE,
                 text=True,
                 encoding="utf-8",
-                errors="ignore",
-                check=False,
             )
+            raw_errors = result.stderr.strip()
 
-            # Priority to re-encoding (stream errors)
-            if any(err in res.stderr for err in self._reencode_errors):
-                return "reencode"
+            if not raw_errors:
+                self.has_errors = False
+                self.errors = ""
+                return
 
-            # Special case MP3
-            if res.stderr.count("Header missing") > 5:
-                return "reencode"
+            if self.strict:
+                # Strict mode: if there is text in stderr with -v error, it is an error
+                self.has_errors = True
+                self.errors = raw_errors
+            else:
+                # Relaxed mode: check patterns without requiring the “[error]” tag
+                critical_lines: list[str] = []
+                for line in raw_errors.splitlines():
+                    line_lower = line.lower()
+                    if any(p in line_lower for p in self.CRITICAL_PATTERNS):
+                        critical_lines.append(line)
 
-            # Lightweight strategy (container/chapter errors)
-            if any(err in res.stderr for err in self._remux_errors):
-                return "remux"
+                self.has_errors = len(critical_lines) > 0
+                self.errors = "\n".join(critical_lines)
 
-            return None
-        except FileNotFoundError as exc:
-            raise RuntimeError("The executable ‘ffmpeg’ cannot be found") from exc
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.has_errors = True
+            self.errors = f"FFmpeg execution failed: {e}"
 
-    def _fix_tags(self, file_path: Path):
-        writer = AudioWriter(file_path)
-        writer.set_tags(self.tags)
-
-    def _repair(
-        self, strategy: str, bitrate: str | None, replace_original: bool
-    ) -> RepairResult:
-        """Performs FFmpeg repair"""
-        out_p = self.file_path.parent / f"fixed_{self.file_path.name}"
-        target_bitrate = bitrate if bitrate else "192k"
-
-        if strategy == "remux":
-            audio_opts = ["-c:a", "copy"]
-        else:
-            codec = "libmp3lame" if self.file_path.suffix.lower() == ".mp3" else "aac"
-            audio_opts = ["-c:a", codec, "-b:a", target_bitrate]
+    def _to_mp3(
+        self,
+        input_path: Path,
+        delete_input: bool = True,
+    ) -> Path | None:
+        """Converts M4A to MP3"""
+        final_mp3 = input_path.with_suffix(".mp3")
 
         cmd = [
             "ffmpeg",
             "-y",
+            "-v",
+            "error",
+            "-i",
+            str(input_path),
+            "-c:a",
+            "libmp3lame",
+            "-q:a",
+            "2",  # High quality (VBR ~190kbps)
+            str(final_mp3),
+        ]
+
+        try:
+            subprocess.run(cmd, check=True, capture_output=True)
+            if delete_input:
+                input_path.unlink()
+            return final_mp3
+        except subprocess.CalledProcessError as e:
+            logger.error("Error during final conversion to MP3: %s", e.stderr.decode())
+            return None
+
+    def run(self, replace_original: bool = False) -> bool:
+        """Repair audio file"""
+        if not self.has_errors:
+            logger.info("No critical errors detected for %s", self.file_path.name)
+            return True
+
+        suffix = self.file_path.suffix.lower()
+        working_path = self.output_path.with_suffix(".m4a")
+
+        repair_cmd = [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-analyzeduration",
+            "20M",
+            "-probesize",
+            "20M",
             "-i",
             str(self.file_path),
-            "-map",
-            "0:a",
-            *audio_opts,
+            "-c:a",
+            "aac",
+            "-q:a",
+            "2",
             "-map_metadata",
             "-1",
             "-map_chapters",
             "-1",
             "-vn",
-            str(out_p),
+            "-sn",
+            "-movflags",
+            "+faststart",  # Optimization for m4a/m4b
+            str(working_path),
         ]
 
         try:
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
+            logger.info("Attempting to fix %s via AAC/M4A...", self.file_path.name)
+            subprocess.run(repair_cmd, check=True, capture_output=True)
 
-            if replace_original:
-                out_p.replace(self.file_path)
-                self._fix_tags(self.file_path)
-
-                return RepairResult(
-                    True,
-                    self.file_path,
-                    strategy,
-                    target_bitrate if strategy == "reencode" else None,
-                )
-
-            self._fix_tags(out_p)
-            return RepairResult(
-                True,
-                out_p,
-                strategy,
-                target_bitrate if strategy == "reencode" else None,
-            )
+            # Security: file exists and not empty
+            if not working_path.exists() or working_path.stat().st_size == 0:
+                logger.error("FFmpeg produced an empty or non-existent file.")
+                return False
 
         except subprocess.CalledProcessError as e:
-            self._fix_tags(self.file_path)
-            return RepairResult(
-                False,
-                self.file_path,
-                error=f"FFmpeg error: {e.stderr}",
+            logger.error(
+                "Repair failed: %s", e.stderr.decode() if e.stderr else "Unknown error"
             )
-        except OSError as e:
-            self._fix_tags(self.file_path)
-            return RepairResult(
-                False,
-                self.file_path,
-                error=f"System error: {e.strerror}",
-            )
+            if working_path.exists():
+                working_path.unlink()
+            return False
+
+        final_path = working_path
+        try:
+            if suffix == ".mp3":
+                final_path = self._to_mp3(working_path)
+            elif suffix == ".m4b":
+                m4b_path = working_path.with_suffix(".m4b")
+                working_path.rename(m4b_path)
+                final_path = m4b_path
+
+            if not final_path or not final_path.exists():
+                return False
+
+            if replace_original:
+                target_final = self.file_path.with_suffix(final_path.suffix)
+                if self.file_path.exists():
+                    self.file_path.unlink()
+                final_path.rename(target_final)
+                logger.info(
+                    "File successfully fixed and replaced: %s", target_final.name
+                )
+                writer = AudioWriter(final_path)
+                writer.set_tags(self.tags)
+
+                return True
+
+            logger.info("File fixed: %s", final_path.name)
+            writer = AudioWriter(final_path)
+            writer.set_tags(self.tags)
+
+            return True
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Post-processing error: %s", e)
+            return False

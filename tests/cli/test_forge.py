@@ -1,18 +1,27 @@
+from pathlib import Path
 from typing import Any
 import sys
+
+import pytest
 from audiobook import app
 import audiobook.utils as utils
 from audiobook.models import ContainerAudiobook
+from tests.test_files import (
+    AUDIOBOOK_FILES,
+    AUDIOBOOK_FILES_IDS,
+    OUTPUT_PATH,
+    copy_to_output,
+)
 
 
-def test_forge(monkeypatch: Any, capsys: Any):
-    source_path = "./tests/media/the-wall"
-    source_path_test = "./tests/media/the-wall-test"
-    utils.remove_directory(source_path_test)
-    utils.copy_directory(source_path, source_path_test)
-
-    output_path = "tests/media/output"
-    utils.remove_directory(output_path)
+@pytest.mark.parametrize(
+    "path",
+    AUDIOBOOK_FILES,
+    ids=AUDIOBOOK_FILES_IDS,
+)
+def test_forge(path: str, monkeypatch: Any):
+    files = copy_to_output(path)
+    output = Path(f"{OUTPUT_PATH}/forge").resolve()
 
     monkeypatch.setattr(
         sys,
@@ -20,9 +29,9 @@ def test_forge(monkeypatch: Any, capsys: Any):
         [
             "audiobook-tool",
             "forge",
-            source_path_test,
+            str(files),
             "--output-path",
-            output_path,
+            str(output),
         ],
     )
 
@@ -31,11 +40,16 @@ def test_forge(monkeypatch: Any, capsys: Any):
     except SystemExit as e:
         assert e.code == 0
 
-    container = ContainerAudiobook(output_path)
+    container = ContainerAudiobook(output)
 
     assert container.m4b_file
     assert utils.file_exists(container.m4b_file)
 
-    captured = capsys.readouterr()
-    assert "audiobook-tool" in captured.out
-    assert "Execute command forge..." in captured.out
+    m4b_files = utils.get_files(output, "m4b")
+    assert len(m4b_files) >= 1
+
+    metadata_file = utils.get_file(output, "yml")
+    assert metadata_file and metadata_file.exists()
+
+    utils.remove_directory(files)
+    utils.remove_directory(output)
