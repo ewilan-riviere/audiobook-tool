@@ -49,7 +49,6 @@ class CommandExtract:
             fixer.run(replace_original=True)
 
             writer = AudioWriter(chapter)
-
             writer.set_tags(container.audio_tags.to_dict())
             writer.set_tag("title", str(reader.tags.title))
             writer.set_tag("track", str(i))
