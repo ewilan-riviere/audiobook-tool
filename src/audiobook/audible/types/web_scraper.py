@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, date, timedelta
+import string
 
 
 class WebScraper:
@@ -80,4 +81,6 @@ class WebScraper:
             else:
                 items.append(author)
 
-        return items
+        formatted_authors = [string.capwords(name) for name in items]
+
+        return formatted_authors

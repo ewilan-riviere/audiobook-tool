@@ -112,3 +112,12 @@ def test_farseer_com():
     assert audible.success is True
     assert audible.fetch.json_duration.series_typed == "Farseer Trilogy"
     assert audible.fetch.json_duration.part_typed == 1
+
+
+def test_author():
+    audible = Audible("B0DNMX6SSS")
+    audiobook = audible.audiobook
+
+    assert audiobook.asin == "B0DNMX6SSS"
+    assert audiobook.title == "Les Naufragés de Velloa"
+    assert audiobook.authors == ["Romain Benassaya"]
