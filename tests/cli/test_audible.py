@@ -7,6 +7,10 @@ from audiobook.yml import YmlReader
 
 
 def test_audible(monkeypatch: Any, capsys: Any):
+    execute(monkeypatch, capsys)
+
+
+def execute(monkeypatch: Any, capsys: Any):
     asin = "B0G5QKNT1J"
     current_dir = Path(os.getcwd()).resolve()
     yml = current_dir / "metadata.yml"
@@ -37,9 +41,9 @@ def test_audible(monkeypatch: Any, capsys: Any):
     assert reader.metadata
     assert reader.metadata.title == "Assassin’s Apprentice Book 1"
 
-    _clear(yml, cover)
+    clear(yml, cover)
 
 
-def _clear(yml: Path, cover: Path):
+def clear(yml: Path, cover: Path):
     utils.remove_file(yml)
     utils.remove_file(cover)

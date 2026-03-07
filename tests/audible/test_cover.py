@@ -22,3 +22,5 @@ def test_cover():
 
     assert output_path
     assert utils.file_exists(cover_path) is True
+
+    utils.remove_file(cover_path)

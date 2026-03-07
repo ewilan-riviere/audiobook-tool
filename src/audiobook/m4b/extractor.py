@@ -3,13 +3,15 @@
 import subprocess
 from pathlib import Path
 from audiobook import utils
-from audiobook.audio.writer.main import AudioWriter
-from audiobook.common.chapter import AudioChapter
+from audiobook.audio import AudioType, AudioWriter
+from audiobook.common import AutoRepr, AudioChapter
 from audiobook.models import ContainerAudiobook
 
 
-class M4bExtractor:
+class M4bExtractor(AutoRepr):
     """Extract chapters from M4B files and convert to M4A/MP3"""
+
+    output_path: Path
 
     def __init__(self, container: ContainerAudiobook):
         self.container = container
@@ -21,7 +23,15 @@ class M4bExtractor:
 
         self.total_chapters: int = len(self.container.chapters)
 
-    def to_m4a(self) -> Path:
+    def run(self, audio_type: AudioType):
+        if audio_type == AudioType.MP3:
+            self.output_path = self._to_mp3()
+        elif audio_type == AudioType.M4A:
+            self.output_path = self._to_m4a()
+
+        return self
+
+    def _to_m4a(self) -> Path:
         """
         Extract chapters directly to M4A (Very fast).
         """
@@ -50,7 +60,7 @@ class M4bExtractor:
 
         return self._end()
 
-    def to_mp3(self, high_fidelity: bool = True) -> Path:
+    def _to_mp3(self, high_fidelity: bool = True) -> Path:
         """
         Extract chapters directly to MP3 (Quite slow).
             :param high_fidelity: `True`: V0 mode (Top Quality) /

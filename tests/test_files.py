@@ -43,6 +43,8 @@ COVER_ORIGINAL = "tests/media/covers/cover-original.jpg"
 COVER_ORIGINAL_PNG = "tests/media/covers/cover-original.png"
 COVER_NEW = "tests/media/covers/cover-new.jpg"
 
+FUSION_FILES = "tests/media/fusion"
+
 OUTPUT_PATH = "tests/media/output"
 
 YML_TEMPLATE = "metadata.template.yml"

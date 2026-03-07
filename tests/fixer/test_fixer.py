@@ -1,6 +1,7 @@
-import pytest
+from pathlib import Path
+
 from audiobook.audio.fixer.main import AudioFixer
-from audiobook.audio.reader.main import AudioReader
+from audiobook.audio.fixer.modules.error_type import ErrorType
 import audiobook.utils as utils
 from tests.test_files import (
     FIXER_MP3_HEADER,
@@ -8,19 +9,42 @@ from tests.test_files import (
 )
 
 
-@pytest.mark.parametrize("path", [FIXER_MP3_HEADER, FIXER_CHAPTER])
-def test_fix(path: str):
-    checker = AudioFixer(path, strict=True)
-    original_file = checker.output_path
-    success = checker.run()
-    assert checker.has_errors is True
-    assert success is True
+def test_mp3_header_missing():
+    checker = AudioFixer(FIXER_MP3_HEADER, strict=False).run()
+    assert checker.success is True
+    assert checker.error_type == ErrorType.REMUX
+    output_file = checker.output_path
 
-    repaired_file = checker.output_path
-    checker = AudioFixer(repaired_file)
-    assert checker.has_errors is False
+    checker = AudioFixer(output_file, strict=False).run()
+    assert checker.success is True
+    assert checker.error_type == ErrorType.NONE
 
-    reader = AudioReader(repaired_file)
-    assert reader.tags.title != ""
+    utils.remove_file(output_file)
 
-    utils.remove_file(original_file)
+
+def test_chapter():
+    checker = AudioFixer(FIXER_CHAPTER, strict=True).run()
+    assert checker.success is True
+    assert checker.error_type == ErrorType.REMUX
+
+    output_file = checker.output_path
+
+    checker = AudioFixer(output_file, strict=False).run()
+    assert checker.success is True
+    assert checker.error_type == ErrorType.NONE
+
+    utils.remove_file(output_file)
+
+
+def test_mp3_header_missing_replaced():
+    bk_full_path = Path(FIXER_MP3_HEADER).resolve()
+    bk_path = bk_full_path.parent / f"original_{bk_full_path.name}"
+    utils.copy_file(FIXER_MP3_HEADER, bk_path)
+
+    checker = AudioFixer(FIXER_MP3_HEADER, strict=False).run(replace_original=True)
+    assert checker.success is True
+    assert checker.error_type == ErrorType.REMUX
+    assert not checker.output_path.exists()
+
+    utils.remove_file(FIXER_MP3_HEADER)
+    utils.rename_file(bk_path, bk_full_path.stem)
