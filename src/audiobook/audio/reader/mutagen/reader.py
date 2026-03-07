@@ -151,7 +151,11 @@ class MutagenReader:
         """Checks for the presence of a cover via `get_cover`"""
         return bool(self.get_cover())
 
-    def save_cover(self, output_dir: Union[str, Path, None] = None) -> Optional[Path]:
+    def save_cover(
+        self,
+        output_dir: Union[str, Path, None] = None,
+        name: str | None = None,
+    ) -> Optional[Path]:
         """Saves the detected cover"""
         if not (data := self.get_cover()):
             return None
@@ -163,7 +167,9 @@ class MutagenReader:
         # Detect the extension (Magic Numbers)
         # JPEG begins with \xff\xd8 | PNG begins with \x89PNG
         ext = ".png" if data.startswith(b"\x89PNG") else ".jpg"
-        target = out / f"{self.file_path.stem}{ext}"
+        if not name:
+            name = f"{self.file_path.stem}"
+        target = out / f"{name}{ext}"
 
         target.write_bytes(data)  # Replaces open().write() and handles overwriting
         return target

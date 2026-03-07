@@ -171,12 +171,12 @@ class AudioTags(AutoRepr):
         writer = YmlWriter(audible, save_path)
         writer.write()
 
-    def save_cover(self, save_path: Path | str) -> Path | None:
+    def save_cover(self, save_path: Path | str, name: str | None = None) -> Path | None:
         """Save cover to `save_path`"""
         save_path = Path(save_path).resolve()
         reader = MutagenReader(self._file_path)
 
-        return reader.save_cover(save_path)
+        return reader.save_cover(save_path, name)
 
     def to_dict(self) -> dict[str, Any]:
         """

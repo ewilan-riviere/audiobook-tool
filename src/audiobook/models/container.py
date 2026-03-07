@@ -60,7 +60,7 @@ class ContainerAudiobook(AutoRepr):
             save_path=self.audiobook_path,
             duration=self.audiobook_duration_ms,
         )
-        self.audio_tags.save_cover(self.audiobook_path)
+        self.audio_tags.save_cover(self.audiobook_path, "cover")
 
     @property
     def m4b_file(self) -> Path | None:
