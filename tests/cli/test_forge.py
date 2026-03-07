@@ -41,6 +41,7 @@ def test_forge(path: str, monkeypatch: Any):
         assert e.code == 0
 
     container = ContainerAudiobook(output)
+    container.save_metadata()
 
     assert container.m4b_file
     assert utils.file_exists(container.m4b_file)

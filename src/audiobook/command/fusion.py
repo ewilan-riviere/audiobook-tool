@@ -1,10 +1,11 @@
 """fusion command of audiobook-tool"""
 
-from pathlib import Path
+# from pathlib import Path
 
 from audiobook import utils
 from audiobook.args import AudiobookArgs
-from audiobook.models import ContainerAudiobook
+
+# from audiobook.models import ContainerAudiobook
 
 
 class CommandFusion:

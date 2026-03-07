@@ -89,8 +89,7 @@ class AudioFixer(AutoRepr):
                 self.error_type = ErrorType.TRANSCODE
             else:
                 print("Transcoding fails!")
-                # Fix fails, just copy original file as output
-                self._fails_rollback()
+                self.error_type = ErrorType.NOT_FIXED
 
         # If fix works, convert file to original type
         osuccess: bool = False
@@ -117,7 +116,7 @@ class AudioFixer(AutoRepr):
         self._write_metadata()
         # Replace if need
         self._replace()
-        # # Clean temporary files
+        # Clean temporary files
         self._clean_files()
 
         if self.error_type not in (ErrorType.NOT_FIXED, ErrorType.UNKNOWN):
@@ -160,7 +159,6 @@ class AudioFixer(AutoRepr):
             self.original_path.unlink(missing_ok=True)
 
         self.output_path.rename(self.original_path)
-        # self.output_path = self.original_path
 
     def _clean_files(self):
         if self.m4a_path:

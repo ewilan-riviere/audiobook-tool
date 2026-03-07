@@ -1,13 +1,10 @@
 """extract command of audiobook-tool"""
 
 from pathlib import Path
-from audiobook import utils
 from audiobook.args import AudiobookArgs
-from audiobook.audio.fixer.main import AudioFixer
-from audiobook.audio.reader.main import AudioReader
-from audiobook.audio.writer.main import AudioWriter
+from audiobook.audio import AudioType
+from audiobook.m4b import M4bChapterize, M4bExtractor
 from audiobook.models import ContainerAudiobook
-from audiobook.m4b import M4bExtractor
 
 
 class CommandExtract:
@@ -26,29 +23,25 @@ class CommandExtract:
             print(f"Audio type can only be `m4a` or `mp3`, not {args.audio_type}")
             args.audio_type = "m4a"
 
+        audio_type: AudioType = AudioType.from_extension(args.audio_type)
         m4b_path = Path(args.m4b_directory).resolve()
 
         container = ContainerAudiobook(m4b_path)
+        container.save_metadata()
+
         output_path: Path | None = None
-        if args.audio_type == "mp3":
-            output_path = M4bExtractor(container).to_mp3()
-        elif args.audio_type == "m4a":
-            output_path = M4bExtractor(container).to_m4a()
+        if audio_type == AudioType.MP3:
+            extractor = M4bExtractor(container).run(audio_type)
+            output_path = extractor.output_path
+        elif audio_type == AudioType.M4A:
+            extractor = M4bExtractor(container).run(audio_type)
+            output_path = extractor.output_path
 
         if not output_path:
             raise FileNotFoundError("Error on output path!")
 
-        chapters = utils.get_files(output_path, args.audio_type)
-
-        i = 0
-        for chapter in chapters:
-            i = i + 1
-            reader = AudioReader(chapter)
-
-            fixer = AudioFixer(chapter, strict=True)
-            fixer.run(replace_original=True)
-
-            writer = AudioWriter(chapter)
-            writer.set_tags(container.audio_tags.to_dict())
-            writer.set_tag("title", str(reader.tags.title))
-            writer.set_tag("track", str(i))
+        M4bChapterize(
+            chapters_path=output_path,
+            audio_type=audio_type,
+            tags=container.audio_tags.to_dict(),
+        ).run()

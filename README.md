@@ -50,6 +50,7 @@
 - [x] Fix chapter name "Les Montagnes de la Folie : Les Montagnes hallucinées (1931)"
 - [ ] extract output path flag
 - [ ] audible output path flag
+- [ ] allow to passe m4b path instead of parent path (for unified audiobook)
 
 ## Why?
 

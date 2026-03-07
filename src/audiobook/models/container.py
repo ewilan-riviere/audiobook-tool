@@ -53,14 +53,7 @@ class ContainerAudiobook(AutoRepr):
 
         first_m4b = self.m4b_readers[0]
         self.audio_tags = first_m4b.tags
-
         self.audiobook_duration_ms = self._calculate_duration()
-
-        self.audio_tags.save_yml(
-            save_path=self.audiobook_path,
-            duration=self.audiobook_duration_ms,
-        )
-        self.audio_tags.save_cover(self.audiobook_path, "cover")
 
     @property
     def m4b_file(self) -> Path | None:
@@ -69,6 +62,19 @@ class ContainerAudiobook(AutoRepr):
             return None
 
         return self.m4b_files[0]
+
+    def save_metadata(self) -> dict[str, Path]:
+        """Save `metadata.yml` and `cover.jpg` to audiobook directory"""
+        self.audio_tags.save_yml(
+            save_path=self.audiobook_path,
+            duration=self.audiobook_duration_ms,
+        )
+        self.audio_tags.save_cover(self.audiobook_path, "cover")
+
+        return {
+            "yml": self.audiobook_path / "metadata.yml",
+            "cover": self.audiobook_path / "cover.jpg",
+        }
 
     def _calculate_duration(self) -> int:
         audiobook_duration_ms: int = 0
