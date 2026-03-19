@@ -90,7 +90,8 @@ class ConfigBuild(AutoRepr):
         output_path = utils.safe_path(output_path)
 
         if self.structured:
-            output_path = self._handle_structured(output_path, default_title, reader)
+            base_output = custom_output_path or self.source_path
+            output_path = self._handle_structured(base_output, default_title, reader)
 
         output_path_str = re.sub(r"\.{2,}", ".", str(output_path))
 
