@@ -52,6 +52,7 @@ class ContainerAudiobook(AutoRepr):
                 self.chapters_count = self.chapters_count + len(reader.tags.chapters)
 
         first_m4b = self.m4b_readers[0]
+        first_m4b.tags.title = first_m4b.tags.album
         self.audio_tags = first_m4b.tags
         self.audiobook_duration_ms = self._calculate_duration()
 
