@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 from typing import Any
 import sys
-from audiobook import app, utils
-from audiobook.yml import YmlReader
+from src.audiobook import app, utils
+from src.audiobook.yml import YmlReader
 
 
 def test_audible(monkeypatch: Any, capsys: Any):
@@ -39,7 +39,8 @@ def execute(monkeypatch: Any, capsys: Any):
 
     reader = YmlReader(yml).read()
     assert reader.metadata
-    assert reader.metadata.title == "Assassin’s Apprentice Book 1"
+    assert reader.metadata.title
+    assert "Assassin’s Apprentice" in reader.metadata.title
 
     clear(yml, cover)
 

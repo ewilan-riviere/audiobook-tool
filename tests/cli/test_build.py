@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Any
 import sys
-
 import pytest
-from audiobook import app
-import audiobook.utils as utils
-from audiobook.audio import AudioReader
-from audiobook.models import ContainerAudiobook
+from src.audiobook import app
+import src.audiobook.utils as utils
+from src.audiobook.audio import AudioReader
+from src.audiobook.models import ContainerAudiobook
 from tests.test_files import (
     AUDIOBOOK_FILES,
     AUDIOBOOK_FILES_IDS,

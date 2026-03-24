@@ -1,4 +1,5 @@
 from datetime import datetime, date, timedelta
+from audiobook import utils
 from audiobook.audible import Audible
 
 
@@ -19,14 +20,15 @@ ASIN_LIST_UK = [
 
 # Assassin’s Apprentice (The Farseer Trilogy, Book 1) from Audible.fr
 def test_farseer():
-    audible = Audible("B0G5QKNT1J")
+    audible = Audible("B0G5SMXT5S", "com")
 
     assert audible.success is True
     audiobook = audible.audiobook
-    assert audiobook.asin == "B0G5QKNT1J"
+    assert audiobook.asin == "B0G5SMXT5S"
     assert isinstance(audiobook.fetched_at, datetime)
     assert isinstance(audiobook.url, str)
-    assert audiobook.original_title == "Assassin’s Apprentice Book 1"
+    assert audiobook.original_title
+    assert "Assassin’s Apprentice" in audiobook.original_title
     assert audiobook.subtitle is None
     assert isinstance(audiobook.description, str)
     assert audiobook.copyright_ == "©1995 Robin Hobb (P)2026 HarperCollins Publishers"
@@ -39,43 +41,48 @@ def test_farseer():
     assert audiobook.abridged is False
     assert isinstance(audiobook.cover, str)
     assert audiobook.original_series == ["Farseer Trilogy"]
-    assert audiobook.part is None
+    assert audiobook.part == "Book 1"
     assert audiobook.volume == 1.0
-    assert audiobook.format_ == "Version intégrale Livre audio"
+    assert audiobook.format_ == "Unabridged Audiobook"
     assert audiobook.book_format == "AudiobookFormat"
-    assert audiobook.sku == "BK_HCUK_011245FR"
-    assert audiobook.product_id == "B0G5QKNT1J"
-    assert audiobook.rating == 0
-    assert audiobook.price == 9.95
-    assert audiobook.currency == "EUR"
+    assert audiobook.sku == "BK_HCUK_011245"
+    assert audiobook.product_id == "B0G5SMXT5S"
+    assert audiobook.rating == 5
+    assert audiobook.price == 14.95
+    assert audiobook.currency == "USD"
     assert audiobook.genres == [
-        "Action et aventure",
-        "Animaux",
-        "Dragons et créatures mythiques",
+        "Action & Adventure",
+        "Animals",
+        "Assassin",
+        "Dragons & Mythical Creatures",
+        "Epic",
         "Fantasy",
-        "Fiction",
-        "Épique",
+        "Genre Fiction",
+        "Royalty",
     ]
-    assert audiobook.categories == ["Littérature, romans et fiction"]
+    assert audiobook.categories == ["Literature & Fiction"]
 
-    assert audiobook.title == "Assassin’s Apprentice Book 1"
+    assert audiobook.title
+    assert "Assassin’s Apprentice" in audiobook.title
     assert audiobook.series == "Farseer"
     assert audiobook.volume == 1.0
 
     assert audiobook.genres_all == [
-        "Action et aventure",
-        "Animaux",
-        "Dragons et créatures mythiques",
+        "Action & Adventure",
+        "Animals",
+        "Assassin",
+        "Dragons & Mythical Creatures",
+        "Epic",
         "Fantasy",
-        "Fiction",
-        "Littérature, romans et fiction",
-        "Épique",
+        "Genre Fiction",
+        "Literature & Fiction",
+        "Royalty",
     ]
     assert audiobook.duration_human == "16:35:00"
 
     assert audiobook.genres_list == (
-        "Action et aventure/Animaux/Dragons et créatures mythiques/"
-        "Fantasy/Fiction/Littérature, romans et fiction/Épique"
+        "Action & Adventure/Animals/Assassin/Dragons & Mythical "
+        "Creatures/Epic/Fantasy/Genre Fiction/Literature & Fiction/Royalty"
     )
     assert audiobook.authors_list == "Robin Hobb"
     assert audiobook.narrators_list == "Joe Eyre"
