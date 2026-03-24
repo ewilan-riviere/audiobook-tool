@@ -20,6 +20,8 @@ classifiers = [
 # deptry .
 # uv sync
 # uv export --format requirements-txt > requirements.txt
+# FOR LOCAL DEV
+# uv sync --extra dev
 dependencies = [
   "importlib-metadata", # import importlib_metadata (for version)
   "pyyaml",             # import yaml (to handle .yml files)

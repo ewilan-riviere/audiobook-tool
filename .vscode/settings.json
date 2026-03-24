@@ -1,0 +1,11 @@
+{
+    "python.venvPath": "~/.virtualenvs",
+    "python.venvFolders": [".venv", "venv", "env"],
+    "pylint.importStrategy": "fromEnvironment",
+    "python.analysis.typeCheckingMode": "basic",
+    // "python-envs.workspaceSearchPaths": ["./**/.venv", "./envs/**", "./my-custom-env"],
+    // "python.analysis.extraPaths": ["src", "tests", "${workspaceFolder}/.venv/lib/python3.12/site-packages"],
+    // "python.analysis.useLibraryCodeForTypes": true,
+    // "python.analysis.autoSearchPaths": true,
+    // "pylint.interpreter": ["${workspaceFolder}/.venv/bin/python3"],
+}
