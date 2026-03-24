@@ -62,7 +62,9 @@ class AudiobookBlacksmith(AutoRepr):
             title_tag = (reader.tags.title or "Unknown").strip()
             chapter_title = title_tag
             if reader.tags.chapters:
-                chapter_title = (reader.tags.chapters[0].title or title_tag).strip()
+                # chapter_title = (reader.tags.chapters[0].title or title_tag).strip()
+                # TODO FIX CHAPTER TITLE
+                chapter_title = title_tag.strip()
             if not chapter_title:
                 chapter_title = reader.container.basename
 

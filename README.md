@@ -62,6 +62,23 @@ In addition, when I retrieve metadata from [Audible](https://www.audible.com/), 
 
 The whole thing needed to be flexible and resilient, offering high-quality audiobooks that could be used directly by [audiobookshelf](https://www.audiobookshelf.org/).
 
+## Installation
+
+Activate Python environnement and clone repository:
+
+```sh
+git clone https://github.com/kiwilan/audiobook-tool.git
+cd audiobook-tool
+# You can install it in `editable mode` with `pip install -e .`
+pip install .
+```
+
+You can now execute CLI:
+
+```sh
+audiobook-tool -h
+```
+
 ## Usage
 
 ### Audible
