@@ -120,4 +120,7 @@ class AudibleExtra(WebScraper):
         if parsed_volume is None and hasattr(self, "volume") and self.scraped_part:
             parsed_volume = float(self.scraped_part)
 
+        if parsed_volume is None and self.scraped_part:
+            parsed_volume = float(self.scraped_part)
+
         return parsed_volume
