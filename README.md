@@ -24,7 +24,7 @@
 > [!WARNING]
 > This CLI is still under development; please feel free to report any issues you encounter or share your suggestions in the [issues](https://github.com/kiwilan/audiobook-tool/issues).
 
-> [!TIP] eBooks & comics tool
+> [!TIP]
 > Are you looking for CLI designed to handle eBooks and comics? Check [kiwilan/bool-tool](https://github.com/kiwilan/book-tool).
 
 ## Features
