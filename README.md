@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source srcset="./public/logo-small.webp">
-    <img alt="Tailwind CSS" src="./public/logo-small.webp" height="200" style="max-width: 100%;">
+    <img alt="audiobook-tool" src="./public/logo-small.webp" height="200" style="max-width: 100%;">
   </picture>
 </p>
 
@@ -20,6 +20,9 @@
 </p>
 
 ---
+
+> [!WARNING]
+> This CLI is still under development; please feel free to report any issues you encounter or share your suggestions in the [issues](https://github.com/kiwilan/audiobook-tool/issues).
 
 ## Features
 
