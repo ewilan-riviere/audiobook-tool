@@ -37,17 +37,9 @@
 
 - [ ] Fix M4A handle
 - [ ] Test for one audiobook
-- [x] Confirm for override metadata/cover
-- [x] Confirm after Audible fetch
 - [ ] Refact. args
 - [ ] Refact clear flag
 - [ ] Review logging
-- [ ] GitHub tests
-- [ ] README
-- [x] Remove part 1 from name if only one part
-- [x] Fix Error Referenced QT chapter track not found
-- [x] Fix Error submitting packet to decoder: Invalid data found when processing input / Header missing
-- [x] Fix chapter name "Les Montagnes de la Folie : Les Montagnes hallucinées (1931)"
 - [ ] extract output path flag
 - [ ] audible output path flag
 - [ ] allow to passe m4b path instead of parent path (for unified audiobook)
