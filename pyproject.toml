@@ -23,16 +23,23 @@ classifiers = [
 # FOR LOCAL DEV
 # uv sync --extra dev
 dependencies = [
+  # https://pypi.org/project/importlib-metadata/
   "importlib-metadata", # import importlib_metadata (for version)
-  "pyyaml",             # import yaml (to handle .yml files)
-  "mutagen",            # import mutagen (to handle .mp3 and .m4b files)
-  "python-dotenv",      # import dotenv (to handle .env variables)
-  "httpx",              # import httpx (to download audiobook cover)
-  "rich",               # import rich (help for debugging)
+  # https://pypi.org/project/PyYAML/
+  "pyyaml", # import yaml (to handle .yml files)
+  # https://pypi.org/project/mutagen/
+  "mutagen", # import mutagen (to handle .mp3 and .m4b files)
+  # https://pypi.org/project/python-dotenv/
+  "python-dotenv", # import dotenv (to handle .env variables)
+  # https://pypi.org/project/httpx/
+  "httpx", # import httpx (to download audiobook cover)
+  # https://pypi.org/project/rich/
+  "rich", # import rich (help for debugging)
   # uv run playwright install chromium
-  "playwright",         # import playwright (for Audible web scraping)
+  # https://pypi.org/project/playwright/
+  "playwright", # import playwright (for Audible web scraping)
+  # https://pypi.org/project/playwright-stealth/
   "playwright-stealth", # import playwright_stealth
-  "pytest>=8.0.2",
 ]
 
 [project.scripts]
