@@ -49,6 +49,7 @@
 - [ ] extract output path flag
 - [ ] audible output path flag
 - [ ] allow to passe m4b path instead of parent path (for unified audiobook)
+- [ ] publish on PyPI
 
 ## Why?
 
@@ -62,20 +63,18 @@ The whole thing needed to be flexible and resilient, offering high-quality audio
 
 ## Installation
 
-Activate Python environnement and clone repository:
+Activate Python environnement, clone repository and install it with `uv`:
 
 ```sh
 git clone https://github.com/kiwilan/audiobook-tool.git
 cd audiobook-tool
-# You can install it in `editable mode` with `pip install -e .`
-pip install .
+uv pip install .
 ```
 
-OR with `uv`
+OR with `pip`
 
 ```sh
-# You can install it in `editable mode` with `uv pip install -e .`
-uv pip install .
+pip install .
 ```
 
 You can now execute CLI:

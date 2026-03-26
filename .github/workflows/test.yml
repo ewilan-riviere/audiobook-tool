@@ -32,9 +32,9 @@ jobs:
           cache-dependency-path: "uv.lock"
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version-file: ".python-version"
+          python-version: "3.12"
 
       - name: Install system dependencies
         run: |

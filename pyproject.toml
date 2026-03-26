@@ -17,11 +17,10 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-# deptry .
+# uv run deptry .
 # uv sync
-# uv export --format requirements-txt > requirements.txt
-# FOR LOCAL DEV
 # uv sync --extra dev
+# uv export --format requirements-txt > requirements.txt
 dependencies = [
   # https://pypi.org/project/importlib-metadata/
   "importlib-metadata", # import importlib_metadata (for version)
@@ -53,12 +52,8 @@ package-dir = { "" = "src" }
 
 [tool.deptry]
 known_first_party = ["audiobook"]
-
-[tool.deptry.per_rule_ignores]
-DEP002 = ["pytest", "pytest-cov", "uv"]
-
-[tool.deptry.package_module_name_map]
-uv = "uv"
+package_module_name_map = { uv = "uv" }
+per_rule_ignores = { DEP002 = ["pytest", "pytest-cov", "uv"] }
 
 [dependency-groups]
-dev = ["pytest-cov>=7.0.0"]
+dev = ["deptry>=0.25.1", "pytest-cov>=7.0.0"]
