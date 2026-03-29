@@ -68,6 +68,7 @@ Activate Python environnement, clone repository and install it with `uv`:
 ```sh
 git clone https://github.com/kiwilan/audiobook-tool.git
 cd audiobook-tool
+uv sync
 uv tool install .
 ```
 
