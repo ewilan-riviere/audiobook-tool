@@ -27,12 +27,6 @@ With [`uv`](https://docs.astral.sh/uv/)
 uv sync
 ```
 
-Or with `pip`
-
-```sh
-pip install -e .
-```
-
 Use `audiobook-tool` CLI
 
 ```sh

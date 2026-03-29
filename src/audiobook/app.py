@@ -38,7 +38,7 @@ def main() -> None:
     try:
         if args.command == "parse":
             CommandParse(args)
-        if args.command == "audible":
+        elif args.command == "audible":
             CommandAudible(args)
         elif args.command == "build":
             CommandBuild(args)
