@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiobook-cli"
-version = "0.3.4"
+version = "0.3.5"
 description = "Ultimate Python CLI to handle audiobooks."
 readme = "README.md"
 authors = [{ name = "Ewilan Rivière" }]
