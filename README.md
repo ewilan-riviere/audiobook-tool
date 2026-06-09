@@ -196,6 +196,14 @@ To do so, we recommend using tools such as [audible-tools.github.io](https://git
 
 To do so, we recommend using tools such as [audible-cli](https://github.com/mkb79/audible-cli).
 
+### Why is the volume (series-part) a `float`?
+
+Some volumes, particularly series bonuses, are displayed as volume “1.1” or “1.2.” This is why the default volume is a `float`. During the build, this `float` is converted to an `int` if the `float` is one.
+
+### Why is the Audible metadata incomplete?
+
+Audible sometimes has poorly written metadata, especially for series and their volumes. `audiobook-tool` has a solution for web scraping and improving the metadata found. But in some cases, if the metadata is too limited, the result may be questionable.
+
 ## License
 
 [MIT License](https://github.com/ewilan-riviere/audiobook-tool/blob/main/LICENSE)
