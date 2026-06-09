@@ -31,7 +31,6 @@ class AudiobookBlacksmith(AutoRepr):
         return self._output_path
 
     def _get_reader(self, path: Path):
-        # pylint: disable=import-outside-toplevel
         from audiobook.audio import AudioReader
 
         return AudioReader(path)

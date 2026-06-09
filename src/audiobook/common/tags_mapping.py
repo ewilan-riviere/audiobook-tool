@@ -50,4 +50,5 @@ TAGS_MAPPING: Dict[str, Dict[str, Union[str, List[str]]]] = {
     "asin": {"mp3": "TXXX:ASIN", "m4b": "----:com.apple.iTunes:ASIN"},
     "encoded_by": {"mp3": "TENC", "m4b": "©enc"},
     "encoder": {"mp3": "TSSE", "m4b": "----:com.apple.iTunes:ENCODERSETTINGS"},
+    "release_date": {"mp3": "TDRL", "m4b": "----:com.apple.iTunes:RELEASETIME"},
 }

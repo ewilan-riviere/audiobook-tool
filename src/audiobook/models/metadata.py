@@ -19,6 +19,7 @@ class MetadataAudiobook(AutoRepr):
         self.volume: float | None = data.get("volume")
         self.language: str | None = data.get("language")
         self.year: int | None = data.get("year")
+        self.release_date: int | None = data.get("release_date")
         self.publisher: str | None = data.get("publisher")
         self.subtitle: str | None = data.get("subtitle")
         self.isbn: int | None = data.get("isbn")

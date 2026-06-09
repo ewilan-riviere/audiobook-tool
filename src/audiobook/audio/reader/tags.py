@@ -51,6 +51,8 @@ class AudioTags(AutoRepr):
         self.lyrics = reader.get_tag("lyrics")
         # Audio Publisher
         self.publisher = reader.get_tag("publisher")
+
+        self.release_date = reader.get_tag("release_date")
         # Audio Series
         self.series = reader.get_tag("series")
         # 2
@@ -190,6 +192,7 @@ class AudioTags(AutoRepr):
             "album_artist": self.album_artist if self.album_artist else "",
             "date": self.date if self.date else "",
             "year": self.year if self.year else "",
+            "release_date": self.release_date if self.release_date else "",
             "track": self.track if self.track else "",
             "disc": self.disc if self.disc else "",
             "genre": self.genre if self.genre else "",

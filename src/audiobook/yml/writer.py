@@ -43,6 +43,7 @@ class YmlWriter(AutoRepr):
             "volume": audiobook.volume,
             "language": audiobook.language,
             "year": audiobook.year,
+            "release_date": audiobook.release_date,
             "publisher": audiobook.publisher,
             "subtitle": audiobook.subtitle,
             "isbn": None,

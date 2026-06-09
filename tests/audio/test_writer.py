@@ -54,6 +54,7 @@ def test_writer(path: str):
         "title": None,
         "track": "10/10",
         "date": "1980-11-30",
+        "release_date": "2006-06-01",
     }
     writer = AudioWriter(path)
     writer.set_tags(new_tags)
@@ -84,6 +85,7 @@ def test_writer(path: str):
     assert reader.tags.title == new_tags["title"]
     assert reader.tags.track == new_tags["track"]
     assert reader.tags.date == new_tags["date"]
+    assert reader.tags.release_date == new_tags["release_date"]
     assert reader.tags.year == 1980
     assert reader.tags.has_cover is False
 

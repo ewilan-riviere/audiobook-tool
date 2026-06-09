@@ -49,6 +49,7 @@ class YmlReader(AutoRepr):
         m4b.composer = self.metadata.narrators
         m4b.genre = self.metadata.genres
         m4b.date = str(self.metadata.year) if self.metadata.year else None
+        m4b.release_date = self.metadata.release_date
         m4b.copyright_ = self.metadata.copyright_
         m4b.comment = None
         m4b.description = self.metadata.description

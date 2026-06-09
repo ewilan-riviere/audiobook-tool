@@ -39,6 +39,8 @@ volume: 1.0
 language: "English"
 # Year will be set as `year`
 year: 2005
+# Release date will be set as `releasetime`
+release_date: "2005-06-01"
 # Publisher will be set as `publisher`
 publisher: "HarperCollins Publishers Limited"
 # Subtitle will be set as `subtitle` and `comment`

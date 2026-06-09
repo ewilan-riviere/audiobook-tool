@@ -26,6 +26,7 @@ def test_reader():
     assert metadata.volume == 1.0
     assert metadata.language == "English"
     assert metadata.year == 2005
+    assert metadata.release_date == "2005-06-01"
     assert metadata.publisher == "HarperCollins Publishers Limited"
     assert metadata.subtitle == "One Ring To Rule Them All"
     assert metadata.isbn == 9780007123827

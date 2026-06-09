@@ -87,7 +87,7 @@ audiobook-tool -h
 
 ### Audible
 
-`audible` command will fetch metadata from Audible website (web scraping with [playwright](https://playwright.dev/)) to create `metadata.yml` file and `cover.jpg` file. You need ASIN code available in Audible URL and shortcut for any audiobook, like ASIN code `B0G5SMXT5S` for `https://www.audible.com/pd/B0G5SMXT5S?ipRedirectOverride=true` with _Assassin’s Apprentice (The Farseer Trilogy, Book 1)_ audiobook.
+`audible` command will fetch metadata from Audible website (web scraping with [playwright](https://playwright.dev/)) to create `metadata.yml` file and `cover.jpg` file. You need ASIN code available in Audible URL and shortcut for any audiobook, like ASIN code `B003AO3P5A` for `https://www.audible.com/pd/B003AO3P5A?ipRedirectOverride=true` with _Assassin’s Apprentice (The Farseer Trilogy, Book 1)_ audiobook.
 
 > [!TIP]
 > An ASIN code only works on one Audible domain, and the same book has a different ASIN code between the `.com` and `.fr` domains, for example.
@@ -99,7 +99,7 @@ audiobook-tool audible <ASIN_CODE>
 | Flag       | Alias | Description                      |  Type  | Default |
 | :--------- | :---: | :------------------------------- | :----: | :------ |
 | `--locale` | `-l`  | Audible domain to use            | `str`  | `None`  |
-| `--cover`  | `-c`  | Get cover as `cover.jpg` (500px) | `bool` | `False` |
+| `--cover`  | `-c`  | Get cover as `cover.jpg` (500px) | `bool` | `True` |
 
 If you not set `--locale` flag, CLI will parse all Audible domains to find ASIN audiobook. You can set the `--locale` flag (can be `com`, `co.uk`, `fr`, `de`) to speed up the process.
 
@@ -175,7 +175,9 @@ For cover, just put `cover.jpg` into `/path/to/source_files` and `build` command
 Run tests:
 
 ```sh
-pytest
+uv run pytest
+# or with printing output
+uv run pytest -s
 ```
 
 To know more about tests, check [docs/tests.md](./public/docs/tests.md)

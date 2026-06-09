@@ -1,6 +1,7 @@
 """extract command of audiobook-tool"""
 
 from pathlib import Path
+from audiobook import utils
 from audiobook.args import AudiobookArgs
 from audiobook.audio import AudioType
 from audiobook.m4b import M4bChapterize, M4bExtractor
@@ -27,15 +28,11 @@ class CommandExtract:
         m4b_path = Path(args.m4b_directory).resolve()
 
         container = ContainerAudiobook(m4b_path)
-        container.save_metadata()
+        saved_meta = container.save_metadata()
 
         output_path: Path | None = None
-        if audio_type == AudioType.MP3:
-            extractor = M4bExtractor(container).run(audio_type)
-            output_path = extractor.output_path
-        elif audio_type == AudioType.M4A:
-            extractor = M4bExtractor(container).run(audio_type)
-            output_path = extractor.output_path
+        extractor = M4bExtractor(container).run(audio_type)
+        output_path = extractor.output_path
 
         if not output_path:
             raise FileNotFoundError("Error on output path!")
@@ -44,4 +41,7 @@ class CommandExtract:
             chapters_path=output_path,
             audio_type=audio_type,
             tags=container.audio_tags.to_dict(),
+            cover_path=(
+                saved_meta["cover"] if utils.file_exists(saved_meta["cover"]) else None
+            ),
         ).run()

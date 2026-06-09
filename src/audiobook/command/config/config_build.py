@@ -33,6 +33,8 @@ class ConfigBuild(AutoRepr):
         # Load metadata.yml and get tags
         # /path/to/the-wall/metadata.yml
         self.yml_path = utils.get_file(self.source_path, "yml")
+        self.no_yml_reader = None
+
         reader: YmlReader | None = None
         if self.yml_path:
             reader = YmlReader(self.yml_path).read()
@@ -45,7 +47,11 @@ class ConfigBuild(AutoRepr):
                 files = utils.get_files(source_path, "m4a")
             if files:
                 first_file = files[0]
-                self.audiobook.from_reader_tags(AudioReader(first_file).tags)
+                self.no_yml_reader = AudioReader(first_file)
+                self.audiobook.from_reader_tags(self.no_yml_reader.tags)
+                self.audiobook.title = str(
+                    self.no_yml_reader.tags.album or self.no_yml_reader.tags.title
+                )
 
         # Load cover
         # /path/to/the-wall/cover.jpg
@@ -54,6 +60,12 @@ class ConfigBuild(AutoRepr):
             self.cover_path = utils.get_file(self.source_path, "jpeg")
         if not self.cover_path:
             self.cover_path = utils.get_file(self.source_path, "png")
+        if not self.cover_path:
+            print("NO COVER")
+            if self.no_yml_reader:
+                self.cover_path = self.no_yml_reader.tags.save_cover(
+                    self.no_yml_reader.container.path.parent
+                )
 
         # /path/to/the-wall/Assassin’s Apprentice
         self.output_path = self._handle_output_path(args, reader)

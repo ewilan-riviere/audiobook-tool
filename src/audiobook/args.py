@@ -30,6 +30,7 @@ class AudiobookArgs(AutoRepr):
             "--cover",
             action="store_true",
             help="Save cover locally",
+            default=True,
         )
         m_audible.add_argument(
             "-o",
@@ -87,7 +88,7 @@ class AudiobookArgs(AutoRepr):
 
         # Extract
         m_extract = subparsers.add_parser("extract", help="Extract MP3 files from M4B")
-        m_extract.add_argument("m4b_directory", help="Source directory")
+        m_extract.add_argument("m4b_directory", help="Source directory or .m4b file")
         m_extract.add_argument(
             "-t",
             "--type",
