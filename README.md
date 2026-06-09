@@ -143,6 +143,7 @@ You can create `metadata.yml` file in `/path/to/source_files` to specify tags to
 - `volume`: used as `series-part`
 - `language`: used as `language`
 - `year`: used as `date`
+- `release_date`: used as `releasetime`
 - `publisher`: used as `publisher`
 - `subtitle`: used as `subtitle` and `comment`
 - `isbn`: used as `isbn`
@@ -160,6 +161,7 @@ series: "The Lord of the Rings"
 volume: 1.0
 language: "English"
 year: 2005
+release_date: "2005-06-01"
 publisher: "HarperCollins Publishers Limited"
 subtitle: "One Ring To Rule Them All"
 isbn: 9780007123827
