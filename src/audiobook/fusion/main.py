@@ -41,6 +41,4 @@ class Fusion(AutoRepr):
             tags=self.container.audio_tags.to_dict(),
         ).run()
 
-        utils.rprint_(self)
-
         return self

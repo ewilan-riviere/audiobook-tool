@@ -3,6 +3,7 @@ __pycache__
 .mypy_cache
 .pytest_cache
 audiobook_cli.egg-info
+build
 
 .DS_Store
 .env

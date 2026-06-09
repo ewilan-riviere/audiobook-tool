@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 from dataclasses import dataclass
 from audiobook.common import AutoRepr
 import audiobook.utils as utils
@@ -11,6 +11,11 @@ from audiobook.common import AudioChapter
 if TYPE_CHECKING:
     from audiobook.audio import AudioReader
     from audiobook.audio.reader import AudioTags
+
+
+class MetadataPaths(TypedDict):
+    yml: Path
+    cover: Path
 
 
 @dataclass
@@ -28,11 +33,8 @@ class ContainerAudiobook(AutoRepr):
 
     def __init__(self, audiobook_path: str | Path):
         self.audiobook_path = Path(audiobook_path).resolve()
-        self.m4b_files: list[Path] = utils.get_files(self.audiobook_path, "m4b")
-        if not self.m4b_files:
-            raise FileNotFoundError(
-                f"Path {str(self.audiobook_path)} doesn't have any M4B file!"
-            )
+
+        self._handle_m4b_files()
         self.m4b_parts: int = len(self.m4b_files)
 
         self.audiobook_duration_ms: int = 0
@@ -52,6 +54,7 @@ class ContainerAudiobook(AutoRepr):
                 self.chapters_count = self.chapters_count + len(reader.tags.chapters)
 
         first_m4b = self.m4b_readers[0]
+        first_m4b.tags.title = first_m4b.tags.album
         self.audio_tags = first_m4b.tags
         self.audiobook_duration_ms = self._calculate_duration()
 
@@ -63,18 +66,43 @@ class ContainerAudiobook(AutoRepr):
 
         return self.m4b_files[0]
 
-    def save_metadata(self) -> dict[str, Path]:
-        """Save `metadata.yml` and `cover.jpg` to audiobook directory"""
+    def save_metadata(self) -> MetadataPaths:
+        """Save `metadata.yml` and `cover.jpg` to audiobook directory.
+
+        Returns:
+            dict with keys ``yml`` and ``cover`` pointing to files::
+                {
+                    "yml": PosixPath("/path/to/metadata.yml"),
+                    "cover": PosixPath("path/to/cover.jpg"),
+                }
+        """
+        save_path = self.audiobook_path
+        if save_path.is_file():
+            save_path = save_path.parent
+
         self.audio_tags.save_yml(
-            save_path=self.audiobook_path,
+            save_path=save_path,
             duration=self.audiobook_duration_ms,
         )
-        self.audio_tags.save_cover(self.audiobook_path, "cover")
+        self.audio_tags.save_cover(save_path, "cover")
 
         return {
-            "yml": self.audiobook_path / "metadata.yml",
-            "cover": self.audiobook_path / "cover.jpg",
+            "yml": save_path / "metadata.yml",
+            "cover": save_path / "cover.jpg",
         }
+
+    def _handle_m4b_files(self):
+        if str(self.audiobook_path).endswith(".m4b"):
+            self.m4b_files: list[Path] = [self.audiobook_path]
+            if not self.audiobook_path.exists():
+                self.m4b_files = []
+        else:
+            self.m4b_files: list[Path] = utils.get_files(self.audiobook_path, "m4b")
+
+        if not self.m4b_files:
+            raise FileNotFoundError(
+                f"Path {str(self.audiobook_path)} doesn't have any M4B file!"
+            )
 
     def _calculate_duration(self) -> int:
         audiobook_duration_ms: int = 0

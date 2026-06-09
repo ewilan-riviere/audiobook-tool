@@ -16,10 +16,10 @@ class AudibleExtra(WebScraper):
     scraped_genres: list[str] | None = None
     scraped_categories: list[str] | None = None
     # post_init
-    series_typed: str | None = field(init=False)
-    volume_typed: float | None = field(init=False)
-    title_typed: str | None = field(init=False)
-    genres_typed: list[str] | None = field(init=False, default_factory=list[str])
+    series_typed: str | None = field(init=False, default=None)
+    volume_typed: float | None = field(init=False, default=None)
+    title_typed: str | None = field(init=False, default=None)
+    genres_typed: list[str] | None = field(init=False, default_factory=list)
 
     def run(self):
         """Parse raw data to extract metadata"""
@@ -118,6 +118,9 @@ class AudibleExtra(WebScraper):
 
         # Fallback sur le volume d'origine si l'extraction a échoué
         if parsed_volume is None and hasattr(self, "volume") and self.scraped_part:
+            parsed_volume = float(self.scraped_part)
+
+        if parsed_volume is None and self.scraped_part:
             parsed_volume = float(self.scraped_part)
 
         return parsed_volume

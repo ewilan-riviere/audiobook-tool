@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiobook-cli"
-version = "0.3.1"
+version = "0.5.2"
 description = "Ultimate Python CLI to handle audiobooks."
 readme = "README.md"
 authors = [{ name = "Ewilan Rivière" }]
@@ -17,8 +17,9 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-# deptry .
+# uv run deptry .
 # uv sync
+# uv sync --extra dev
 # uv export --format requirements-txt > requirements.txt
 dependencies = [
   # https://pypi.org/project/importlib-metadata/
@@ -38,7 +39,6 @@ dependencies = [
   "playwright", # import playwright (for Audible web scraping)
   # https://pypi.org/project/playwright-stealth/
   "playwright-stealth", # import playwright_stealth
-  "pytest>=8.0.2",
 ]
 
 [project.scripts]
@@ -52,12 +52,8 @@ package-dir = { "" = "src" }
 
 [tool.deptry]
 known_first_party = ["audiobook"]
-
-[tool.deptry.per_rule_ignores]
-DEP002 = ["pytest", "pytest-cov", "uv"]
-
-[tool.deptry.package_module_name_map]
-uv = "uv"
+package_module_name_map = { uv = "uv" }
+per_rule_ignores = { DEP002 = ["pytest", "pytest-cov", "uv"] }
 
 [dependency-groups]
-dev = ["pytest-cov>=7.0.0"]
+dev = ["deptry>=0.25.1", "pytest-cov>=7.0.0"]

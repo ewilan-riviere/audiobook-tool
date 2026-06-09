@@ -109,6 +109,14 @@ class AudibleAudiobook(AutoRepr):
         return None
 
     @property
+    def release_date(self) -> str | None:
+        """Get release date"""
+        if self.published_at:
+            return self.published_at.strftime("%Y-%m-%d")
+
+        return None
+
+    @property
     def genres_list(self):
         """Get genres"""
         if self.genres_all:

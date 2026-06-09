@@ -15,7 +15,11 @@ class M4bExtractor(AutoRepr):
 
     def __init__(self, container: ContainerAudiobook):
         self.container = container
-        self.output_dir = container.audiobook_path / "extracted_chapters"
+
+        save_path = container.audiobook_path
+        if save_path.is_file():
+            save_path = save_path.parent
+        self.output_dir = save_path / "extracted_chapters"
         self.total_chapters: int = 0
 
         utils.remove_directory(self.output_dir)
@@ -155,6 +159,52 @@ class M4bExtractor(AutoRepr):
 
     def _ffmpeg_m4a(self, input_path: Path, start: str, end: str, output_path: Path):
         """Cuts and stream copy each M4B file to M4A"""
+        # command = [
+        #     "ffmpeg",
+        #     "-y",
+        #     "-loglevel",
+        #     "error",
+        #     "-ss",
+        #     str(start),
+        #     "-to",
+        #     str(end),
+        #     "-i",
+        #     str(input_path),
+        #     "-map",
+        #     "0:a:0",
+        #     "-c",
+        #     "copy",
+        #     "-map_metadata",
+        #     "-1",
+        #     "-vn",
+        #     "-sn",
+        #     "-dn",
+        #     str(output_path),
+        # ]
+        # command = [
+        #     "ffmpeg",
+        #     "-y",
+        #     "-loglevel",
+        #     "error",
+        #     "-ss",
+        #     str(start),
+        #     "-to",
+        #     str(end),
+        #     "-i",
+        #     str(input_path),
+        #     "-map",
+        #     "0:a:0",  # Only audio
+        #     "-c",
+        #     "copy",
+        #     "-reset_timestamps",
+        #     "1",
+        #     "-map_metadata",
+        #     "-1",  # Avoid ghost chapter
+        #     "-vn",
+        #     "-sn",
+        #     "-dn",  # No video/subtitles/data
+        #     str(output_path),
+        # ]
         command = [
             "ffmpeg",
             "-y",
@@ -167,14 +217,18 @@ class M4bExtractor(AutoRepr):
             "-i",
             str(input_path),
             "-map",
-            "0:a:0",  # Only audio
+            "0:a:0",
             "-c",
             "copy",
+            "-reset_timestamps",
+            "1",  # fix timestamps → pas d'edit list bancale
             "-map_metadata",
-            "-1",  # Avoid ghost chapter
+            "-1",
+            "-map_chapters",
+            "-1",  # fix tref → plus de QT chapter track fantôme
             "-vn",
             "-sn",
-            "-dn",  # No video/subtitles/data
+            "-dn",
             str(output_path),
         ]
         subprocess.run(command, check=True)

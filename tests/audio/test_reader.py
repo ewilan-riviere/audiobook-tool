@@ -122,6 +122,7 @@ def test_reader_tags(path: str):
     assert tags.title == "Audio Title"
     assert tags.track == "1/10"
     assert tags.date == "1979-11-30"
+    assert tags.release_date == "2005-06-01"
     assert isinstance(tags.chapters, List)
     assert tags.has_cover is True
     assert isinstance(tags.raw, dict)

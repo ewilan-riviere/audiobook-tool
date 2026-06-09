@@ -30,6 +30,12 @@ class AudiobookArgs(AutoRepr):
             "--cover",
             action="store_true",
             help="Save cover locally",
+            default=True,
+        )
+        m_audible.add_argument(
+            "-o",
+            "--output-path",
+            help="Specify a path to save audible metadata",
         )
 
         # Build
@@ -82,7 +88,7 @@ class AudiobookArgs(AutoRepr):
 
         # Extract
         m_extract = subparsers.add_parser("extract", help="Extract MP3 files from M4B")
-        m_extract.add_argument("m4b_directory", help="Source directory")
+        m_extract.add_argument("m4b_directory", help="Source directory or .m4b file")
         m_extract.add_argument(
             "-t",
             "--type",
@@ -105,7 +111,7 @@ class AudiobookArgs(AutoRepr):
         m_fusion = subparsers.add_parser("fusion", help="Add MP3 files to existing M4B")
         m_fusion.add_argument(
             "audiobook_directory",
-            help="Directory with current audiobook, if audiobook as only one part use parent directory",
+            help="Directory with current audiobook, if audiobook as only one part use parent dir",
         )
         m_fusion.add_argument(
             "source_directory", help="Directory with new chapters as MP3/M4A"

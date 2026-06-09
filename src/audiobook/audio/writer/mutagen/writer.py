@@ -136,7 +136,7 @@ class MutagenWriter:
         """Ajoute ou remplace la couverture de l'album."""
         img_path = Path(image_path)
         if not img_path.exists():
-            raise FileNotFoundError(f"Image introuvable : {img_path}")
+            raise FileNotFoundError(f"Cover not found: {img_path}")
 
         mime = (
             "image/jpeg"
@@ -193,4 +193,13 @@ class MutagenWriter:
             elif k in self.audio:
                 del self.audio[k]
 
+        self.save_audio()
+
+    def remove_tags(self) -> None:
+        """Supprime tous les tags du fichier."""
+        if isinstance(self.audio, MP3):
+            self.audio.tags = None  # Mutagen: supprime tous les tags ID3
+        else:
+            for key in list(self.audio.keys()):  # type: ignore
+                del self.audio[key]
         self.save_audio()

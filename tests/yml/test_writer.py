@@ -55,5 +55,7 @@ def test_writer():
     assert metadata.title == "L'œil d'Otolep"
     assert metadata.series == "Les mondes d'Ewilan"
     assert metadata.volume == 2.0
+    assert metadata.year == 2018
+    assert metadata.release_date == '2018-09-12'
 
     utils.remove_file(writer.save_path)

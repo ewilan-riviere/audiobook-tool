@@ -23,6 +23,7 @@ class M4bAudiobook:
     composer: str | None = None
     genre: str | None = None
     date: str | None = None
+    release_date: str | None = None
     copyright_: str | None = None
     comment: str | None = None
     description: str | None = None
@@ -76,6 +77,7 @@ class M4bAudiobook:
         self.composer = tags.composer
         self.genre = tags.genre
         self.date = tags.date
+        self.release_date = tags.release_date
         self.copyright_ = tags.copyright_
         self.comment = tags.comment
         self.description = tags.description

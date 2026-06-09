@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source srcset="./public/logo-small.webp">
-    <img alt="Tailwind CSS" src="./public/logo-small.webp" height="200" style="max-width: 100%;">
+    <img alt="audiobook-tool" src="./public/logo-small.webp" height="200" style="max-width: 100%;">
   </picture>
 </p>
 
@@ -21,6 +21,12 @@
 
 ---
 
+> [!WARNING]
+> This CLI is still under development; please feel free to report any issues you encounter or share your suggestions in the [issues](https://github.com/kiwilan/audiobook-tool/issues).
+
+> [!TIP]
+> Are you looking for CLI designed to handle **eBooks** and **comics**? Check [kiwilan/book-tool](https://github.com/kiwilan/book-tool).
+
 ## Features
 
 - 📦 Build `M4B` audiobook from `MP3`/`M4A` files
@@ -37,20 +43,13 @@
 
 - [ ] Fix M4A handle
 - [ ] Test for one audiobook
-- [x] Confirm for override metadata/cover
-- [x] Confirm after Audible fetch
 - [ ] Refact. args
 - [ ] Refact clear flag
 - [ ] Review logging
-- [ ] GitHub tests
-- [ ] README
-- [x] Remove part 1 from name if only one part
-- [x] Fix Error Referenced QT chapter track not found
-- [x] Fix Error submitting packet to decoder: Invalid data found when processing input / Header missing
-- [x] Fix chapter name "Les Montagnes de la Folie : Les Montagnes hallucinées (1931)"
 - [ ] extract output path flag
 - [ ] audible output path flag
 - [ ] allow to passe m4b path instead of parent path (for unified audiobook)
+- [ ] publish on PyPI
 
 ## Why?
 
@@ -62,11 +61,33 @@ In addition, when I retrieve metadata from [Audible](https://www.audible.com/), 
 
 The whole thing needed to be flexible and resilient, offering high-quality audiobooks that could be used directly by [audiobookshelf](https://www.audiobookshelf.org/).
 
+## Installation
+
+Activate Python environnement, clone repository and install it with `uv`:
+
+```sh
+git clone https://github.com/kiwilan/audiobook-tool.git
+cd audiobook-tool
+uv tool install .
+```
+
+OR with `pip`
+
+```sh
+pip install .
+```
+
+You can now execute CLI:
+
+```sh
+audiobook-tool -h
+```
+
 ## Usage
 
 ### Audible
 
-`audible` command will fetch metadata from Audible website (web scraping with [playwright](https://playwright.dev/)) to create `metadata.yml` file and `cover.jpg` file. You need ASIN code available in Audible URL and shortcut for any audiobook, like ASIN code `B0G5SMXT5S` for `https://www.audible.com/pd/B0G5SMXT5S?ipRedirectOverride=true` with _Assassin’s Apprentice (The Farseer Trilogy, Book 1)_ audiobook.
+`audible` command will fetch metadata from Audible website (web scraping with [playwright](https://playwright.dev/)) to create `metadata.yml` file and `cover.jpg` file. You need ASIN code available in Audible URL and shortcut for any audiobook, like ASIN code `B003AO3P5A` for `https://www.audible.com/pd/B003AO3P5A?ipRedirectOverride=true` with _Assassin’s Apprentice (The Farseer Trilogy, Book 1)_ audiobook.
 
 > [!TIP]
 > An ASIN code only works on one Audible domain, and the same book has a different ASIN code between the `.com` and `.fr` domains, for example.
@@ -78,7 +99,7 @@ audiobook-tool audible <ASIN_CODE>
 | Flag       | Alias | Description                      |  Type  | Default |
 | :--------- | :---: | :------------------------------- | :----: | :------ |
 | `--locale` | `-l`  | Audible domain to use            | `str`  | `None`  |
-| `--cover`  | `-c`  | Get cover as `cover.jpg` (500px) | `bool` | `False` |
+| `--cover`  | `-c`  | Get cover as `cover.jpg` (500px) | `bool` | `True` |
 
 If you not set `--locale` flag, CLI will parse all Audible domains to find ASIN audiobook. You can set the `--locale` flag (can be `com`, `co.uk`, `fr`, `de`) to speed up the process.
 
@@ -149,53 +170,14 @@ asin: 0008487278
 
 For cover, just put `cover.jpg` into `/path/to/source_files` and `build` command will attach it to M4B audiobook.
 
-## Docker
-
-### Docker compose (recommanded)
-
-```sh
-docker compose up -d
-```
-
-### Docker run
-
-```sh
-docker build -t audiobook-tool .
-```
-
-```sh
-docker run -it \
-  -v "$(pwd):/app/data" \
-  --env-file .env \
-  audiobook-tool
-```
-
-## Using as CLI
-
-With [`uv`](https://docs.astral.sh/uv/)
-
-```sh
-uv sync
-```
-
-Or with `pip`
-
-```sh
-pip install -e .
-```
-
-Use `audiobook-tool` CLI
-
-```sh
-audiobook-tool build ./path/to/source_directory
-```
-
 ## Test
 
 Run tests:
 
 ```sh
-pytest
+uv run pytest
+# or with printing output
+uv run pytest -s
 ```
 
 To know more about tests, check [docs/tests.md](./public/docs/tests.md)

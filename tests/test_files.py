@@ -4,7 +4,6 @@ from typing import Any
 from audiobook import app
 from audiobook import utils
 
-
 RAW_MP3_FILE = "tests/media/raw/mp3-file.mp3"
 RAW_M4B_AAC_FILE = "tests/media/raw/m4b-aac-file.m4b"
 RAW_M4B_ALAC_FILE = "tests/media/raw/m4b-alac-file.m4b"
@@ -36,6 +35,7 @@ AUDIOBOOKS = [AUDIOBOOK_MP3, AUDIOBOOK_M4A]
 AUDIOBOOKS_IDS = ["AUDIOBOOK_MP3", "AUDIOBOOK_M4A"]
 AUDIOBOOK_MP3_FILES = "tests/media/audiobook/mp3"
 AUDIOBOOK_M4A_FILES = "tests/media/audiobook/m4a"
+AUDIOBOOK_MP3_ONLY_FILES = "tests/media/audiobook/mp3-only"
 AUDIOBOOK_FILES = [AUDIOBOOK_MP3_FILES, AUDIOBOOK_M4A_FILES]
 AUDIOBOOK_FILES_IDS = ["MP3", "M4A"]
 

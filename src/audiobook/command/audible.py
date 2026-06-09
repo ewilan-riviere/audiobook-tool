@@ -16,13 +16,16 @@ class CommandAudible:
             raise Exception("ASIN code is needed!")
 
         audible = Audible(args.asin, args.locale)
-        current_dir = Path(os.getcwd()).resolve()
-        metadata_yml = audible.save_metadata(current_dir)
+        save_path = Path(os.getcwd()).resolve()
+        if self.args.output_path:
+            save_path = Path(self.args.output_path)
+
+        metadata_yml = audible.save_metadata(save_path)
         metadata_yml_path = Path(metadata_yml).resolve()
 
         cover_path: Path | None = None
         if args.cover:
-            cover_path = audible.audiobook.save_cover(current_dir)
+            cover_path = audible.audiobook.save_cover(save_path)
 
         print(f"Audible metadata are available: {metadata_yml_path}")
         if cover_path:

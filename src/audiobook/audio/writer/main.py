@@ -33,6 +33,10 @@ class AudioWriter:
         """Delete specific tag on audio file"""
         return self._writer.remove_tag(key)
 
+    def remove_tags(self):
+        """Delete all tags on audio file"""
+        return self._writer.remove_tags()
+
     def remove_cover(self):
         """Delete cover on audio file"""
         return self._writer.remove_cover()
