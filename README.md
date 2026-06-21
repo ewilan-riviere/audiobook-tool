@@ -35,7 +35,7 @@
 - 📏 Write chapters into `M4B` based on source files `title` tag
 - ✂️ Split `M4B` file into multiple parts OR keep only one file
 - 🔒 Preserve chapters when splitting, does not break chapters between parts
-- 💾 Handle metadata from [`metadata.yml`](./metadata.template.yml) and `cover.jpg` inside audiobook directory
+- 💾 Handle metadata from [`metadata.yml`](./src/audiobook/templates/metadata.template.yml) and `cover.jpg` inside audiobook directory
 - 📤 Extract chapters from `M4B` audiobook and convert to `M4A`/`MP3`
 - 🔖 Parse `M4B` audiobook to convert tags to `YAML` file
 

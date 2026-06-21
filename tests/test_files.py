@@ -47,7 +47,7 @@ FUSION_FILES = "tests/media/fusion"
 
 OUTPUT_PATH = "tests/media/output"
 
-YML_TEMPLATE = "metadata.template.yml"
+YML_TEMPLATE = "src/audiobook/templates/metadata.template.yml"
 
 
 def output_path(file_path: str) -> Path:
