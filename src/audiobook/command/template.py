@@ -13,7 +13,7 @@ class CommandTemplate:
 
         template_path = Path(__file__).parent.parent / "templates" / "metadata.template.yml"
 
-        dest = Path(self._args.source_directory) / template_path.name
+        dest = Path(self._args.source_directory) / "metadata.yml"
         dest.write_bytes(template_path.read_bytes())
 
         print(f"`metadata.yml` available at {dest}")

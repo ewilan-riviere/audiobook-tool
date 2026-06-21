@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiobook-cli"
-version = "0.5.3"
+version = "0.5.5"
 description = "Ultimate Python CLI to handle audiobooks."
 readme = "README.md"
 authors = [{ name = "Ewilan Rivière" }]
@@ -61,3 +61,11 @@ dev = ["deptry>=0.25.1", "pytest-cov>=7.0.0"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/audiobook"]
 include = ["src/audiobook/templates/*"]
+
+[tool.hatch.build]
+include = [
+  "src/audiobook/templates/*",
+]
+
+[tool.setuptools.package-data]
+audiobook = ["templates/*"]
