@@ -11,12 +11,9 @@ class CommandTemplate:
     def __init__(self, args: AudiobookArgs):
         self._args = args
 
-        # source_files: Path = Path(str()).resolve()
-        template_path = Path(__file__).parent / "templates" / "template.txt"
-        print(template_path)
-        # if source_files.is_file():
-        #     source_files = source_files.parent
+        template_path = Path(__file__).parent.parent / "templates" / "metadata.template.yml"
 
-        # container = ContainerAudiobook(source_files)
-        # # TODO FIX PARSE AUDIOBOOK
-        # ui_utils.rprint_(container)
+        dest = Path(self._args.source_directory) / template_path.name
+        dest.write_bytes(template_path.read_bytes())
+
+        print(f"`metadata.yml` available at {dest}")
