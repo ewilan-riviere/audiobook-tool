@@ -123,6 +123,14 @@ audiobook-tool build /path/to/source_files
 
 \*: ABOUT SPLIT
 
+### Template
+
+`template` command will copy `metadata.yml` template into your source directory.
+
+```sh
+audiobook-tool template /path/to/source_files
+```
+
 #### Metadata & cover
 
 > [!TIP]
@@ -130,7 +138,7 @@ audiobook-tool build /path/to/source_files
 
 ##### Metadata
 
-You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./metadata.template.yml) as example. These metadata are based on [audiobookshelf's Audio Metadata](https://www.audiobookshelf.org/docs#book-audio-metadata).
+You can create `metadata.yml` file in `/path/to/source_files` to specify tags to use for M4B audiobook, you can use [`metadata.template.yml`](./src/audiobook/templates/metadata.template.yml) as example. These metadata are based on [audiobookshelf's Audio Metadata](https://www.audiobookshelf.org/docs#book-audio-metadata).
 
 - `title`: used as `title` and `album`
 - `authors`: used as `artist` and `album_artist`

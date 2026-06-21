@@ -126,6 +126,12 @@ class AudiobookArgs(AutoRepr):
             help="Path of audio file",
         )
 
+        # Template
+        m_template = subparsers.add_parser(
+            "template", help="Print metadata.yml into directory"
+        )
+        m_template.add_argument("source_directory", help="Source directory")
+
         args: Namespace = parser.parse_args()
         self.command: str = args.command
 
@@ -164,7 +170,7 @@ class AudiobookArgs(AutoRepr):
             )
 
         if (
-            self.command in ["build", "clean", "forge", "fusion"]
+            self.command in ["build", "clean", "forge", "fusion", "template"]
             and self.source_directory is None
         ):
             parser.error(

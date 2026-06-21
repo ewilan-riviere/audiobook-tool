@@ -14,6 +14,7 @@ from .command import (
     CommandForge,
     CommandFusion,
     CommandParse,
+    CommandTemplate,
 )
 
 
@@ -53,6 +54,8 @@ def main() -> None:
             CommandFusion(args)
         elif args.command == "parse":
             CommandParse(args)
+        elif args.command == "template":
+            CommandTemplate(args)
     except Exception as e:  # pylint: disable=broad-exception-caught
         logging.getLogger("audiobook.cli").error("Error: %s", e)
         sys.exit(1)

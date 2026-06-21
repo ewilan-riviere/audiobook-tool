@@ -57,3 +57,7 @@ per_rule_ignores = { DEP002 = ["pytest", "pytest-cov", "uv"] }
 
 [dependency-groups]
 dev = ["deptry>=0.25.1", "pytest-cov>=7.0.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/audiobook"]
+include = ["src/audiobook/templates/*"]

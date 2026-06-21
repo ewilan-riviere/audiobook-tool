@@ -6,6 +6,7 @@ from .extract import CommandExtract
 from .forge import CommandForge
 from .fusion import CommandFusion
 from .parse import CommandParse
+from .template import CommandTemplate
 
 __all__ = [
     "CommandAudible",
@@ -15,4 +16,5 @@ __all__ = [
     "CommandForge",
     "CommandFusion",
     "CommandParse",
+    "CommandTemplate",
 ]
