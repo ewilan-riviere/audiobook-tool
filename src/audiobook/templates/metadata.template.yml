@@ -10,7 +10,7 @@
 # Note: If you place a file named ‘cover.jpg’ or ‘cover.png’ in the
 # same folder, it will automatically be used as the cover art.
 
-# Based on https://www.audiobookshelf.org/docs#book-audio-metadata
+# Based on https://audiobookshelf.org/docs/documentation/libraries/book-library/directory-structure#file-metadata
 
 # Final title will be `The Lord of the Rings 01: The Fellowship of the Ring`
 # Title will be set as `title` and `album`
